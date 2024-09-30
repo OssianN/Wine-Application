@@ -7,13 +7,13 @@ export const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex items-center space-x-2">
-      <SunIcon />
+    <div className="flex items-center gap-1">
+      <SunIcon size={16} />
       <Switch
         checked={theme === 'dark'}
         onCheckedChange={checked => setTheme(checked ? 'dark' : 'light')}
       />
-      <MoonIcon />
+      <MoonIcon size={16} />
     </div>
   );
 };

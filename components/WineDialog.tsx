@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import { buttonVariants } from './ui/button';
 import {
@@ -22,12 +23,13 @@ export const WineDialog = ({ wine, open, onOpenChange }: WineDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="p-8">
         <DialogHeader className="flex flex-col items-center">
           <div className="relative h-64 w-full">
             <Image
-              className="object-contain p-8"
+              className="object-contain p-8 pt-0"
               fill={true}
+              sizes="200"
               src={`https:${wine.img}`}
               alt={''}
             />
@@ -40,7 +42,7 @@ export const WineDialog = ({ wine, open, onOpenChange }: WineDialogProps) => {
         <Separator />
 
         <div className="flex flex-col justify-center items-center ">
-          <div className="grid grid-cols-3 divide-x-2 divide-white pb-8">
+          <div className="grid grid-cols-3 pb-8">
             <p className="text-center px-4">{wine.year}</p>
             <p className="text-center px-4">
               <span>{wine.price}</span>

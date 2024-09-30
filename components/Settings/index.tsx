@@ -6,7 +6,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '../ui/drawer';
-import { Button } from '../ui/button';
 import { ThemeSwitcher } from '../ThemeSwitcher';
 import { X as Close } from 'lucide-react';
 
@@ -18,16 +17,15 @@ type SettingsPanelProps = {
 export const SettingsPanel = ({ open, onOpenChange }: SettingsPanelProps) => {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="px-4 h-full md:h-1/2">
+      <DrawerContent
+        className="px-4 h-full md:h-1/2"
+        aria-describedby={undefined}
+      >
         <DrawerHeader className="flex justify-between items-center">
-          <DrawerTitle>Settings</DrawerTitle>
-
           <ThemeSwitcher />
-
+          <DrawerTitle className="self-center">Settings</DrawerTitle>
           <DrawerClose>
-            <Button variant="ghost">
-              <Close />
-            </Button>
+            <Close />
           </DrawerClose>
         </DrawerHeader>
         <div className="px-4"></div>

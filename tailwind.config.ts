@@ -2,6 +2,11 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: 'class',
+  variants: {
+    extend: {
+      boxShadow: ['dark'],
+    },
+  },
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -51,6 +56,13 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+      },
+      boxShadow: {
+        dark: '0 5px 20px rgb(36, 36, 36)',
+      },
+      backgroundImage: {
+        'linear-gradient': 'linear-gradient(to bottom, transparent,  #1d4ed8)',
+        'radial-gradient': 'radial-gradient(#1d4ed8 0, transparent 50%)',
       },
       borderRadius: {
         lg: 'var(--radius)',

@@ -9,23 +9,17 @@ import {
   TableRow,
 } from './ui/table';
 import { flexRender } from '@tanstack/react-table';
+import { useContext } from 'react';
+import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
 import type { Wine } from '@/types';
-import { WineDialog } from './WineDialog';
-import { useState } from 'react';
 
 type WineTableProps = {
   data: Wine[];
 };
 
 export const WineTable = ({ data }: WineTableProps) => {
-  const [selectedWine, setSelectedWine] = useState<Wine | null>(null);
-  const [openWineDialog, setOpenWineDialog] = useState(false);
   const table = useWineTable(data);
-
-  const handleOpenWineDialog = (wine: Wine) => {
-    setSelectedWine(wine);
-    setOpenWineDialog(true);
-  };
+  const { handleOpenWineDialog } = useContext(WineDetailsDialogContext);
 
   return (
     <>
@@ -60,12 +54,6 @@ export const WineTable = ({ data }: WineTableProps) => {
           ))}
         </TableBody>
       </Table>
-
-      <WineDialog
-        wine={selectedWine}
-        open={openWineDialog}
-        onOpenChange={setOpenWineDialog}
-      />
     </>
   );
 };

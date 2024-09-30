@@ -1,4 +1,6 @@
 import { ThemeProvider } from '@/providers/ThemeProvider';
+import { WineDetailsDialogProvider } from '@/providers/WineDetailsDialogProvider';
+import { SearchProvider } from '@/providers/SearchProvider';
 import './globals.css';
 import type { Metadata } from 'next';
 
@@ -16,7 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <WineDetailsDialogProvider>
+          <SearchProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </SearchProvider>
+        </WineDetailsDialogProvider>
       </body>
     </html>
   );

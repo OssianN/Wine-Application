@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
 import type { Wine } from '@/types';
 import { SearchContext } from '@/providers/SearchProvider';
+import { BlueBackground } from '../ui/blue-light-background';
 
 type WineCardProps = {
   wine: Wine;
@@ -27,12 +28,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
         <span>{wine.shelf + 1}</span>:<span>{wine.column + 1}</span>
       </p>
 
-      <div
-        className="hidden dark:block blur-2xl absolute self-center bg-linear-gradient w-1/3 h-1/3 rounded-full -z-10"
-        style={{
-          transform: ' translate3d(0, 0, 0)',
-        }}
-      />
+      <BlueBackground />
 
       <Image
         key={wine._id}
@@ -40,7 +36,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
         height={200}
         src={`https:${wine.img}`}
         alt={wine.title}
-        className="drop-shadow-2xl group-hover:drop-shadow-none group-hover:scale-110 transition-all duration-300"
+        className="drop-shadow-2xl group-hover:drop-shadow-none group-hover:scale-110 transition-all duration-500"
       />
 
       <h3 className="text-l truncate w-full pt-2">{wine.title}</h3>

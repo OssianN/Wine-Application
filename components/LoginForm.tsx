@@ -1,13 +1,6 @@
 'use client';
 import { login } from '@/lib/session';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from './ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useForm } from 'react-hook-form';
@@ -36,7 +29,6 @@ export const LoginForm = () => {
               <FormControl>
                 <Input {...field} className="resize-none" />
               </FormControl>
-              <FormDescription>Sarch for a movie title.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -49,7 +41,6 @@ export const LoginForm = () => {
               <FormControl>
                 <Input {...field} className="resize-none" type="password" />
               </FormControl>
-              <FormDescription>Sarch for a movie title.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

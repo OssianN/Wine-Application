@@ -23,7 +23,7 @@ export const SettingsPanel = ({ open, onOpenChange }: SettingsPanelProps) => {
       >
         <DrawerHeader className="flex justify-between items-center">
           <ThemeSwitcher />
-          <DrawerTitle className="self-center">Settings</DrawerTitle>
+
           <DrawerClose>
             <Close />
           </DrawerClose>

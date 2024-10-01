@@ -1,5 +1,5 @@
 'use client';
-import { WineDialog } from '@/components/WineDialog';
+import { WineDialog } from '@/components/Dashboard/WineDialog';
 import { Wine } from '@/types';
 import {
   createContext,

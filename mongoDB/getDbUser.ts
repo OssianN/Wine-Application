@@ -1,6 +1,6 @@
 'use server';
 import bcrypt from 'bcryptjs';
-import connectMongo from '.';
+import { connectMongo } from './';
 import UserDataBase from './user-schema';
 import { User } from '@/types';
 

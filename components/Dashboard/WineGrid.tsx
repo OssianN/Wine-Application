@@ -1,9 +1,10 @@
 'use client';
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { WineCard } from './WineCard';
-import type { User, Wine } from '@/types';
 import { AddWineCard } from './AddWineCard';
 import { SearchContext } from '@/providers/SearchProvider';
+import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
+import type { User, Wine } from '@/types';
 
 type WineGridProps = {
   data: Wine[];
@@ -12,6 +13,11 @@ type WineGridProps = {
 
 export const WineGrid = ({ data, user }: WineGridProps) => {
   const { searchTerm } = useContext(SearchContext);
+  const { setOpenWineDialog } = useContext(WineDetailsDialogContext);
+
+  useEffect(() => {
+    setOpenWineDialog(false);
+  }, [setOpenWineDialog]);
 
   const wineList = useMemo(
     () =>

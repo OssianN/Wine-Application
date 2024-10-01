@@ -19,6 +19,13 @@ export type Wine = {
   archived: boolean;
   img: string;
   rating: string;
-  price: string;
+  price: number;
+  vivinoUrl: string;
+};
+
+export type ScrapingResult = {
+  img: string;
+  rating: string;
+  country: string;
   vivinoUrl: string;
 };

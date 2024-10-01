@@ -7,9 +7,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
+} from '../ui/table';
 import { flexRender } from '@tanstack/react-table';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
 import type { Wine } from '@/types';
 
@@ -19,7 +19,13 @@ type WineTableProps = {
 
 export const WineTable = ({ data }: WineTableProps) => {
   const table = useWineTable(data);
-  const { handleOpenWineDialog } = useContext(WineDetailsDialogContext);
+  const { handleOpenWineDialog, setOpenWineDialog } = useContext(
+    WineDetailsDialogContext
+  );
+
+  useEffect(() => {
+    setOpenWineDialog(false);
+  }, [setOpenWineDialog]);
 
   return (
     <>

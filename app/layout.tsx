@@ -1,8 +1,10 @@
 import { ThemeProvider } from '@/providers/ThemeProvider';
-import { WineDetailsDialogProvider } from '@/providers/WineDetailsDialogProvider';
+import { WineDetailsDialogProvider } from '@/providers/WineDialogProvider';
 import { SearchProvider } from '@/providers/SearchProvider';
 import './globals.css';
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'My Wine Shelf',
@@ -13,15 +15,16 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="flex min-w-[100vw] min-h-[100vh]">
         <WineDetailsDialogProvider>
           <SearchProvider>
             <ThemeProvider>{children}</ThemeProvider>
           </SearchProvider>
+          <Toaster />
         </WineDetailsDialogProvider>
       </body>
     </html>

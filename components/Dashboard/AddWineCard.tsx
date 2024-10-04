@@ -1,5 +1,7 @@
 import { PlusCircle } from 'lucide-react';
 import { Button } from '../ui/button';
+import WineDetailsDialogContext from '@/providers/WineDialogProvider';
+import { useContext } from 'react';
 
 type AddWineCardProps = {
   id: string;
@@ -9,6 +11,13 @@ export const AddWineCard = ({ id }: AddWineCardProps) => {
   const [shelf, column] = id.split(':');
   const shelfNumber = Number(shelf) + 1;
   const columnNumber = Number(column) + 1;
+
+  const { handleOpenWineFormDialog } = useContext(WineDetailsDialogContext);
+
+  const handleOpenForm = () => {
+    handleOpenWineFormDialog({ shelf, column });
+  };
+
   return (
     <Button
       key={id}
@@ -19,6 +28,7 @@ export const AddWineCard = ({ id }: AddWineCardProps) => {
         gridColumn: columnNumber,
       }}
       variant="ghost"
+      onClick={handleOpenForm}
     >
       <p className="absolute top-4 left-4 text-sm">
         <span>{shelfNumber}</span>:<span>{columnNumber}</span>

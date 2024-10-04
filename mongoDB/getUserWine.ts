@@ -7,9 +7,9 @@ import type { Wine } from '@/types';
 export const getUserWine = async (_id: string): Promise<Wine[]> => {
   await connectMongo();
 
-  const user = await UserDataBase.findById({
+  const userDb = await UserDataBase.findById({
     _id,
-  }).select('wineList');
+  });
 
-  return await WineDataBase.find({ _id: { $in: [...user.wineList] } });
+  return await WineDataBase.find({ _id: { $in: [...userDb.wineList] } });
 };

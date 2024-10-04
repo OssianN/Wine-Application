@@ -1,24 +1,34 @@
 'use server';
 import WineDataBase from '../mongoDB/wine-schema';
+import UserDataBase from './user-schema';
 import getVivinoData from '../scraping/cheerio';
 import { connectMongo } from './';
 import { ScrapingResult } from '@/types';
+import { getUserSession } from '@/lib/session';
+import { revalidatePath } from 'next/cache';
 
-export const postNewWine = async (formData: FormData) => {
+export const postNewWine = async <T>(
+  _: unknown,
+  formData: FormData,
+  column?: string,
+  shelf?: string
+) => {
   try {
     const title = formData.get('title') as string;
     const year = Number(formData.get('year'));
     const price = Number(formData.get('price'));
     const comment = formData.get('comment') as string;
-    const shelf = Number(formData.get('shelf'));
-    const column = Number(formData.get('column'));
-
-    const [scraping] = await Promise.all([
+    const [scraping, session] = await Promise.all([
       getVivinoData(title, year),
+      getUserSession(),
       connectMongo(),
     ]);
-    const { img, rating, country, vivinoUrl } = scraping as ScrapingResult;
 
+    if (!session.user) {
+      throw new Error('User not found');
+    }
+
+    const { img, rating, country, vivinoUrl } = scraping as ScrapingResult;
     const wine = new WineDataBase({
       title,
       country,
@@ -31,10 +41,26 @@ export const postNewWine = async (formData: FormData) => {
       rating,
       vivinoUrl,
     });
-    const response = await wine.save();
-    console.log(response);
-    // return await response.json();
+
+    session.user.wineList.push(wine._id);
+
+    await Promise.all([
+      UserDataBase.findOneAndUpdate(
+        { _id: session.user._id },
+        { wineList: session.user.wineList },
+        { new: true }
+      ),
+      wine.save(),
+      session.save(),
+    ]);
+
+    revalidatePath('/dashboard');
+    return { isSubmitted: true } as T;
   } catch (err) {
     console.error(err, 'wines / post new wine');
+    return {
+      error: true,
+      errorMessage: 'Sorry, could not add new wine.',
+    } as T;
   }
 };

@@ -16,28 +16,42 @@ import { postNewWine } from '@/mongoDB/postNewWine';
 import { Wine } from '@/types';
 import { updateWine } from '@/mongoDB/updateWine';
 import { cn } from '@/lib/utils';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import {
+  useContext,
+  useEffect,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { title } from 'process';
+import WineDetailsDialogContext from '@/providers/WineDialogProvider';
 
 type WineFormProps = {
   wine?: Wine | null;
-  setOpenWineForm: Dispatch<SetStateAction<boolean>>;
+  setOpenWineForm?: Dispatch<SetStateAction<boolean>>;
+  column?: string;
+  shelf?: string;
 };
 
-export const WineForm = ({ wine, setOpenWineForm }: WineFormProps) => {
-  const initialState = {
-    title: wine?.title ?? '',
-    year: String(wine?.year) ?? '',
-    price: String(wine?.price) ?? '',
-    comment: wine?.comment ?? '',
-    column: wine?.column ?? undefined,
-    shelf: wine?.shelf ?? undefined,
-  };
+export const initialState: {
+  isSubmitted?: boolean;
+  error?: undefined;
+  errorMessage?: '';
+  updatedWine?: Wine;
+} = {};
 
-  const serverAction = updateWine;
-
-  const [state, formAction] = useFormState(serverAction, initialState);
+export const WineForm = ({
+  wine,
+  setOpenWineForm,
+  column,
+  shelf,
+}: WineFormProps) => {
+  const serverAction = (prev: unknown, formData: FormData) =>
+    wine
+      ? updateWine<typeof initialState>(prev, formData, wine?._id ?? '')
+      : postNewWine<typeof initialState>(prev, formData, column, shelf);
+  const { setOpenWineFormDialog, setOpenWineDialog, handleOpenWineDialog } =
+    useContext(WineDetailsDialogContext);
+  const [formState, formAction] = useFormState(serverAction, initialState);
 
   const form = useForm<WineFormType>({
     mode: 'all',
@@ -48,16 +62,24 @@ export const WineForm = ({ wine, setOpenWineForm }: WineFormProps) => {
       year: String(wine?.year) ?? '',
       price: String(wine?.price) ?? '',
       comment: wine?.comment ?? '',
-      column: wine?.column ?? undefined,
-      shelf: wine?.shelf ?? undefined,
     },
   });
 
-  console.log(state);
+  useEffect(() => {
+    if (!formState?.isSubmitted) return;
+
+    if (setOpenWineForm) {
+      setOpenWineForm(false);
+    }
+
+    if (formState.updatedWine) {
+      handleOpenWineDialog(formState.updatedWine);
+    }
+  }, [formState, setOpenWineForm, setOpenWineFormDialog]);
 
   return (
     <Form {...form}>
-      <form action={formAction} className="flex flex-col gap-8">
+      <form action={e => formAction(e)} className="flex flex-col gap-8">
         <FormField
           control={form.control}
           name="title"
@@ -120,7 +142,6 @@ export const WineForm = ({ wine, setOpenWineForm }: WineFormProps) => {
               <FormControl>
                 <Input
                   {...field}
-                  disabled
                   className={cn('resize-none', hideNumberSpinners)}
                   type="number"
                 />
@@ -136,7 +157,6 @@ export const WineForm = ({ wine, setOpenWineForm }: WineFormProps) => {
               <FormControl>
                 <Input
                   {...field}
-                  disabled
                   className={cn('resize-none', hideNumberSpinners)}
                   type="number"
                 />
@@ -160,17 +180,29 @@ export const WineForm = ({ wine, setOpenWineForm }: WineFormProps) => {
           )}
         />
         <div className="w-full flex justify-between">
-          <Button
-            variant="outline"
-            type="button"
-            onClick={() => setOpenWineForm(false)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit">Submit</Button>
+          {setOpenWineForm && (
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setOpenWineForm(false)}
+            >
+              Cancel
+            </Button>
+          )}
+          <SubmitButton />
         </div>
       </form>
     </Form>
+  );
+};
+
+const SubmitButton = () => {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={pending}>
+      Submit
+    </Button>
   );
 };
 
@@ -185,6 +217,7 @@ const wineFormSchema = z.object({
   comment: z.string().optional(),
   column: z.number(),
   shelf: z.number(),
+  _id: z.string().optional(),
 });
 
 type WineFormType = z.infer<typeof wineFormSchema>;

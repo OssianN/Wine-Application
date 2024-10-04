@@ -1,9 +1,10 @@
 'use client';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useEffect, useState } from 'react';
-import { WineForm } from '../WineForm';
+import { WineForm } from '@/components/WineForm';
 import { WineDetails } from './WineDetails';
 import type { Wine } from '@/types';
+import { WineDialogHeader } from './WineDialogHeader';
 
 type WineDialogProps = {
   wine: Wine | null;
@@ -23,9 +24,22 @@ export const WineDialog = ({ wine, open, onOpenChange }: WineDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="p-8 overflow-y-scroll max-h-full">
+        <DialogContent className="p-8 overflow-auto max-h-full">
           {openWineForm ? (
-            <WineForm wine={wine} setOpenWineForm={setOpenWineForm} />
+            <>
+              <WineDialogHeader
+                title="Edit Wine"
+                description={
+                  <>
+                    <span>Edit wine at </span>
+                    <span className="text-neutral-100">
+                      {Number(wine?.shelf) + 1}:{Number(wine?.column) + 1}
+                    </span>
+                  </>
+                }
+              />
+              <WineForm wine={wine} setOpenWineForm={setOpenWineForm} />
+            </>
           ) : (
             <WineDetails
               wine={wine}

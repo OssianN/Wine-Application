@@ -1,10 +1,10 @@
 'use client';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { WineCard } from './WineCard';
 import { AddWineCard } from './AddWineCard';
 import { SearchContext } from '@/providers/SearchProvider';
-import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
 import type { User, Wine } from '@/types';
+import { useWineList } from '@/hooks/useWineList';
 
 type WineGridProps = {
   data: Wine[];
@@ -13,28 +13,11 @@ type WineGridProps = {
 
 export const WineGrid = ({ data, user }: WineGridProps) => {
   const { searchTerm } = useContext(SearchContext);
-  const { setOpenWineDialog } = useContext(WineDetailsDialogContext);
+  const wineList = useWineList(data, searchTerm);
 
-  useEffect(() => {
-    setOpenWineDialog(false);
-  }, [setOpenWineDialog]);
-
-  const wineList = useMemo(
-    () =>
-      data
-        .filter(wine =>
-          wine.title.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .sort((a, b) => {
-          if (`${a.shelf}${a.column}` < `${b.shelf}${b.column}`) return -1;
-          if (`${a.shelf}${a.column}` > `${b.shelf}${b.column}`) return 1;
-          return 0;
-        }),
-    [data, searchTerm]
-  );
   const getEmptySlots = useMemo(() => {
     const allSlots = [];
-    const wineSlots = data.map(wine => {
+    const wineSlots = wineList.map(wine => {
       return `${wine.shelf}:${wine.column}`;
     });
 
@@ -45,7 +28,7 @@ export const WineGrid = ({ data, user }: WineGridProps) => {
     }
 
     return allSlots.filter(slot => !wineSlots.includes(slot));
-  }, [data, user.columns, user.shelves]);
+  }, [user.columns, user.shelves, wineList]);
 
   return (
     <div className="w-full overflow-x-scroll">

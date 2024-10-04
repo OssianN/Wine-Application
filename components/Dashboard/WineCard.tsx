@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useContext } from 'react';
-import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
+import { WineDetailsDialogContext } from '@/providers/WineDialogProvider';
 import type { Wine } from '@/types';
 import { SearchContext } from '@/providers/SearchProvider';
 import { BlueBackground } from '../ui/blue-light-background';

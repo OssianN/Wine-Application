@@ -1,8 +1,10 @@
+import { DashboardSubRoutes } from '@/app/dashboard/layout';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Archive, Grid, Table } from 'lucide-react';
 
 type WineInterfaceMenubarProps = {
-  value: string;
-  onValueChange: (value: string) => void;
+  value: DashboardSubRoutes;
+  onValueChange: (value: DashboardSubRoutes) => void;
 };
 export const WineInterfaceNav = ({
   value,
@@ -12,12 +14,19 @@ export const WineInterfaceNav = ({
     <Tabs
       defaultValue="grid"
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={v => onValueChange(v as DashboardSubRoutes)}
       className="w-[400px]"
     >
       <TabsList>
-        <TabsTrigger value="grid">Grid</TabsTrigger>
-        <TabsTrigger value="table">Table</TabsTrigger>
+        <TabsTrigger value="grid">
+          <Grid />
+        </TabsTrigger>
+        <TabsTrigger value="table">
+          <Table />
+        </TabsTrigger>
+        <TabsTrigger value="archived">
+          <Archive />
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

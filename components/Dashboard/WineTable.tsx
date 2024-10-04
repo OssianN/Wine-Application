@@ -9,23 +9,22 @@ import {
   TableRow,
 } from '../ui/table';
 import { flexRender } from '@tanstack/react-table';
-import { useContext, useEffect } from 'react';
-import { WineDetailsDialogContext } from '@/providers/WineDetailsDialogProvider';
+import { useContext } from 'react';
+import { WineDetailsDialogContext } from '@/providers/WineDialogProvider';
+import { useWineList } from '@/hooks/useWineList';
+import { SearchContext } from '@/providers/SearchProvider';
 import type { Wine } from '@/types';
 
 type WineTableProps = {
   data: Wine[];
+  isArchived?: boolean;
 };
 
-export const WineTable = ({ data }: WineTableProps) => {
-  const table = useWineTable(data);
-  const { handleOpenWineDialog, setOpenWineDialog } = useContext(
-    WineDetailsDialogContext
-  );
-
-  useEffect(() => {
-    setOpenWineDialog(false);
-  }, [setOpenWineDialog]);
+export const WineTable = ({ data, isArchived }: WineTableProps) => {
+  const { searchTerm } = useContext(SearchContext);
+  const wineList = useWineList(data, searchTerm, isArchived);
+  const table = useWineTable(wineList);
+  const { handleOpenWineDialog } = useContext(WineDetailsDialogContext);
 
   return (
     <>

@@ -24,13 +24,13 @@ export const useWineTable = (data: Wine[]) => {
           alt="Vivino Image"
           width={200}
           height={400}
-          className="min-w-32"
+          className="min-w-32 max-w-48"
         />
       ),
       header: () => <span></span>,
     }),
     columnHelper.accessor('title', {
-      cell: info => info.getValue(),
+      cell: info => <p className="w-32">{info.getValue()}</p>,
       invertSorting: true,
       header: ({ column }) => (
         <Button variant="ghost" onClick={() => column.toggleSorting()}>
@@ -40,7 +40,7 @@ export const useWineTable = (data: Wine[]) => {
       ),
     }),
     columnHelper.accessor('country', {
-      cell: info => info.getValue(),
+      cell: info => <p className="w-32">{info.getValue()}</p>,
       invertSorting: true,
       header: ({ column }) => (
         <Button variant="ghost" onClick={() => column.toggleSorting()}>

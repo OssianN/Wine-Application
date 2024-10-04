@@ -1,11 +1,11 @@
 import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
-import { DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { EditWineMenu } from './EditWineMenu';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
+import { WineDialogHeader } from './WineDialogHeader';
 import type { Wine } from '@/types';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -29,11 +29,22 @@ export const WineDetails = ({
 
   return (
     <>
-      <DialogHeader className="flex flex-col items-center">
+      <WineDialogHeader
+        title={
+          <>
+            <span>{wine.title}</span>
+            <span>
+              <Dot className="inline" />
+            </span>
+            <span className="text-neutral-500">{wine.country}</span>
+          </>
+        }
+        description={wine.comment}
+      >
         <EditWineMenu
           handleArchive={handleArchive}
           setOpenWineForm={setOpenWineForm}
-          className="absolute top-3 left-4"
+          className="absolute top-3 left-4 focus-within:outline-none focus:outline-none"
         />
 
         <div className="relative h-64 w-full">
@@ -42,20 +53,11 @@ export const WineDetails = ({
             fill={true}
             sizes="200"
             src={`https:${wine.img}`}
-            alt={''}
+            alt="wine image"
           />
         </div>
         <BlueBackground className="opacity-70" />
-
-        <DialogTitle className="pb-2">
-          <span>{wine.title}</span>
-          <span>
-            <Dot className="inline" />
-          </span>
-          <span className="text-neutral-400">{wine.country}</span>
-        </DialogTitle>
-        <DialogDescription>{wine.comment}</DialogDescription>
-      </DialogHeader>
+      </WineDialogHeader>
 
       <Separator className="my-4" />
 

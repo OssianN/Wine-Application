@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { WineDetailsDialogProvider } from '@/providers/WineProvider';
 import { SearchProvider } from '@/providers/SearchProvider';
+import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import type { Metadata } from 'next';
@@ -19,6 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <Analytics />
       <body className="min-w-[100vw] min-h-[100vh]">
         <WineDetailsDialogProvider>
           <SearchProvider>

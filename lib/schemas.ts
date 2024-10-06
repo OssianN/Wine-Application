@@ -30,3 +30,8 @@ export const wineFormSchema = z.object({
   shelf: z.number(),
   _id: z.string().optional(),
 });
+
+export const storageSizeSchema = z.object({
+  shelves: z.string().min(1, { message: 'Must be at least 1' }),
+  columns: z.string().min(1, { message: 'Must be at least 1' }),
+});

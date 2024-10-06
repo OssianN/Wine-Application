@@ -15,6 +15,7 @@ import { updateStorageSize } from '@/mongoDB/updateStorageSize';
 import { z } from 'zod';
 import { useFormState } from 'react-dom';
 import { useEffect } from 'react';
+import { storageSizeSchema } from '@/lib/schemas';
 import type { User } from '@/types';
 
 type ChangeStorageFormProps = {
@@ -98,10 +99,5 @@ export const ChangeStorageForm = ({
     </Form>
   );
 };
-
-const storageSizeSchema = z.object({
-  shelves: z.string().min(1, { message: 'Must be at least 1' }),
-  columns: z.string().min(1, { message: 'Must be at least 1' }),
-});
 
 type StorageSizeType = z.infer<typeof storageSizeSchema>;

@@ -22,9 +22,10 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import { WineContext } from '@/providers/WineProvider';
-import { Loader2 } from 'lucide-react';
+import { SubmitButton } from '../SubmitButton';
+import { wineFormSchema } from '@/lib/schemas';
 
 type WineFormProps = {
   wine?: Wine | null;
@@ -197,36 +198,12 @@ export const WineForm = ({
               Cancel
             </Button>
           )}
-          <SubmitButton />
+          <SubmitButton buttonText="Submit" />
         </div>
       </form>
     </Form>
   );
 };
-
-const SubmitButton = () => {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button className="w-20" type="submit" disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : 'Submit'}
-    </Button>
-  );
-};
-
-const wineFormSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, { message: 'At least one character' })
-    .max(70, { message: 'Max 70 characters.' }),
-  year: z.string(),
-  price: z.string(),
-  comment: z.string().optional(),
-  column: z.number(),
-  shelf: z.number(),
-  _id: z.string().optional(),
-});
 
 type WineFormType = z.infer<typeof wineFormSchema>;
 

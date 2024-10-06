@@ -8,10 +8,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '../ui/input';
-import { Button } from '../ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { SubmitButton } from '../SubmitButton';
+import { loginFormSchema } from '@/lib/schemas';
 
 export const LoginForm = () => {
   const form = useForm<LoginFormType>({
@@ -51,17 +52,10 @@ export const LoginForm = () => {
             </FormItem>
           )}
         />
-        <Button className="w-full" type="submit">
-          Log in
-        </Button>
+        <SubmitButton buttonText="Log in" />
       </form>
     </Form>
   );
 };
-
-const loginFormSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string(),
-});
 
 type LoginFormType = z.infer<typeof loginFormSchema>;

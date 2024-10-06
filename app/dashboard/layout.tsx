@@ -28,7 +28,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <main className="p-4 lg:p-12 max-w-[100vw]">
+    <main className="p-4 pt-16 lg:p-12 lg:pt-16 max-w-[100vw]">
       <Header
         wineInterface={wineInterface}
         setWineinterface={setWineinterface}

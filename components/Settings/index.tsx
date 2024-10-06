@@ -12,26 +12,19 @@ import { AlignRight, X as Close } from 'lucide-react';
 import { useState } from 'react';
 import { ChangeStorageForm } from './ChangeStorageForm';
 import { CardComponent } from '../Card';
-import type { User, Wine } from '@/types';
 import { logout } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { StorageData } from './StorageData';
+import type { User, Wine } from '@/types';
+import type { StorageDataType } from '@/lib/getStorageData';
 
 type SettingsPanelProps = {
   user: Pick<User, 'columns' | 'shelves' | 'name'>;
   wineList: Wine[];
-  storageData: {
-    totalCost: number;
-    averageYear: number;
-    averagePrice: number;
-  };
+  storageData: StorageDataType;
 };
 
-export const SettingsPanel = ({
-  user,
-  wineList,
-  storageData,
-}: SettingsPanelProps) => {
+export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -68,10 +61,7 @@ export const SettingsPanel = ({
             title="Storage information"
             description="Here's some information about your storage"
           >
-            <StorageData
-              {...storageData}
-              totalNumberOfBottles={wineList.length}
-            />
+            <StorageData {...storageData} />
           </CardComponent>
 
           <CardComponent

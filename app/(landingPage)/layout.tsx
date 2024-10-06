@@ -13,7 +13,7 @@ export default async function LandingPageLayout({
   if (isLoggedId) redirect('/dashboard');
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-full min-w-full p-4 overflow-y-auto">
+    <div className="flex flex-col justify-center items-center min-h-[100vh] min-w-[100vw] p-4 overflow-y-auto">
       <h1 className="text-3xl text-center pb-8">
         This is the wine we wine about
       </h1>

@@ -10,7 +10,7 @@ type HeaderProps = {
 
 export const Header = ({ wineInterface, setWineinterface }: HeaderProps) => {
   return (
-    <div className="flex justify-between items-center gap-2 w-full fixed top-0 py-4 bg-background z-50">
+    <div className="flex justify-between items-center gap-2 w-full fixed top-0 pr-8 py-4 bg-background z-50">
       <Search />
       <WineInterfaceNav
         value={wineInterface}

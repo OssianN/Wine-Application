@@ -43,7 +43,7 @@ export const SettingsPanel = ({
         <AlignRight />
       </DrawerTrigger>
       <DrawerContent
-        className="px-4 h-full md:max-h-[80%]"
+        className="px-4 w-full overflow-x-hidden h-full md:max-h-[80%]"
         aria-describedby={undefined}
       >
         <DrawerHeader className="flex justify-center relative">

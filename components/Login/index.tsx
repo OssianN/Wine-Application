@@ -7,7 +7,7 @@ export const Login = () => {
   return (
     <CardComponent
       title="Log in"
-      description="Your wines are waiting for you."
+      description="Your wines are waiting for you!"
       footer={
         <Link
           href="/register"

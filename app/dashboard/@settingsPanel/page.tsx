@@ -13,11 +13,5 @@ export default async function SettingsPage() {
   const wineList = await getUserWine(session.user._id);
   const storageData = getStorageData(wineList);
 
-  return (
-    <SettingsPanel
-      user={session.user}
-      wineList={JSON.parse(JSON.stringify(wineList))}
-      storageData={storageData}
-    />
-  );
+  return <SettingsPanel user={session.user} storageData={storageData} />;
 }

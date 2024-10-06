@@ -1,3 +1,5 @@
+import { StorageDataItem } from './StorageDataItem';
+
 type StorageDataProps = {
   totalNumberOfBottles: number;
   totalCost: number;
@@ -12,28 +14,26 @@ export const StorageData = ({
   averagePrice,
 }: StorageDataProps) => {
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col gap-4 pt-8">
-        <p>
-          <span className="text-neutral-500">Total cost of all wines:</span>
-          <span className="text-xl pl-4">{totalCost} kr</span>
-        </p>
-        <p>
-          <span className="text-neutral-500">
-            Total number of wine bottles:
-          </span>
-          <span className="text-xl pl-4">{totalNumberOfBottles}</span>
-        </p>
-        <p>
-          <span className="text-neutral-500">Average year of all wines:</span>
-          <span className="text-xl pl-4">{Math.floor(averageYear)}</span>
-        </p>
+    <div className="flex flex-col gap-4">
+      <StorageDataItem
+        description="Total cost of all wines:"
+        value={`${totalCost} kr`}
+      />
 
-        <p>
-          <span className="text-neutral-500">Average price of all wines:</span>
-          <span className="text-xl pl-4">{Math.floor(averagePrice)}</span>
-        </p>
-      </div>
+      <StorageDataItem
+        description="Total number of wine bottles:"
+        value={String(totalNumberOfBottles)}
+      />
+
+      <StorageDataItem
+        description="Average year of all wines:"
+        value={String(Math.floor(averageYear))}
+      />
+
+      <StorageDataItem
+        description="Average price of all wines:"
+        value={String(Math.floor(averagePrice))}
+      />
     </div>
   );
 };

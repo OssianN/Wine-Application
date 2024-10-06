@@ -15,12 +15,11 @@ import { CardComponent } from '../Card';
 import { logout } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { StorageData } from './StorageData';
-import type { User, Wine } from '@/types';
+import type { User } from '@/types';
 import type { StorageDataType } from '@/lib/getStorageData';
 
 type SettingsPanelProps = {
   user: Pick<User, 'columns' | 'shelves' | 'name'>;
-  wineList: Wine[];
   storageData: StorageDataType;
 };
 
@@ -56,6 +55,7 @@ export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
             Log out
           </Button>
         </DrawerHeader>
+
         <div className="grid grid-cols-1 md:grid-cols-2 overflow-x-hidden overflow-y-auto pt-10 px-4 gap-8 pb-8 justify-items-center max-w-full mx-auto">
           <CardComponent
             title="Storage information"

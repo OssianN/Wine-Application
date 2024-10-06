@@ -5,17 +5,17 @@ import { getUserWine } from '@/mongoDB/getUserWine';
 import { redirect } from 'next/navigation';
 
 export default async function SettingsPage() {
-  const { user } = await getUserSession();
-  if (!user) {
+  const session = await getUserSession();
+  if (!session?.user) {
     redirect('/login');
   }
 
-  const wineList = await getUserWine(user._id);
+  const wineList = await getUserWine(session.user._id);
   const storageData = getStorageData(wineList);
 
   return (
     <SettingsPanel
-      user={user}
+      user={session.user}
       wineList={JSON.parse(JSON.stringify(wineList))}
       storageData={storageData}
     />

@@ -43,7 +43,7 @@ export const SettingsPanel = ({
         <AlignRight />
       </DrawerTrigger>
       <DrawerContent
-        className="px-4 w-full overflow-x-hidden h-full md:max-h-[80%]"
+        className="px-4 w-full h-full md:max-h-[80%]"
         aria-describedby={undefined}
       >
         <DrawerHeader className="flex justify-center relative">
@@ -63,7 +63,7 @@ export const SettingsPanel = ({
             Log out
           </Button>
         </DrawerHeader>
-        <div className="grid grid-cols-1 md:grid-cols-2 pt-10 px-4 overflow-y-auto gap-8 pb-8 justify-items-center max-w-fit mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 overflow-x-hidden overflow-y-auto pt-10 px-4 gap-8 pb-8 justify-items-center max-w-full mx-auto">
           <CardComponent
             title="Storage information"
             description="Here's some information about your storage"

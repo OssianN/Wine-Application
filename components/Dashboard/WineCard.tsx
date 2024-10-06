@@ -39,7 +39,9 @@ export const WineCard = ({ wine }: WineCardProps) => {
         className="drop-shadow-2xl group-hover:drop-shadow-none group-hover:scale-110 transition-all duration-500"
       />
 
-      <h3 className="text-l font-bold truncate w-full pt-2">{wine.title}</h3>
+      <h3 className="text-sm font-bold line-clamp-2 w-full pt-2">
+        {wine.title}
+      </h3>
       <p className="text-sm truncate w-full text-neutral-500">{wine.country}</p>
       <p className="text-sm w-full dark:text-neutral-300">
         <span>{wine.price} </span>

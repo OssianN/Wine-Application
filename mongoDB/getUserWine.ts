@@ -4,7 +4,15 @@ import UserDataBase from './user-schema';
 import WineDataBase from './wine-schema';
 import type { User, Wine } from '@/types';
 
-export const getUserWine = async (_id: string): Promise<Wine[]> => {
+type GetUserWineProps = {
+  _id: string;
+  isArchived?: boolean;
+};
+
+export const getUserWine = async ({
+  _id,
+  isArchived,
+}: GetUserWineProps): Promise<Wine[]> => {
   await connectMongo();
 
   const userDb = await UserDataBase.findById<User>({
@@ -14,6 +22,9 @@ export const getUserWine = async (_id: string): Promise<Wine[]> => {
   if (!userDb) {
     return [];
   }
+  const list = (
+    await WineDataBase.find<Wine>({ _id: { $in: [...userDb.wineList] } })
+  ).filter(wine => !!wine.archived === !!isArchived);
 
-  return await WineDataBase.find({ _id: { $in: [...userDb.wineList] } });
+  return list;
 };

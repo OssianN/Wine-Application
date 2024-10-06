@@ -17,12 +17,11 @@ import type { Wine } from '@/types';
 
 type WineTableProps = {
   data: Wine[];
-  isArchived?: boolean;
 };
 
-export const WineTable = ({ data, isArchived }: WineTableProps) => {
+export const WineTable = ({ data }: WineTableProps) => {
   const { searchTerm } = useContext(SearchContext);
-  const wineList = useWineList(data, searchTerm, isArchived);
+  const wineList = useWineList(data, searchTerm);
   const table = useWineTable(wineList);
   const { handleOpenWineDialog } = useContext(WineContext);
 

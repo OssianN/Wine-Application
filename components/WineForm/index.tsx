@@ -69,7 +69,6 @@ export const WineForm = ({
   });
 
   useEffect(() => {
-    console.log(formState, setOpenWineForm);
     if (!formState?.isSubmitted) return;
 
     if (setOpenWineForm) {

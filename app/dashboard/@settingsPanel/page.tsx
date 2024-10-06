@@ -10,7 +10,7 @@ export default async function SettingsPage() {
     redirect('/login');
   }
 
-  const wineList = await getUserWine(session.user._id);
+  const wineList = await getUserWine({ _id: session.user._id });
   const storageData = getStorageData(wineList);
 
   return <SettingsPanel user={session.user} storageData={storageData} />;

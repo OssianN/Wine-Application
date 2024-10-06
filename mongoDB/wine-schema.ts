@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose'
+import { Schema, model, models } from 'mongoose';
 
 const wineSchema = new Schema({
   title: { type: String },
@@ -12,8 +12,8 @@ const wineSchema = new Schema({
   rating: { type: String },
   price: { type: String },
   vivinoUrl: { type: String },
-})
+});
 
-const WineDataBase = models.wines || model('wines', wineSchema)
+const WineDataBase = models.wines || model('wines', wineSchema);
 
-export default WineDataBase
+export default WineDataBase;

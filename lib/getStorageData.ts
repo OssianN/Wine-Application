@@ -8,9 +8,7 @@ export type StorageDataType = {
 };
 
 export const getStorageData = (wineList: Wine[]): StorageDataType => {
-  const notArchivedWineList = wineList.filter(wine => !wine.archived);
-
-  const { totalCost, totalYear } = notArchivedWineList.reduce(
+  const { totalCost, totalYear } = wineList.reduce(
     (acc, wine) => {
       const winePrice = !isNaN(wine.price) ? Number(wine.price) : 0;
       const wineYear = !isNaN(wine.year) ? Number(wine.year) : 0;
@@ -23,12 +21,12 @@ export const getStorageData = (wineList: Wine[]): StorageDataType => {
   );
 
   const averageYear =
-    totalYear / notArchivedWineList.filter(wine => !isNaN(wine.year)).length;
+    totalYear / wineList.filter(wine => !isNaN(wine.year)).length;
 
   const averagePrice =
-    totalCost / notArchivedWineList.filter(wine => wine.price > 0).length;
+    totalCost / wineList.filter(wine => wine.price > 0).length;
 
-  const totalNumberOfBottles = notArchivedWineList.length;
+  const totalNumberOfBottles = wineList.length;
 
   return { totalCost, totalNumberOfBottles, averageYear, averagePrice };
 };

@@ -15,7 +15,6 @@ export const updateWine = async <T>(
     const year = Number(formData.get('year'));
     const price = Number(formData.get('price'));
     const comment = formData.get('comment') as string;
-    const archived = formData.get('archived') as string;
 
     const [scraping] = await Promise.all([
       getVivinoData(title, year),
@@ -33,7 +32,6 @@ export const updateWine = async <T>(
         year,
         price,
         comment,
-        archived,
         img,
         rating,
         vivinoUrl,

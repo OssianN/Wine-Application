@@ -8,7 +8,8 @@ export default async function Dashboard() {
   if (!session?.user) {
     redirect('/login');
   }
-  const wineList = await getUserWine(session.user._id);
+
+  const wineList = await getUserWine({ _id: session.user._id });
 
   return (
     <WineGrid data={JSON.parse(JSON.stringify(wineList))} user={session.user} />

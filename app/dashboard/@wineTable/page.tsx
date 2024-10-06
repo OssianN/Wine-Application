@@ -9,7 +9,7 @@ export default async function Dashboard() {
     redirect('/login');
   }
 
-  const wineList = await getUserWine(session.user._id);
+  const wineList = await getUserWine({ _id: session.user._id });
 
   return <WineTable data={JSON.parse(JSON.stringify(wineList))} />;
 }

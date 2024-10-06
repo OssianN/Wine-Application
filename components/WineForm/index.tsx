@@ -82,7 +82,7 @@ export const WineForm = ({
     if (formState.updatedWine) {
       handleOpenWineDialog(formState.updatedWine);
     }
-  }, [formState, setOpenWineForm, setOpenWineFormDialog]);
+  }, [formState, handleOpenWineDialog, setOpenWineForm, setOpenWineFormDialog]);
 
   return (
     <Form {...form}>

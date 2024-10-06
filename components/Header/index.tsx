@@ -1,6 +1,5 @@
 import { Search } from '@/components/Search';
 import { WineInterfaceNav } from '@/components/WineInterfaceNav';
-import { SettingsPanel } from '../Settings';
 import type { DashboardSubRoutes } from '@/app/dashboard/layout';
 import type { Dispatch, SetStateAction } from 'react';
 

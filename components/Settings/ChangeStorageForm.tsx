@@ -51,7 +51,7 @@ export const ChangeStorageForm = ({
     if (formState.isSubmitted) {
       onOpenSettingsChange(false);
     }
-  }, [formState.isSubmitted]);
+  }, [formState.isSubmitted, onOpenSettingsChange]);
 
   return (
     <Form {...form}>

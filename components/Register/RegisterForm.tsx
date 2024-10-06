@@ -48,7 +48,7 @@ export const RegisterForm = () => {
     formState?.errors.forEach(({ path, message }) => {
       form.setError(path[0] as keyof RegisterFormType, { message });
     });
-  }, [formState]);
+  }, [formState, form]);
 
   return (
     <Form {...form}>

@@ -1,22 +1,41 @@
 'use server';
 import WineDataBase from './wine-schema';
 import { connectMongo } from './';
-// import UserDataBase from './user-schema';
-import { redirect } from 'next/navigation';
+import UserDataBase from './user-schema';
+import { getUserSession } from '@/lib/session';
+import { revalidatePath } from 'next/cache';
+import type { User } from '@/types';
 
-export const deleteWine = async (_id: string) => {
-  let redirectPath = '/dashboard';
-
+export const deleteWine = async (wineId: string) => {
   try {
-    await connectMongo();
+    const [session] = await Promise.all([
+      await getUserSession(),
+      await connectMongo(),
+    ]);
+
+    if (!session.user) {
+      return null;
+    }
+
+    const userDb = await UserDataBase.findById<User>({
+      _id: session.user._id,
+    });
+
+    if (!userDb) {
+      return [];
+    }
+
+    const updatedList = userDb.wineList.filter(id => id !== wineId);
 
     await Promise.all([
-      WineDataBase.findOneAndDelete({ _id }),
-      // UserDataBase.findOneAndDelete({ _id }); delete wine id
+      WineDataBase.findOneAndDelete({ _id: wineId }),
+      UserDataBase.findOneAndUpdate(
+        { _id: session.user._id },
+        { wineList: updatedList }
+      ),
     ]);
+    revalidatePath('/dashboard');
   } catch (err) {
-    console.log(err, 'wines / delete wine');
-  } finally {
-    if (redirectPath) redirect(redirectPath);
+    console.error(err, 'wines / delete wine');
   }
 };

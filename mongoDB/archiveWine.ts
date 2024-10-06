@@ -1,8 +1,9 @@
 'use server';
 import WineDataBase from './wine-schema';
 import { connectMongo } from '.';
+import { revalidatePath } from 'next/cache';
 
-export const updateWine = async <T>(wineId: string) => {
+export const archiveWine = async <T>(wineId: string) => {
   try {
     await connectMongo();
     await WineDataBase.findOneAndUpdate(
@@ -14,12 +15,8 @@ export const updateWine = async <T>(wineId: string) => {
       }
     );
 
-    return { isSubmitted: true } as T;
+    revalidatePath('/dashboard');
   } catch (e) {
     console.error(e, 'wines / archive new wine');
-    return {
-      error: true,
-      errorMessage: 'Failed to archive wine.',
-    } as T;
   }
 };

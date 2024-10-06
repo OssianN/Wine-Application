@@ -1,12 +1,15 @@
+import { WineContext } from '@/providers/WineProvider';
 import { Wine } from '@/types';
-import { useMemo } from 'react';
+import { set } from 'mongoose';
+import { useContext, useEffect, useMemo } from 'react';
 
 export const useWineList = (
   wineList: Wine[],
   searchTerm: string,
   isArchived?: boolean
-) =>
-  useMemo(
+) => {
+  const { setWineList } = useContext(WineContext);
+  const filteredList = useMemo(
     () =>
       wineList
         .filter(
@@ -21,3 +24,10 @@ export const useWineList = (
         }),
     [isArchived, searchTerm, wineList]
   );
+
+  useEffect(() => {
+    setWineList(filteredList);
+  }, [filteredList, setWineList]);
+
+  return filteredList;
+};

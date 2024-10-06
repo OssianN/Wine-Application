@@ -15,8 +15,8 @@ import { z } from 'zod';
 
 export const LoginForm = () => {
   const form = useForm<LoginFormType>({
-    mode: 'onBlur',
-    reValidateMode: 'onBlur',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: '',
@@ -63,16 +63,5 @@ const loginFormSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string(),
 });
+
 type LoginFormType = z.infer<typeof loginFormSchema>;
-
-// const passwordForm = z
-//   .object({
-//     password: z.string(),
-//     confirm: z.string(),
-//   })
-//   .refine(data => data.password === data.confirm, {
-//     message: "Passwords don't match",
-//     path: ['confirm'], // path of error
-//   });
-
-// passwordForm.parse({ password: 'asdf', confirm: 'qwer' });

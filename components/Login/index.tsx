@@ -1,10 +1,25 @@
-import { LoginFormCard } from './LoginFormCard';
 import { LoginForm } from './LoginForm';
+import { CardComponent } from '../Card';
+import { buttonVariants } from '@/components/ui/button';
+import Link from 'next/link';
 
-export default function Login() {
+export const Login = () => {
   return (
-    <LoginFormCard>
+    <CardComponent
+      title="Log in"
+      description="Your wines are waiting for you."
+      footer={
+        <Link
+          href="/register"
+          className={buttonVariants({
+            variant: 'link',
+          })}
+        >
+          Register
+        </Link>
+      }
+    >
       <LoginForm />
-    </LoginFormCard>
+    </CardComponent>
   );
-}
+};

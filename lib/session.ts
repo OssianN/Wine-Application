@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import type { User } from '@/types';
 
 type SessionData = {
-  user?: User;
+  user?: Omit<User, 'wineList' | 'password'>;
   isLoggedId: boolean;
 };
 
@@ -39,7 +39,17 @@ export const login = async (formData: FormData) => {
     return redirect(`/?error=${error}`);
   }
 
-  session.user = user;
+  if (!user) {
+    return redirect('/?error=Invalid email or password');
+  }
+
+  session.user = {
+    name: user.name,
+    email: user.email,
+    _id: user._id,
+    shelves: user.shelves,
+    columns: user.columns,
+  };
   session.isLoggedId = true;
 
   await session.save();

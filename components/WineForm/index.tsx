@@ -23,7 +23,8 @@ import {
   type SetStateAction,
 } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import WineDetailsDialogContext from '@/providers/WineDialogProvider';
+import { WineContext } from '@/providers/WineProvider';
+import { Loader2 } from 'lucide-react';
 
 type WineFormProps = {
   wine?: Wine | null;
@@ -49,8 +50,9 @@ export const WineForm = ({
     wine
       ? updateWine<typeof initialState>(prev, formData, wine?._id ?? '')
       : postNewWine<typeof initialState>(prev, formData, column, shelf);
-  const { setOpenWineFormDialog, setOpenWineDialog, handleOpenWineDialog } =
-    useContext(WineDetailsDialogContext);
+
+  const { setOpenWineFormDialog, handleOpenWineDialog } =
+    useContext(WineContext);
   const [formState, formAction] = useFormState(serverAction, initialState);
 
   const form = useForm<WineFormType>({
@@ -66,10 +68,15 @@ export const WineForm = ({
   });
 
   useEffect(() => {
+    console.log(formState, setOpenWineForm);
     if (!formState?.isSubmitted) return;
 
     if (setOpenWineForm) {
       setOpenWineForm(false);
+    }
+
+    if (setOpenWineFormDialog) {
+      setOpenWineFormDialog(false);
     }
 
     if (formState.updatedWine) {
@@ -179,9 +186,10 @@ export const WineForm = ({
             </FormItem>
           )}
         />
-        <div className="w-full flex justify-between">
+        <div className="w-full flex justify-end gap-4">
           {setOpenWineForm && (
             <Button
+              className="w-20"
               variant="outline"
               type="button"
               onClick={() => setOpenWineForm(false)}
@@ -200,8 +208,8 @@ const SubmitButton = () => {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
-      Submit
+    <Button className="w-20" type="submit" disabled={pending}>
+      {pending ? <Loader2 className="animate-spin" /> : 'Submit'}
     </Button>
   );
 };

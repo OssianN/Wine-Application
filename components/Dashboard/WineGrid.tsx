@@ -3,12 +3,12 @@ import { useContext, useMemo } from 'react';
 import { WineCard } from './WineCard';
 import { AddWineCard } from './AddWineCard';
 import { SearchContext } from '@/providers/SearchProvider';
-import type { User, Wine } from '@/types';
+import type { SessionUser, Wine } from '@/types';
 import { useWineList } from '@/hooks/useWineList';
 
 type WineGridProps = {
   data: Wine[];
-  user: User;
+  user: SessionUser;
 };
 
 export const WineGrid = ({ data, user }: WineGridProps) => {

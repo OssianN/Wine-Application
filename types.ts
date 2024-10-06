@@ -8,6 +8,14 @@ export type User = {
   shelves: number;
 };
 
+export type SessionUser = {
+  _id: string;
+  name: string;
+  email: string;
+  columns: number;
+  shelves: number;
+};
+
 export type Wine = {
   _id: string;
   title: string;

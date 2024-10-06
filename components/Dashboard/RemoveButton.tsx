@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Archive, Trash2 } from 'lucide-react';
 
-type ArchiveButtonProps = {
-  handleArchive: () => void;
+type RemoveButtonProps = {
+  handleRemove: () => void;
+  isDelete?: boolean;
 };
 
-const ArchiveButton = ({ handleArchive }: ArchiveButtonProps) => {
+export const RemoveButton = ({ handleRemove, isDelete }: RemoveButtonProps) => {
   const { toast, dismiss } = useToast();
 
   return (
@@ -14,29 +16,30 @@ const ArchiveButton = ({ handleArchive }: ArchiveButtonProps) => {
       variant="ghost"
       onClick={() => {
         toast({
-          itemID: 'archive-wine',
+          itemID: 'remove-wine',
           action: (
-            <div>
+            <div className="w-full flex-col gap-4">
               <p className="p-4 text-center">
-                Are you sure you want to archive this wine?
+                Are you sure you want to {isDelete ? 'delete' : 'archive'} this
+                wine?
               </p>
               <div className="flex justify-center gap-4">
                 <Button
                   onClick={() => dismiss()}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 max-w-32"
                 >
-                  No
+                  Cancel
                 </Button>
                 <Button
                   onClick={() => {
-                    handleArchive();
+                    handleRemove();
                     dismiss();
                   }}
                   variant="destructive"
-                  className="flex-1"
+                  className="flex-1 max-w-32"
                 >
-                  Yes
+                  {isDelete ? 'Delete' : 'Archive'}
                 </Button>
               </div>
             </div>
@@ -44,9 +47,8 @@ const ArchiveButton = ({ handleArchive }: ArchiveButtonProps) => {
         });
       }}
     >
-      Archive
+      {isDelete ? <Trash2 /> : <Archive />}
+      <span className="ml-2"> {isDelete ? 'Delete' : 'Archive'}</span>
     </Button>
   );
 };
-
-export default ArchiveButton;

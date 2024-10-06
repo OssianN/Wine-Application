@@ -3,7 +3,7 @@ import WineDataBase from '../mongoDB/wine-schema';
 import UserDataBase from './user-schema';
 import getVivinoData from '../scraping/cheerio';
 import { connectMongo } from './';
-import { ScrapingResult } from '@/types';
+import type { ScrapingResult, User } from '@/types';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 
@@ -42,12 +42,21 @@ export const postNewWine = async <T>(
       vivinoUrl,
     });
 
-    session.user.wineList.push(wine._id);
+    const userDb = await UserDataBase.findById<User>({
+      _id: session.user._id,
+    });
+
+    if (!userDb) {
+      return {
+        error: true,
+        errorMessage: 'Sorry, could not add new wine.',
+      } as T;
+    }
 
     await Promise.all([
       UserDataBase.findOneAndUpdate(
         { _id: session.user._id },
-        { wineList: session.user.wineList },
+        { wineList: [...userDb.wineList, wine._id] },
         { new: true }
       ),
       wine.save(),

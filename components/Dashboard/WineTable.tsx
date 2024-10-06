@@ -10,7 +10,7 @@ import {
 } from '../ui/table';
 import { flexRender } from '@tanstack/react-table';
 import { useContext } from 'react';
-import { WineDetailsDialogContext } from '@/providers/WineDialogProvider';
+import { WineContext } from '@/providers/WineProvider';
 import { useWineList } from '@/hooks/useWineList';
 import { SearchContext } from '@/providers/SearchProvider';
 import type { Wine } from '@/types';
@@ -24,7 +24,7 @@ export const WineTable = ({ data, isArchived }: WineTableProps) => {
   const { searchTerm } = useContext(SearchContext);
   const wineList = useWineList(data, searchTerm, isArchived);
   const table = useWineTable(wineList);
-  const { handleOpenWineDialog } = useContext(WineDetailsDialogContext);
+  const { handleOpenWineDialog } = useContext(WineContext);
 
   return (
     <>

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useContext } from 'react';
-import { WineDetailsDialogContext } from '@/providers/WineDialogProvider';
+import { WineContext } from '@/providers/WineProvider';
 import type { Wine } from '@/types';
 import { SearchContext } from '@/providers/SearchProvider';
 import { BlueBackground } from '../ui/blue-light-background';
@@ -10,7 +10,7 @@ type WineCardProps = {
 };
 
 export const WineCard = ({ wine }: WineCardProps) => {
-  const { handleOpenWineDialog } = useContext(WineDetailsDialogContext);
+  const { handleOpenWineDialog } = useContext(WineContext);
   const { searchTerm } = useContext(SearchContext);
 
   return (

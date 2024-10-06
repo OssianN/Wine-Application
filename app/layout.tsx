@@ -1,10 +1,10 @@
 import { ThemeProvider } from '@/providers/ThemeProvider';
-import { WineDetailsDialogProvider } from '@/providers/WineDialogProvider';
+import { WineDetailsDialogProvider } from '@/providers/WineProvider';
 import { SearchProvider } from '@/providers/SearchProvider';
 import './globals.css';
+import { Toaster } from '@/components/ui/toaster';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'My Wine Shelf',
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="flex min-w-[100vw] min-h-[100vh]">
+      <body className="min-w-[100vw] min-h-[100vh]">
         <WineDetailsDialogProvider>
           <SearchProvider>
             <ThemeProvider>{children}</ThemeProvider>

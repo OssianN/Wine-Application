@@ -3,6 +3,7 @@ import {
   createColumnHelper,
   getCoreRowModel,
   getSortedRowModel,
+  Row,
   SortingState,
   useReactTable,
 } from '@tanstack/react-table';
@@ -15,6 +16,9 @@ export const useWineTable = (data: Wine[]) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const columnHelper = createColumnHelper<Wine>();
 
+  const sortPrice = (a: Row<Wine>, b: Row<Wine>) =>
+    Number(a.original.price) - Number(b.original.price);
+
   const columns = [
     columnHelper.accessor('img', {
       cell: info => (
@@ -24,7 +28,7 @@ export const useWineTable = (data: Wine[]) => {
           alt="Vivino Image"
           width={200}
           height={400}
-          className="min-w-32 max-w-48"
+          className="max-w-32 md:max-w-48"
         />
       ),
       header: () => <span></span>,
@@ -72,6 +76,7 @@ export const useWineTable = (data: Wine[]) => {
     columnHelper.accessor('price', {
       cell: info => info.getValue(),
       sortUndefined: 'last',
+      sortingFn: sortPrice,
       header: ({ column }) => (
         <Button variant="ghost" onClick={() => column.toggleSorting()}>
           Price

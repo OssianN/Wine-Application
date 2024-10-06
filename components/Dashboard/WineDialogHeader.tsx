@@ -19,7 +19,6 @@ export const WineDialogHeader = ({
   return (
     <DialogHeader className="flex flex-col items-center">
       {children}
-
       <DialogTitle className="pb-2">{title}</DialogTitle>
       <DialogDescription>{description}</DialogDescription>
     </DialogHeader>

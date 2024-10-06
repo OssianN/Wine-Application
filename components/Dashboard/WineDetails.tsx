@@ -8,6 +8,7 @@ import { deleteWine } from '@/mongoDB/deleteWine';
 import { WineDialogHeader } from './WineDialogHeader';
 import type { Wine } from '@/types';
 import type { Dispatch, SetStateAction } from 'react';
+import { archiveWine } from '@/mongoDB/archiveWine';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -23,6 +24,11 @@ export const WineDetails = ({
   if (!wine) return null;
 
   const handleArchive = async () => {
+    await archiveWine(wine._id);
+    onOpenChange(false);
+  };
+
+  const handleDelete = async () => {
     await deleteWine(wine._id);
     onOpenChange(false);
   };
@@ -43,7 +49,9 @@ export const WineDetails = ({
       >
         <EditWineMenu
           handleArchive={handleArchive}
+          handleDelete={handleDelete}
           setOpenWineForm={setOpenWineForm}
+          isArchived={wine.archived}
           className="absolute top-3 left-4 focus-within:outline-none focus:outline-none"
         />
 

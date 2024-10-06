@@ -1,27 +1,29 @@
 'use client';
 import { WineDialog } from '@/components/Dashboard/WineDialog';
 import WineFormDialog from '@/components/WineForm/WineFormDialog';
-import { Wine } from '@/types';
 import {
   createContext,
   useState,
+  useCallback,
   type Dispatch,
   type SetStateAction,
   type ReactNode,
-  useCallback,
 } from 'react';
+import type { Wine } from '@/types';
 
-type WineDetailsDialogProviderProps = {
+type WineProviderProps = {
   children: ReactNode;
 };
 
-export const WineDetailsDialogContext = createContext<{
+export const WineContext = createContext<{
   selectedWine: Wine | null;
   openWineDialog: boolean;
   setOpenWineDialog: Dispatch<SetStateAction<boolean>>;
   setOpenWineFormDialog: Dispatch<SetStateAction<boolean>>;
   handleOpenWineFormDialog: (position: Position) => void;
   handleOpenWineDialog: (wine: Wine) => void;
+  setWineList: Dispatch<SetStateAction<Wine[]>>;
+  wineList: Wine[];
 }>({
   selectedWine: null,
   openWineDialog: false,
@@ -29,6 +31,8 @@ export const WineDetailsDialogContext = createContext<{
   setOpenWineFormDialog: () => false,
   handleOpenWineFormDialog: () => {},
   handleOpenWineDialog: () => {},
+  setWineList: () => {},
+  wineList: [],
 });
 
 type Position = {
@@ -36,12 +40,11 @@ type Position = {
   shelf?: string;
 };
 
-export const WineDetailsDialogProvider = ({
-  children,
-}: WineDetailsDialogProviderProps) => {
+export const WineDetailsDialogProvider = ({ children }: WineProviderProps) => {
   const [selectedWine, setSelectedWine] = useState<Wine | null>(null);
   const [openWineDialog, setOpenWineDialog] = useState(false);
   const [openWineFormDialog, setOpenWineFormDialog] = useState(false);
+  const [wineList, setWineList] = useState<Wine[]>([]);
   const [position, setPosition] = useState<Position>({
     column: undefined,
     shelf: undefined,
@@ -58,7 +61,7 @@ export const WineDetailsDialogProvider = ({
   }, []);
 
   return (
-    <WineDetailsDialogContext.Provider
+    <WineContext.Provider
       value={{
         selectedWine,
         openWineDialog,
@@ -66,6 +69,8 @@ export const WineDetailsDialogProvider = ({
         handleOpenWineFormDialog,
         handleOpenWineDialog,
         setOpenWineFormDialog,
+        setWineList,
+        wineList,
       }}
     >
       {children}
@@ -80,8 +85,8 @@ export const WineDetailsDialogProvider = ({
         onOpenChange={setOpenWineFormDialog}
         {...position}
       />
-    </WineDetailsDialogContext.Provider>
+    </WineContext.Provider>
   );
 };
 
-export default WineDetailsDialogContext;
+export default WineContext;

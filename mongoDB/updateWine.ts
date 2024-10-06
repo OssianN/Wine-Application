@@ -44,7 +44,10 @@ export const updateWine = async <T>(
     );
 
     revalidatePath('/dashboard');
-    return { isSubmitted: true, updatedWine } as T;
+    return {
+      isSubmitted: true,
+      updatedWine: JSON.parse(JSON.stringify(updatedWine)),
+    } as T;
   } catch (e) {
     console.error(e, 'wines / update new wine');
     return { error: true, errorMessage: 'Failed to update wine.' } as T;

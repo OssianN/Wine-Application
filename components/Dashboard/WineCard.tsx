@@ -75,7 +75,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
           src={`https:${wine.img}`}
           alt={wine.title}
           style={{ touchAction: 'none' }}
-          className="drop-shadow-2xl group-hover:drop-shadow-none group-hover:scale-110 transition-all duration-500"
+          className="drop-shadow-2xl betterhover:group-hover:drop-shadow-none betterhover:group-hover:scale-110 transition-all duration-500"
         />
 
         <h3 className="text-sm font-bold line-clamp-2 w-full pt-2">

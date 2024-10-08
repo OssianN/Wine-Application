@@ -30,7 +30,10 @@ export const WineTable = ({ data }: WineTableProps) => {
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id} className="hover:bg-inherit">
+            <TableRow
+              key={headerGroup.id}
+              className="betterhover:hover:bg-inherit"
+            >
               {headerGroup.headers.map(header => (
                 <TableHead key={header.id} className="w-[100px] py-4">
                   {flexRender(

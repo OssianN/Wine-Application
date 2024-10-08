@@ -8,7 +8,7 @@ import { ScrapingResult } from '@/types';
 export const updateWine = async <T>(
   _: unknown,
   formData: FormData,
-  _id: string
+  wineId: string
 ) => {
   try {
     const title = formData.get('title') as string;
@@ -24,7 +24,7 @@ export const updateWine = async <T>(
 
     const updatedWine = await WineDataBase.findOneAndUpdate(
       {
-        _id,
+        _id: wineId,
       },
       {
         title,

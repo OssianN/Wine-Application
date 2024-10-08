@@ -17,31 +17,29 @@ export const RemoveButton = ({ handleRemove, isDelete }: RemoveButtonProps) => {
       onClick={() => {
         toast({
           itemID: 'remove-wine',
+          title: isDelete ? 'Delete?' : 'Archive?',
+          description: `Are you sure you want to ${
+            isDelete ? 'delete' : 'archive'
+          } this wine?`,
           action: (
-            <div className="w-full flex-col gap-4">
-              <p className="p-4 text-center">
-                Are you sure you want to {isDelete ? 'delete' : 'archive'} this
-                wine?
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button
-                  onClick={() => dismiss()}
-                  variant="outline"
-                  className="flex-1 max-w-32"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    handleRemove();
-                    dismiss();
-                  }}
-                  variant="destructive"
-                  className="flex-1 max-w-32"
-                >
-                  {isDelete ? 'Delete' : 'Archive'}
-                </Button>
-              </div>
+            <div className="flex justify-center gap-4 w-full">
+              <Button
+                onClick={() => dismiss()}
+                variant="outline"
+                className="flex-1 max-w-32"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  handleRemove();
+                  dismiss();
+                }}
+                variant="destructive"
+                className="flex-1 max-w-32"
+              >
+                {isDelete ? 'Delete' : 'Archive'}
+              </Button>
             </div>
           ),
         });

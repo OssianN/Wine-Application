@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <Analytics />
-      <body className="min-w-[100vw] min-h-[100vh]">
+      <body className="no-scrollbar">
         <WineDetailsDialogProvider>
           <SearchProvider>
             <ThemeProvider>{children}</ThemeProvider>

@@ -38,8 +38,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
   const dragStyle = {
     transform: `translate3d(${transform?.x || 0}px, ${transform?.y || 0}px, 0)`,
     zIndex: isDragging ? 200 : undefined,
-    background: isDragging ? 'black' : undefined,
-    scale: isDragging ? 0.9 : 1,
+    opacity: isDragging ? 0.9 : 1,
   };
 
   return (
@@ -47,7 +46,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
       <article
         id={wine._id}
         ref={setNodeRefDrag}
-        className="flex flex-col items-center text-center gap-2 rounded-md min-w-32 p-4 relative overflow-hidden cursor-pointer shadow-sm group"
+        className="flex flex-col items-center text-center gap-2 bg-neutral-50 dark:bg-neutral-950 rounded-md min-w-32 p-4 relative overflow-hidden cursor-pointer shadow-sm group"
         onClick={() => handleOpenWineDialog(wine)}
         style={{
           gridRow: !searchTerm ? wine.shelf + 1 : undefined,
@@ -64,6 +63,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
           className="absolute top-4 right-4 text-neutral-500 text-sm z-50"
           {...listeners}
           {...attributes}
+          style={{ touchAction: 'manipulation' }}
         />
 
         <BlueBackground />
@@ -74,6 +74,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
           height={200}
           src={`https:${wine.img}`}
           alt={wine.title}
+          style={{ touchAction: 'none' }}
           className="drop-shadow-2xl group-hover:drop-shadow-none group-hover:scale-110 transition-all duration-500"
         />
 

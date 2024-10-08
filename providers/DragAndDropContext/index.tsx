@@ -1,7 +1,15 @@
 import { useToast } from '@/hooks/use-toast';
 import { moveWine } from '@/mongoDB/moveWine';
 import { CheckCircle2, Loader2 } from 'lucide-react';
-import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
+import {
+  closestCenter,
+  DndContext,
+  useSensor,
+  useSensors,
+  MouseSensor,
+  TouchSensor,
+  type DragEndEvent,
+} from '@dnd-kit/core';
 import type { ReactNode } from 'react';
 
 export const DragAndDropContext = ({ children }: { children: ReactNode }) => {
@@ -48,8 +56,16 @@ export const DragAndDropContext = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const mouseSensor = useSensor(MouseSensor);
+  const touchSensor = useSensor(TouchSensor);
+  const sensors = useSensors(mouseSensor, touchSensor);
+
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+      sensors={sensors}
+    >
       {children}
     </DndContext>
   );

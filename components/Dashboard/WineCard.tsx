@@ -42,17 +42,20 @@ export const WineCard = ({ wine }: WineCardProps) => {
   };
 
   return (
-    <div ref={setNodeRef}>
-      <article
-        id={wine._id}
-        ref={setNodeRefDrag}
-        className="flex flex-col items-center text-center gap-2 bg-neutral-50 dark:bg-neutral-950 rounded-md min-w-32 p-4 relative overflow-hidden cursor-pointer shadow-sm group"
-        onClick={() => handleOpenWineDialog(wine)}
-        style={{
-          gridRow: !searchTerm ? wine.shelf + 1 : undefined,
-          gridColumn: !searchTerm ? wine.column + 1 : undefined,
-          ...dragStyle,
-        }}
+    <article
+      id={wine._id}
+      ref={setNodeRefDrag}
+      className="bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm group"
+      onClick={() => handleOpenWineDialog(wine)}
+      style={{
+        gridRow: !searchTerm ? Number(wine.shelf) + 1 : undefined,
+        gridColumn: !searchTerm ? Number(wine.column) + 1 : undefined,
+        ...dragStyle,
+      }}
+    >
+      <div
+        ref={setNodeRef}
+        className="flex flex-col items-center text-center gap-2 min-w-32 p-4 relative overflow-hidden cursor-pointer"
       >
         <p className="absolute top-4 left-4 text-neutral-500 text-sm">
           <span>{wine.shelf + 1}</span>:<span>{wine.column + 1}</span>
@@ -88,7 +91,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
           <span>{wine.price} </span>
           <span>kr</span>
         </p>
-      </article>
-    </div>
+      </div>
+    </article>
   );
 };

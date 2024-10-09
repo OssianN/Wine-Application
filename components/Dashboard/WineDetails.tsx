@@ -51,9 +51,13 @@ export const WineDetails = ({
           handleArchive={handleArchive}
           handleDelete={handleDelete}
           setOpenWineForm={setOpenWineForm}
-          isArchived={wine.archived}
+          isArchived={!!wine.archived}
           className="absolute top-3 left-4 focus-within:outline-none focus:outline-none"
         />
+
+        <p className="absolute self-center top-2 text-sm text-neutral-500">
+          {wine.shelf + 1}:{wine.column + 1}
+        </p>
 
         <div className="relative h-64 w-full">
           <Image
@@ -83,18 +87,21 @@ export const WineDetails = ({
             </span>
           </p>
         </div>
-        <a
-          className={`${buttonVariants({
-            size: 'lg',
-            variant: 'outline',
-          })} w-48 flex-shrink`}
-          href={wine.vivinoUrl}
-        >
-          <span>Vivino</span>
-          <span>
-            <ChevronRight size={16} />
-          </span>
-        </a>
+
+        {wine.vivinoUrl && (
+          <a
+            className={`${buttonVariants({
+              size: 'lg',
+              variant: 'outline',
+            })} w-48 flex-shrink`}
+            href={wine.vivinoUrl}
+          >
+            <span>Vivino</span>
+            <span>
+              <ChevronRight size={16} />
+            </span>
+          </a>
+        )}
       </div>
     </>
   );

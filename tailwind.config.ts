@@ -58,6 +58,9 @@ const config: Config = {
           '5': 'hsl(var(--chart-5))',
         },
       },
+      backgroundColor: {
+        'neutral-975': 'rgba(13, 13, 13, 1)',
+      },
       boxShadow: {
         dark: '0 5px 20px rgb(36, 36, 36)',
       },

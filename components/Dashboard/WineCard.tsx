@@ -4,7 +4,7 @@ import { WineContext } from '@/providers/WineProvider';
 import { SearchContext } from '@/providers/SearchProvider';
 import { BlueBackground } from '../ui/blue-light-background';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { GripHorizontal } from 'lucide-react';
+import { GripIcon } from 'lucide-react';
 import type { Wine } from '@/types';
 
 type WineCardProps = {
@@ -45,7 +45,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
     <article
       id={wine._id}
       ref={setNodeRefDrag}
-      className="bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm group"
+      className="bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm"
       onClick={() => handleOpenWineDialog(wine)}
       style={{
         gridRow: !searchTerm ? Number(wine.shelf) + 1 : undefined,
@@ -55,19 +55,20 @@ export const WineCard = ({ wine }: WineCardProps) => {
     >
       <div
         ref={setNodeRef}
-        className="flex flex-col items-center text-center gap-2 min-w-32 p-4 relative overflow-hidden cursor-pointer"
+        className="flex flex-col items-center rounded-md text-center gap-2 min-w-32 p-4 relative overflow-hidden cursor-pointer betterhover:hover:scale-[1.03] transition-all duration-300"
       >
         <p className="absolute top-4 left-4 text-neutral-500 text-sm">
           <span>{wine.shelf + 1}</span>:<span>{wine.column + 1}</span>
         </p>
 
-        <GripHorizontal
-          size={16}
-          className="absolute top-4 right-4 text-neutral-500 text-sm z-50"
+        <p
+          className="absolute p-4 top-0 right-0 z-50"
+          style={{ touchAction: 'manipulation' }}
           {...listeners}
           {...attributes}
-          style={{ touchAction: 'manipulation' }}
-        />
+        >
+          <GripIcon size={16} />
+        </p>
 
         <BlueBackground />
 
@@ -78,7 +79,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
           src={`https:${wine.img}`}
           alt={wine.title}
           style={{ touchAction: 'none' }}
-          className="drop-shadow-2xl betterhover:group-hover:drop-shadow-none betterhover:group-hover:scale-110 transition-all duration-500"
+          className="pt-5 drop-shadow-2xl"
         />
 
         <h3 className="text-sm font-bold line-clamp-2 w-full pt-2">

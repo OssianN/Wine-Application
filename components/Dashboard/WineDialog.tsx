@@ -24,7 +24,7 @@ export const WineDialog = ({ wine, open, onOpenChange }: WineDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="p-8 overflow-auto max-h-full">
+        <DialogContent className="px-8 py-16 overflow-auto">
           {openWineForm ? (
             <>
               <WineDialogHeader

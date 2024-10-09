@@ -21,14 +21,14 @@ export type Wine = {
   title: string;
   country: string;
   year: number;
-  comment: string;
+  comment: string | null;
   shelf: number;
   column: number;
-  archived: boolean;
+  archived: boolean | null;
   img: string;
   rating: string;
-  price: number;
-  vivinoUrl: string;
+  price: number | null;
+  vivinoUrl: string | null;
 };
 
 export type ScrapingResult = {

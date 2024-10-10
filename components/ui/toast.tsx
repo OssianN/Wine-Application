@@ -60,25 +60,16 @@ Toast.displayName = ToastPrimitives.Root.displayName;
 const ToastAction = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Action>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
->(({ className, ...props }, forwardRef) => {
-  const ref = useRef<HTMLButtonElement>(null);
-  const usedRef = forwardRef || ref;
-
-  useEffect(() => {
-    (usedRef as RefObject<HTMLButtonElement>).current?.focus();
-  }, []);
-
-  return (
-    <ToastPrimitives.Action
-      ref={usedRef}
-      className={cn(
-        'w-full inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors betterhover:hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:betterhover:hover:border-destructive/30 group-[.destructive]:betterhover:hover:bg-destructive group-[.destructive]:betterhover:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
-        className
-      )}
-      {...props}
-    />
-  );
-});
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Action
+    ref={ref}
+    className={cn(
+      'w-full inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors betterhover:hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:betterhover:hover:border-destructive/30 group-[.destructive]:betterhover:hover:bg-destructive group-[.destructive]:betterhover:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
+      className
+    )}
+    {...props}
+  />
+));
 ToastAction.displayName = ToastPrimitives.Action.displayName;
 
 const ToastClose = React.forwardRef<

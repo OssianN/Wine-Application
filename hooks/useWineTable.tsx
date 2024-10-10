@@ -19,6 +19,17 @@ export const useWineTable = (data: Wine[]) => {
   const sortPrice = (a: Row<Wine>, b: Row<Wine>) =>
     Number(a.original.price) - Number(b.original.price);
 
+  const sortStorage = (a: Row<Wine>, b: Row<Wine>) => {
+    const { shelf: aShlef, column: aColumn } = a.original;
+    const { shelf: bShelf, column: bColumn } = b.original;
+
+    if (aShlef !== bShelf) {
+      return aShlef - bShelf;
+    }
+
+    return aColumn - bColumn;
+  };
+
   const columns = [
     columnHelper.accessor('img', {
       cell: info => (
@@ -66,6 +77,7 @@ export const useWineTable = (data: Wine[]) => {
     columnHelper.accessor(row => `${row.shelf + 1}:${row.column + 1}`, {
       id: 'column',
       cell: info => info.getValue(),
+      sortingFn: sortStorage,
       header: ({ column }) => (
         <Button variant="ghost" onClick={() => column.toggleSorting()}>
           Storage

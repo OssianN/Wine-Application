@@ -23,15 +23,21 @@ export const wineFormSchema = z.object({
     .trim()
     .min(1, { message: 'At least one character' })
     .max(70, { message: 'Max 70 characters.' }),
-  year: z.string(),
-  price: z.string(),
+  year: z
+    .number()
+    .min(1800, { message: 'Must be after 1800' })
+    .max(new Date().getFullYear(), { message: 'Must this year at the latest' }),
+  price: z.number().optional(),
   comment: z.string().optional(),
-  column: z.number(),
-  shelf: z.number(),
-  _id: z.string().optional(),
 });
 
 export const storageSizeSchema = z.object({
-  shelves: z.string().min(1, { message: 'Must be at least 1' }),
-  columns: z.string().min(1, { message: 'Must be at least 1' }),
+  shelves: z.preprocess(
+    a => parseInt(z.string().parse(a), 10),
+    z.number().positive().min(1, { message: 'Must be at least 1' })
+  ),
+  columns: z.preprocess(
+    a => parseInt(z.string().parse(a), 10),
+    z.number().positive().min(1, { message: 'Must be at least 1' })
+  ),
 });

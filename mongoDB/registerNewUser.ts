@@ -7,12 +7,6 @@ import { getUserSession } from '@/lib/session';
 import { registerFormSchema } from '@/lib/schemas';
 import { redirect } from 'next/navigation';
 
-type RegisterNewUserProps = {
-  name: string;
-  email: string;
-  password: string;
-};
-
 export const registerNewUser = async (_: unknown, formData: FormData) => {
   const formName = formData.get('name') as string;
   const formEmail = formData.get('email') as string;

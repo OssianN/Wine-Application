@@ -3,9 +3,10 @@ import WineDataBase from '../mongoDB/wine-schema';
 import UserDataBase from './user-schema';
 import getVivinoData from '../scraping/cheerio';
 import { connectMongo } from './';
-import type { ScrapingResult, User } from '@/types';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
+import { wineFormSchema } from '@/lib/schemas';
+import type { ScrapingResult, User } from '@/types';
 
 export const postNewWine = async <T>(
   _: unknown,
@@ -14,10 +15,26 @@ export const postNewWine = async <T>(
   shelf?: string
 ) => {
   try {
-    const title = formData.get('title') as string;
-    const year = Number(formData.get('year'));
-    const price = Number(formData.get('price'));
-    const comment = formData.get('comment') as string;
+    const title = formData.get('title');
+    const year = isNaN(Number(formData.get('year')))
+      ? 'string'
+      : Number(formData.get('year'));
+    const price = isNaN(Number(formData.get('price')))
+      ? 'string'
+      : Number(formData.get('price'));
+    const comment = formData.get('comment');
+
+    const parse = wineFormSchema.safeParse({
+      title,
+      year,
+      price,
+      comment,
+    });
+
+    if (!parse.success) {
+      return { errors: parse.error.errors } as T;
+    }
+
     const [scraping, session] = await Promise.all([
       getVivinoData(title, year),
       getUserSession(),
@@ -48,7 +65,6 @@ export const postNewWine = async <T>(
 
     if (!userDb) {
       return {
-        error: true,
         errorMessage: 'Sorry, could not add new wine.',
       } as T;
     }
@@ -60,7 +76,6 @@ export const postNewWine = async <T>(
         { new: true }
       ),
       wine.save(),
-      session.save(),
     ]);
 
     revalidatePath('/dashboard');
@@ -68,7 +83,6 @@ export const postNewWine = async <T>(
   } catch (err) {
     console.error(err, 'wines / post new wine');
     return {
-      error: true,
       errorMessage: 'Sorry, could not add new wine.',
     } as T;
   }

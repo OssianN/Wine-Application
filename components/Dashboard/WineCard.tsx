@@ -62,7 +62,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
         </p>
 
         <p
-          className="absolute p-4 top-0 right-0 z-50"
+          className="absolute p-4 top-0 right-0 text-neutral-500 z-50"
           style={{ touchAction: 'manipulation' }}
           {...listeners}
           {...attributes}

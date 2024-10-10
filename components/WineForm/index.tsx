@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { ZodIssue } from 'zod';
 import { postNewWine } from '@/mongoDB/postNewWine';
 import { Wine } from '@/types';
 import { updateWine } from '@/mongoDB/updateWine';
@@ -35,11 +35,19 @@ type WineFormProps = {
 };
 
 export const initialState: {
+  errors: ZodIssue[];
+  errorMessage?: string;
   isSubmitted?: boolean;
-  error?: undefined;
-  errorMessage?: '';
   updatedWine?: Wine;
-} = {};
+} = {
+  errors: [
+    {
+      path: [],
+      message: '',
+      code: 'custom',
+    },
+  ],
+};
 
 export const WineForm = ({
   wine,
@@ -57,16 +65,23 @@ export const WineForm = ({
   const [formState, formAction] = useFormState(serverAction, initialState);
 
   const form = useForm<WineFormType>({
-    mode: 'all',
-    reValidateMode: 'onBlur',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     resolver: zodResolver(wineFormSchema),
     defaultValues: {
       title: wine?.title ?? '',
-      year: String(wine?.year) ?? '',
-      price: String(wine?.price) ?? '',
+      year: wine?.year ? String(wine?.year) : '',
+      price: wine?.price ? String(wine?.price) : '',
       comment: wine?.comment ?? '',
     },
   });
+
+  useEffect(() => {
+    form.clearErrors();
+    formState?.errors?.forEach(({ path, message }) => {
+      form.setError(path[0] as keyof WineFormType, { message });
+    });
+  }, [formState, form]);
 
   useEffect(() => {
     if (!formState?.isSubmitted) return;
@@ -94,7 +109,7 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" />
+                <Input {...field} className="resize-none" step="1" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -108,14 +123,7 @@ export const WineForm = ({
               <FormItem className="w-full">
                 <FormLabel>Year</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    className={cn('resize-none', hideNumberSpinners)}
-                    type="number"
-                    min="1900"
-                    max="2100"
-                    step="1"
-                  />
+                  <Input {...field} className={cn('resize-none')} step="2" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -130,9 +138,9 @@ export const WineForm = ({
                 <FormControl>
                   <Input
                     {...field}
-                    className={cn('resize-none', hideNumberSpinners)}
-                    type="number"
+                    className={cn('resize-none')}
                     min="0"
+                    step="3"
                   />
                 </FormControl>
                 <FormMessage />
@@ -143,43 +151,12 @@ export const WineForm = ({
 
         <FormField
           control={form.control}
-          name="shelf"
-          render={({ field }) => (
-            <FormItem className="hidden" aria-label="hidden">
-              <FormControl>
-                <Input
-                  {...field}
-                  className={cn('resize-none', hideNumberSpinners)}
-                  type="number"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="column"
-          render={({ field }) => (
-            <FormItem className="hidden" aria-label="hidden">
-              <FormControl>
-                <Input
-                  {...field}
-                  className={cn('resize-none', hideNumberSpinners)}
-                  type="number"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="comment"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>Comment </FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" />
+                <Input {...field} className="resize-none" step="4" />
               </FormControl>
 
               <FormMessage />
@@ -204,7 +181,9 @@ export const WineForm = ({
   );
 };
 
-type WineFormType = z.infer<typeof wineFormSchema>;
-
-const hideNumberSpinners =
-  'appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
+type WineFormType = {
+  title: string;
+  year: string;
+  price: string;
+  comment: string;
+};

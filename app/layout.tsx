@@ -22,11 +22,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <Analytics />
       <body className="no-scrollbar">
+        <Toaster />
         <WineDetailsDialogProvider>
           <SearchProvider>
             <ThemeProvider>{children}</ThemeProvider>
           </SearchProvider>
-          <Toaster />
         </WineDetailsDialogProvider>
       </body>
     </html>

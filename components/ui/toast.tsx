@@ -6,6 +6,7 @@ import * as ToastPrimitives from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
+import { RefObject, useEffect, useRef } from 'react';
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -59,16 +60,25 @@ Toast.displayName = ToastPrimitives.Root.displayName;
 const ToastAction = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Action>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Action
-    ref={ref}
-    className={cn(
-      'w-full inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
-      className
-    )}
-    {...props}
-  />
-));
+>(({ className, ...props }, forwardRef) => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const usedRef = forwardRef || ref;
+
+  useEffect(() => {
+    (usedRef as RefObject<HTMLButtonElement>).current?.focus();
+  }, []);
+
+  return (
+    <ToastPrimitives.Action
+      ref={usedRef}
+      className={cn(
+        'w-full inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors betterhover:hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:betterhover:hover:border-destructive/30 group-[.destructive]:betterhover:hover:bg-destructive group-[.destructive]:betterhover:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
+        className
+      )}
+      {...props}
+    />
+  );
+});
 ToastAction.displayName = ToastPrimitives.Action.displayName;
 
 const ToastClose = React.forwardRef<
@@ -78,7 +88,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      'absolute right-0 top-1 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-1 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600',
+      'absolute right-1 top-1 rounded-md p-1 text-foreground/50 betterhover:hover:text-foreground focus:outline-none focus:ring-1 group-betterhover:hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:betterhover:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600',
       className
     )}
     toast-close=""

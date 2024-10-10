@@ -101,7 +101,10 @@ export const WineForm = ({
 
   return (
     <Form {...form}>
-      <form action={e => formAction(e)} className="flex flex-col gap-8">
+      <form
+        action={e => formAction(e)}
+        className="flex flex-col gap-8 overflow-y-auto"
+      >
         <FormField
           control={form.control}
           name="title"

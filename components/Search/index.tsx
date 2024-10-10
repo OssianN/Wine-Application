@@ -20,7 +20,7 @@ export const Search = () => {
           />
           <Input
             onChange={e => setSearchTerm(e.target.value)}
-            className="resize-none rounded-full p-4"
+            className="resize-none rounded-full"
           />
         </div>
       </FormItem>

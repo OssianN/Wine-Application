@@ -30,7 +30,7 @@ export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger
         onClick={() => setOpen(true)}
-        className="fixed top-[1.4rem] right-4 lg:right-12 p-0 z-50"
+        className="fixed top-6 right-4 lg:right-12 p-0 z-50"
       >
         <AlignRight />
       </DrawerTrigger>

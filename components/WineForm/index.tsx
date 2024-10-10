@@ -101,10 +101,7 @@ export const WineForm = ({
 
   return (
     <Form {...form}>
-      <form
-        action={e => formAction(e)}
-        className="flex flex-col gap-8 overflow-y-auto"
-      >
+      <form action={e => formAction(e)} className="flex flex-col gap-8">
         <FormField
           control={form.control}
           name="title"
@@ -112,7 +109,12 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" step="1" />
+                <Input
+                  {...field}
+                  className="resize-none"
+                  inputMode="text"
+                  step="1"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -126,7 +128,12 @@ export const WineForm = ({
               <FormItem className="w-full">
                 <FormLabel>Year</FormLabel>
                 <FormControl>
-                  <Input {...field} className={cn('resize-none')} step="2" />
+                  <Input
+                    {...field}
+                    className="resize-none"
+                    inputMode="numeric"
+                    step="2"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -141,8 +148,8 @@ export const WineForm = ({
                 <FormControl>
                   <Input
                     {...field}
-                    className={cn('resize-none')}
-                    min="0"
+                    className="resize-none"
+                    inputMode="numeric"
                     step="3"
                   />
                 </FormControl>
@@ -159,7 +166,12 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Comment </FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" step="4" />
+                <Input
+                  {...field}
+                  className="resize-none"
+                  inputMode="text"
+                  step="4"
+                />
               </FormControl>
 
               <FormMessage />

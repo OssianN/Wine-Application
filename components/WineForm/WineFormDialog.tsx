@@ -24,7 +24,7 @@ const WineFormDialog = ({
             <>
               <span>Add a new wine to </span>
               <span className="text-neutral-100 font-bold">
-                self: {Number(shelf) + 1} column: {Number(column) + 1}
+                {Number(shelf) + 1}:{Number(column) + 1}
               </span>
             </>
           }

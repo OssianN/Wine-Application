@@ -5,9 +5,14 @@ export type StorageDataType = {
   averageYear: number;
   totalNumberOfBottles: number;
   averagePrice: number;
+  usedSpacePercentage: number;
 };
 
-export const getStorageData = (wineList: Wine[]): StorageDataType => {
+export const getStorageData = (
+  wineList: Wine[],
+  shelves: number,
+  columns: number
+): StorageDataType => {
   const { totalCost, totalYear } = wineList.reduce(
     (acc, wine) => {
       const winePrice = wine.price ? Number(wine.price) : 0;
@@ -31,5 +36,14 @@ export const getStorageData = (wineList: Wine[]): StorageDataType => {
 
   const totalNumberOfBottles = wineList.length;
 
-  return { totalCost, totalNumberOfBottles, averageYear, averagePrice };
+  const usedSpacePercentage =
+    (totalNumberOfBottles / (shelves * columns)) * 100;
+
+  return {
+    totalCost,
+    totalNumberOfBottles,
+    averageYear,
+    averagePrice,
+    usedSpacePercentage,
+  };
 };

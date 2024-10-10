@@ -11,7 +11,11 @@ export default async function SettingsPage() {
   }
 
   const wineList = await getUserWine({ _id: session.user._id });
-  const storageData = getStorageData(wineList);
+  const storageData = getStorageData(
+    wineList,
+    session.user.shelves,
+    session.user.columns
+  );
 
   return <SettingsPanel user={session.user} storageData={storageData} />;
 }

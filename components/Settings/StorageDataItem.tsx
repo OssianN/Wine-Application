@@ -8,8 +8,8 @@ export const StorageDataItem = ({
   value,
 }: StorageDataItemProps) => {
   return (
-    <p>
-      <span className="text-neutral-500">{description}</span>
+    <p className="w-full flex justify-between">
+      <span className="text-neutral-500 text-sm">{description}</span>
       <span className="text-xl pl-4">{value}</span>
     </p>
   );

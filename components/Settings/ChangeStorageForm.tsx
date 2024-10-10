@@ -39,8 +39,8 @@ export const ChangeStorageForm = ({
     reValidateMode: 'onBlur',
     resolver: zodResolver(storageSizeSchema),
     defaultValues: {
-      shelves: String(user.shelves),
-      columns: String(user.columns),
+      shelves: user.shelves,
+      columns: user.columns,
     },
   });
 

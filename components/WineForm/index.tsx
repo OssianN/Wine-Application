@@ -13,19 +13,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ZodIssue } from 'zod';
 import { postNewWine } from '@/mongoDB/postNewWine';
-import { Wine } from '@/types';
 import { updateWine } from '@/mongoDB/updateWine';
-
+import { useFormState } from 'react-dom';
+import { WineContext } from '@/providers/WineProvider';
+import { SubmitButton } from '../SubmitButton';
+import { wineFormSchema } from '@/lib/schemas';
 import {
   useContext,
   useEffect,
   type Dispatch,
   type SetStateAction,
 } from 'react';
-import { useFormState } from 'react-dom';
-import { WineContext } from '@/providers/WineProvider';
-import { SubmitButton } from '../SubmitButton';
-import { wineFormSchema } from '@/lib/schemas';
+import type { Wine } from '@/types';
 
 type WineFormProps = {
   wine?: Wine | null;
@@ -120,7 +119,7 @@ export const WineForm = ({
             </FormItem>
           )}
         />
-        <div className="flex flex-col gap-8 md:flex-row">
+        <div className="flex gap-8">
           <FormField
             control={form.control}
             name="year"

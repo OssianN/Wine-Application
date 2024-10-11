@@ -39,16 +39,14 @@ export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
         aria-describedby={undefined}
       >
         <DrawerHeader className="flex justify-center relative">
-          <div className="flex flex-col gap-4 items-center">
-            <DrawerTitle className="text-3xl">{user.name}</DrawerTitle>
-            <ThemeSwitcher />
-          </div>
-          <DrawerClose className="absolute top-2 right-2">
+          <DrawerTitle className="text-3xl">{user.name}</DrawerTitle>
+
+          <DrawerClose className="absolute top-2.5 right-2">
             <Close />
           </DrawerClose>
 
           <Button
-            className="absolute top-2 left-2"
+            className="absolute top-1 left-2"
             variant="link"
             onClick={() => logout()}
           >
@@ -56,20 +54,24 @@ export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
           </Button>
         </DrawerHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 overflow-x-hidden overflow-y-auto pt-10 px-4 gap-8 pb-8 justify-items-center max-w-full mx-auto">
-          <CardComponent
-            title="Storage information"
-            description="Here's some information about your storage"
-          >
-            <StorageData {...storageData} />
-          </CardComponent>
+        <div className="flex flex-col items-center gap-4 pt-0 pb-8 px-4 max-w-full mx-auto overflow-x-hidden overflow-y-auto no-scrollbar">
+          <ThemeSwitcher />
 
-          <CardComponent
-            title="Change wine storage"
-            description="Update the size of your storage"
-          >
-            <ChangeStorageForm user={user} onOpenSettingsChange={setOpen} />
-          </CardComponent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
+            <CardComponent
+              title="Storage information"
+              description="Here's some information about your storage"
+            >
+              <StorageData {...storageData} />
+            </CardComponent>
+
+            <CardComponent
+              title="Change wine storage"
+              description="Update the size of your storage"
+            >
+              <ChangeStorageForm user={user} onOpenSettingsChange={setOpen} />
+            </CardComponent>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>

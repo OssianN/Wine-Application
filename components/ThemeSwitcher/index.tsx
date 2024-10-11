@@ -7,7 +7,7 @@ export const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="relative">
+    <div className="w-16 relative">
       <SunIcon
         className="absolute left-2 top-2 pointer-events-none text-neutral-700 z-10"
         size={16}

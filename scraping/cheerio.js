@@ -55,9 +55,8 @@ const getWineRating = html => {
 
 const getAverageWinePrice = async html => {
   try {
-    const winePage = html('.wine-card__image-wrapper')[0].children[0].next
-      .attribs.href;
-    const vivinoLinkSite = await fetch(`https://www.vivino.com${winePage}`);
+    const link = await getWinePageUrl(html);
+    const vivinoLinkSite = await fetch(link);
     const body = await vivinoLinkSite.text();
     const wineHtml = cheerio.load(body);
 
@@ -78,7 +77,9 @@ const getWinePageUrl = async html => {
   try {
     const winePage = html('.wine-card__image-wrapper')[0].children[0].next
       .attribs.href;
-    return `https://www.vivino.com${winePage}`;
+    const wineId = winePage.split('/').at(-1);
+
+    return `https://www.vivino.com/SE/sv/wines/${wineId}`;
   } catch (e) {
     console.error(e);
     return null;

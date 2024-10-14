@@ -11,7 +11,7 @@ export const BlueBackground = ({ className }: BlueBackgroundProps) => (
       className
     )}
     style={{
-      transform: ' translate3d(0, 0, 0)',
+      transform: 'translate3d(0, 0, 0)',
     }}
   />
 );

@@ -48,15 +48,15 @@ export const postNewWine = async <T>(
     const { img, rating, country, vivinoUrl } = scraping as ScrapingResult;
     const wine = new WineDataBase({
       title,
-      country,
+      country: country ?? null,
       year,
       price,
       comment,
+      img: img ?? null,
+      rating: rating ?? null,
+      vivinoUrl: vivinoUrl ?? null,
       shelf,
       column,
-      img,
-      rating,
-      vivinoUrl,
     });
 
     const userDb = await UserDataBase.findById<User>({

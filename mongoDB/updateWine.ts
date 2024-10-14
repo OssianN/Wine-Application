@@ -20,7 +20,8 @@ export const updateWine = async <T>(
       getVivinoData(title, year),
       connectMongo(),
     ]);
-    const { img, rating, country, vivinoUrl } = scraping as ScrapingResult;
+    const { img, rating, country, vivinoUrl } =
+      (scraping as ScrapingResult) ?? {};
 
     const updatedWine = await WineDataBase.findOneAndUpdate(
       {
@@ -28,13 +29,13 @@ export const updateWine = async <T>(
       },
       {
         title,
-        country,
+        country: country ?? null,
         year,
         price,
         comment,
-        img,
-        rating,
-        vivinoUrl,
+        img: img ?? null,
+        rating: rating ?? null,
+        vivinoUrl: vivinoUrl ?? null,
       },
       {
         new: true,

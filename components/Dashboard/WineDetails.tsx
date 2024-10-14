@@ -78,7 +78,7 @@ export const WineDetails = ({
           <p className="text-center px-4">{wine.year}</p>
           <p className="text-center px-4">
             <span>{wine.price}</span>
-            <span>kr</span>
+            <span> kr</span>
           </p>
           <p className="text-center px-4">
             <span>{wine.rating}</span>

@@ -5,34 +5,22 @@ import getVivinoData from '../scraping/cheerio';
 import { connectMongo } from './';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
-import { wineFormSchema } from '@/lib/schemas';
-import type { ScrapingResult, User } from '@/types';
+import { parseWine } from '@/lib/parseWine';
+import { wineDto } from '@/lib/wineDto';
+import type { User } from '@/types';
 
 export const postNewWine = async <T>(
   _: unknown,
   formData: FormData,
-  column?: string,
-  shelf?: string
+  shelfInput?: string,
+  columnInput?: string
 ) => {
   try {
-    const title = formData.get('title');
-    const year = isNaN(Number(formData.get('year')))
-      ? 'string'
-      : Number(formData.get('year'));
-    const price = isNaN(Number(formData.get('price')))
-      ? 'string'
-      : Number(formData.get('price'));
-    const comment = formData.get('comment');
+    const { title, year, price, comment, shelf, column, isError, errors } =
+      parseWine(formData, shelfInput, columnInput);
 
-    const parse = wineFormSchema.safeParse({
-      title,
-      year,
-      price,
-      comment,
-    });
-
-    if (!parse.success) {
-      return { errors: parse.error.errors } as T;
+    if (isError) {
+      return { errors, errorMessage: 'Something went wrong' } as T;
     }
 
     const [scraping, session] = await Promise.all([
@@ -41,22 +29,22 @@ export const postNewWine = async <T>(
       connectMongo(),
     ]);
 
+    const data = wineDto({
+      title,
+      year,
+      price,
+      comment,
+      column,
+      shelf,
+      scraping,
+    });
+
     if (!session.user) {
       throw new Error('User not found');
     }
 
-    const { img, rating, country, vivinoUrl } = scraping as ScrapingResult;
     const wine = new WineDataBase({
-      title,
-      country: country ?? null,
-      year,
-      price,
-      comment,
-      img: img ?? null,
-      rating: rating ?? null,
-      vivinoUrl: vivinoUrl ?? null,
-      shelf,
-      column,
+      ...data,
     });
 
     const userDb = await UserDataBase.findById<User>({

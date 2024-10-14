@@ -32,8 +32,9 @@ export type Wine = {
 };
 
 export type ScrapingResult = {
-  img: string;
-  rating: string;
-  country: string;
-  vivinoUrl: string;
+  img: string | null;
+  rating: string | null;
+  country: string | null;
+  vivinoUrl: string | null;
+  averagePrice: number | null;
 };

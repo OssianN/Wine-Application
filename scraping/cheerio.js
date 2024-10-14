@@ -13,7 +13,7 @@ const getHtmlFromTitle = async (title, year) => {
     const body = await vivinoSite.text();
     return cheerio.load(body);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return null;
   }
 };
@@ -53,21 +53,26 @@ const getWineRating = html => {
   }
 };
 
-// const getWinePagePrice = async html => {
-//   try {
-//     const winePage = html('.wine-card__image-wrapper')[0].children[0].next
-//       .attribs.href;
-//     const vivinoLinkSite = await fetch(`https://www.vivino.com${winePage}`);
-//     const body = await vivinoLinkSite.text();
-//     const wineHtml = cheerio.load(body);
+const getAverageWinePrice = async html => {
+  try {
+    const winePage = html('.wine-card__image-wrapper')[0].children[0].next
+      .attribs.href;
+    const vivinoLinkSite = await fetch(`https://www.vivino.com${winePage}`);
+    const body = await vivinoLinkSite.text();
+    const wineHtml = cheerio.load(body);
 
-//     return wineHtml('span.purchaseAvailabilityPPC__amount--2_4GT')[0]
-//       .children[0].data;
-//   } catch (e) {
-//     console.error(e);
-//     return null;
-//   }
-// };
+    const priceText = wineHtml('span.purchaseAvailabilityPPC__amount--2_4GT')[0]
+      .children[0].data;
+    const priceNumber = priceText.split(' kr')[0];
+
+    if (isNaN(priceNumber)) return null;
+
+    return Math.floor(priceNumber);
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
 
 const getWinePageUrl = async html => {
   try {
@@ -87,15 +92,16 @@ const getVivinoData = async (title, year) => {
       return null;
     }
 
-    const [imgURL, rating, country, vivinoUrl] = await Promise.all([
-      getWineImg(html),
-      getWineRating(html),
-      getWineCountry(html),
-      getWinePageUrl(html),
-      // getWinePagePrice(html),
-    ]);
+    const [imgURL, rating, country, vivinoUrl, averagePrice] =
+      await Promise.all([
+        getWineImg(html),
+        getWineRating(html),
+        getWineCountry(html),
+        getWinePageUrl(html),
+        getAverageWinePrice(html),
+      ]);
 
-    return { img: imgURL[0], rating, country, vivinoUrl };
+    return { img: imgURL[0], rating, country, vivinoUrl, averagePrice };
   } catch (e) {
     console.error(e);
   }

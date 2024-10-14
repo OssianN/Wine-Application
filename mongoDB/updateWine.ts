@@ -3,7 +3,8 @@ import { revalidatePath } from 'next/cache';
 import WineDataBase from '../mongoDB/wine-schema';
 import getVivinoData from '../scraping/cheerio';
 import { connectMongo } from './';
-import { ScrapingResult } from '@/types';
+import { parseWine } from '@/lib/parseWine';
+import { wineDto } from '@/lib/wineDto';
 
 export const updateWine = async <T>(
   _: unknown,
@@ -11,31 +12,36 @@ export const updateWine = async <T>(
   wineId: string
 ) => {
   try {
-    const title = formData.get('title') as string;
-    const year = Number(formData.get('year'));
-    const price = Number(formData.get('price'));
-    const comment = formData.get('comment') as string;
+    const { title, year, price, comment, isError, errors } = parseWine(
+      formData,
+      undefined,
+      undefined,
+      true
+    );
+
+    if (isError) {
+      return { errors, errorMessage: 'Something went wrong' } as T;
+    }
 
     const [scraping] = await Promise.all([
       getVivinoData(title, year),
       connectMongo(),
     ]);
-    const { img, rating, country, vivinoUrl } =
-      (scraping as ScrapingResult) ?? {};
+
+    const data = wineDto({
+      title,
+      year,
+      price,
+      comment,
+      scraping,
+    });
 
     const updatedWine = await WineDataBase.findOneAndUpdate(
       {
         _id: wineId,
       },
       {
-        title,
-        country: country ?? null,
-        year,
-        price,
-        comment,
-        img: img ?? null,
-        rating: rating ?? null,
-        vivinoUrl: vivinoUrl ?? null,
+        ...data,
       },
       {
         new: true,

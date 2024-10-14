@@ -2,6 +2,7 @@
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -51,13 +52,13 @@ export const initialState: {
 export const WineForm = ({
   wine,
   setOpenWineForm,
-  column,
   shelf,
+  column,
 }: WineFormProps) => {
   const serverAction = (prev: unknown, formData: FormData) =>
     wine
       ? updateWine<typeof initialState>(prev, formData, wine?._id ?? '')
-      : postNewWine<typeof initialState>(prev, formData, column, shelf);
+      : postNewWine<typeof initialState>(prev, formData, shelf, column);
 
   const { setOpenWineFormDialog, handleOpenWineDialog } =
     useContext(WineContext);
@@ -152,6 +153,9 @@ export const WineForm = ({
                     step="3"
                   />
                 </FormControl>
+                <FormDescription>
+                  Leave empty for average price from Vivino
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

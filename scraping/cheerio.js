@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { getAverageWinePrice } from './getAveragePrice';
 
 const getHtmlFromTitle = async (title, year) => {
   try {
@@ -53,27 +54,7 @@ const getWineRating = html => {
   }
 };
 
-const getAverageWinePrice = async html => {
-  try {
-    const link = await getWinePageUrl(html);
-    const vivinoLinkSite = await fetch(link);
-    const body = await vivinoLinkSite.text();
-    const wineHtml = cheerio.load(body);
-
-    const priceText = wineHtml('span.purchaseAvailabilityPPC__amount--2_4GT')[0]
-      .children[0].data;
-    const priceNumber = priceText.split(' kr')[0];
-
-    if (isNaN(priceNumber)) return null;
-
-    return Math.floor(priceNumber);
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
-
-const getWinePageUrl = async html => {
+export const getWinePageUrl = async html => {
   try {
     const winePage = html('.wine-card__image-wrapper')[0].children[0].next
       .attribs.href;
@@ -93,14 +74,13 @@ const getVivinoData = async (title, year) => {
       return null;
     }
 
-    const [imgURL, rating, country, vivinoUrl, averagePrice] =
-      await Promise.all([
-        getWineImg(html),
-        getWineRating(html),
-        getWineCountry(html),
-        getWinePageUrl(html),
-        getAverageWinePrice(html),
-      ]);
+    const [imgURL, rating, country, vivinoUrl] = await Promise.all([
+      getWineImg(html),
+      getWineRating(html),
+      getWineCountry(html),
+      getWinePageUrl(html),
+    ]);
+    const averagePrice = await getAverageWinePrice({ link: vivinoUrl });
 
     return { img: imgURL[0], rating, country, vivinoUrl, averagePrice };
   } catch (e) {

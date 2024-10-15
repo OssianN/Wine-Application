@@ -2,13 +2,15 @@ import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
 import { EditWineMenu } from './EditWineMenu';
 import Image from 'next/image';
+import useSwr from 'swr';
 import { Separator } from '../ui/separator';
 import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
 import { WineDialogHeader } from './WineDialogHeader';
+import { archiveWine } from '@/mongoDB/archiveWine';
 import type { Wine } from '@/types';
 import type { Dispatch, SetStateAction } from 'react';
-import { archiveWine } from '@/mongoDB/archiveWine';
+import { Skeleton } from '../ui/skeleton';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -21,6 +23,13 @@ export const WineDetails = ({
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
+  const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+  const { data: vivinoPrice, isLoading } = useSwr(
+    `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}`,
+    fetcher
+  );
+
   if (!wine) return null;
 
   const handleArchive = async () => {
@@ -73,14 +82,29 @@ export const WineDetails = ({
 
       <Separator className="my-4" />
 
-      <div className="flex flex-col justify-center items-center ">
-        <div className="grid grid-cols-3 pb-8">
-          <p className="text-center px-4">{wine.year}</p>
-          <p className="text-center px-4">
-            <span>{wine.price}</span>
-            <span> kr</span>
-          </p>
-          <p className="text-center px-4">
+      <div className="flex flex-col items-center">
+        <div className="w-full grid grid-cols-3 pb-8 items-center">
+          <p className="text-center px-4 border-r-[1px]">{wine.year}</p>
+          <div className="text-center px-4 flex flex-col gap-1 h-full">
+            <p>{wine.price} kr</p>
+
+            <div className="text-sm h-5 text-neutral-500">
+              {isLoading ? (
+                <div className="space-y-1">
+                  <Skeleton className="h-1 w-4/5" />
+                  <Skeleton className="h-1 w-full" />
+                </div>
+              ) : (
+                <>
+                  <span>Avg. </span>
+                  <span className="whitespace-nowrap">
+                    {vivinoPrice ? `${vivinoPrice} kr` : 'not available'}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          <p className="text-center px-4 border-l-[1px]">
             <span>{wine.rating}</span>
             <span>
               <Star size={12} className="inline -translate-y-[1px]" />

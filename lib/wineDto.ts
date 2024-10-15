@@ -19,6 +19,7 @@ export const wineDto = ({
   shelf,
   scraping,
 }: WineDtoProps) => {
+  const positionObject = shelf && column ? { shelf, column } : {};
   return {
     title,
     country: scraping?.country ?? null,
@@ -28,7 +29,6 @@ export const wineDto = ({
     img: scraping?.img ?? null,
     rating: scraping?.rating ?? null,
     vivinoUrl: scraping?.vivinoUrl ?? null,
-    shelf,
-    column,
+    ...positionObject,
   };
 };

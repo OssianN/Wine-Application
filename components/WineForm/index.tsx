@@ -109,12 +109,7 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="resize-none"
-                  inputMode="text"
-                  step="1"
-                />
+                <Input {...field} className="resize-none" step="1" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -167,14 +162,9 @@ export const WineForm = ({
           name="comment"
           render={({ field }) => (
             <FormItem className="w-full">
-              <FormLabel>Comment </FormLabel>
+              <FormLabel>Comment</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="resize-none"
-                  inputMode="text"
-                  step="4"
-                />
+                <Input {...field} className="resize-none" step="4" />
               </FormControl>
 
               <FormMessage />

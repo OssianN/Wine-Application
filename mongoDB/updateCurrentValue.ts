@@ -4,7 +4,7 @@ export const updateCurrentValueInDb = (
   wineId: string,
   currentValue: number
 ) => {
-  WineDataBase.findByIdAndUpdate(wineId, {
+  WineDataBase.findByIdAndUpdate(wineId.toString(), {
     $set: { currentValue },
-  });
+  }).exec();
 };

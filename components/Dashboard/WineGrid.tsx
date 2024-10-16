@@ -16,8 +16,6 @@ export const WineGrid = ({ data, user }: WineGridProps) => {
   const { searchTerm } = useContext(SearchContext);
   const wineList = useWineList(data, searchTerm);
 
-  console.log(JSON.stringify(wineList));
-
   const getEmptySlots = useMemo(() => {
     const allSlots = [];
     const wineSlots = wineList.map(wine => {

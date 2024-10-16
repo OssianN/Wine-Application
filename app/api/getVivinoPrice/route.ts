@@ -18,7 +18,8 @@ export async function GET(req: Request) {
   });
 
   if (wineId && vivinoPrice) {
-    updateCurrentValueInDb(wineId, vivinoPrice);
+    const test = await updateCurrentValueInDb(wineId, vivinoPrice);
+    console.log(test);
   }
 
   return Response.json(vivinoPrice);

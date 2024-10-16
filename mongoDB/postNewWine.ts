@@ -58,8 +58,8 @@ export const postNewWine = async <T>(
     }
 
     await Promise.all([
-      UserDataBase.findOneAndUpdate(
-        { _id: session.user._id },
+      UserDataBase.findByIdAndUpdate(
+        session.user._id,
         { wineList: [...userDb.wineList, wine._id] },
         { new: true }
       ),

@@ -16,10 +16,8 @@ export const updateStorageSize = async <T>(_: unknown, formData: FormData) => {
 
     await connectMongo();
 
-    const update = await UserDataBase.findOneAndUpdate(
-      {
-        _id: session.user._id,
-      },
+    const update = await UserDataBase.findByIdAndUpdate(
+      session.user._id,
       {
         shelves,
         columns,

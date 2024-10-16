@@ -10,10 +10,8 @@ export const moveWine = async (
 ) => {
   try {
     await connectMongo();
-    await WineDataBase.findOneAndUpdate(
-      {
-        _id: wineId,
-      },
+    await WineDataBase.findByIdAndUpdate(
+      wineId,
       {
         shelf: Number(shelf),
         column: Number(column),

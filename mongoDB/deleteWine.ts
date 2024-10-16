@@ -28,11 +28,10 @@ export const deleteWine = async (wineId: string) => {
     const updatedList = userDb.wineList.filter(id => id !== wineId);
 
     await Promise.all([
-      WineDataBase.findOneAndDelete({ _id: wineId }),
-      UserDataBase.findOneAndUpdate(
-        { _id: session.user._id },
-        { wineList: updatedList }
-      ),
+      WineDataBase.findByIdAndDelete(wineId),
+      UserDataBase.findByIdAndUpdate(session.user._id, {
+        wineList: updatedList,
+      }),
     ]);
     revalidatePath('/dashboard');
   } catch (err) {

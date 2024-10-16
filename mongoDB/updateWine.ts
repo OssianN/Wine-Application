@@ -36,10 +36,8 @@ export const updateWine = async <T>(
       scraping,
     });
 
-    const updatedWine = await WineDataBase.findOneAndUpdate(
-      {
-        _id: wineId,
-      },
+    const updatedWine = await WineDataBase.findByIdAndUpdate(
+      wineId,
       {
         ...data,
       },

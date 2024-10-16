@@ -3,17 +3,12 @@ import WineDataBase from './wine-schema';
 import { connectMongo } from '.';
 import { revalidatePath } from 'next/cache';
 
-export const archiveWine = async <T>(wineId: string) => {
+export const archiveWine = async (wineId: string) => {
   try {
     await connectMongo();
-    await WineDataBase.findOneAndUpdate(
-      {
-        _id: wineId,
-      },
-      {
-        archived: true,
-      }
-    );
+    await WineDataBase.findByIdAndUpdate(wineId, {
+      archived: true,
+    });
 
     revalidatePath('/dashboard');
   } catch (e) {

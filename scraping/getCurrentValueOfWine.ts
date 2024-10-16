@@ -46,11 +46,7 @@ export const getCurrentValueOfWine = async ({
     const currentValue = Math.floor(priceNumber);
 
     if (wineId) {
-      await WineDataBase.findOneAndUpdate(
-        { _id: wineId },
-        { currentValue },
-        { new: true }
-      );
+      await WineDataBase.findByIdAndUpdate(wineId, { currentValue });
     }
 
     return currentValue;

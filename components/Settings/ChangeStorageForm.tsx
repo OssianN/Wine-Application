@@ -66,6 +66,8 @@ export const ChangeStorageForm = ({
               <FormControl>
                 <Input
                   {...field}
+                  type="number"
+                  inputMode="numeric"
                   className="resize-none"
                   placeholder={String(user.shelves + 1)}
                 />
@@ -85,6 +87,7 @@ export const ChangeStorageForm = ({
                   {...field}
                   className="resize-none"
                   type="number"
+                  inputMode="numeric"
                   placeholder={String(user.columns + 1)}
                 />
               </FormControl>

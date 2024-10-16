@@ -4,7 +4,7 @@ import { load } from 'cheerio';
 import { getWinePageUrl } from './cheerio';
 import { getHtmlFromTitle } from './getHtmlFromInput';
 
-export const getCurrentValueOfWine = async ({
+export const getCurrentPriceOfWine = async ({
   title,
   year,
   link,
@@ -41,9 +41,9 @@ export const getCurrentValueOfWine = async ({
 
     if (isNaN(priceNumber)) return null;
 
-    const currentValue = Math.floor(priceNumber);
+    const currentPrice = Math.floor(priceNumber);
 
-    return currentValue;
+    return currentPrice;
   } catch (e) {
     console.error(e);
     return null;

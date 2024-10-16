@@ -17,14 +17,14 @@ export const getStorageData = (
   const { totalCost, totalValue, totalYear } = wineList.reduce(
     (acc, wine) => {
       const winePrice = wine.price ? Number(wine.price) : 0;
-      const wineCurrentValue = wine.currentValue
-        ? Number(wine.currentValue)
+      const wineCurrentPrice = wine.currentPrice
+        ? Number(wine.currentPrice)
         : winePrice;
       const wineYear = wine.year ? Number(wine.year) : 0;
 
       return {
         totalCost: acc.totalCost + winePrice,
-        totalValue: acc.totalValue + wineCurrentValue,
+        totalValue: acc.totalValue + wineCurrentPrice,
         totalYear: acc.totalYear + wineYear,
       };
     },

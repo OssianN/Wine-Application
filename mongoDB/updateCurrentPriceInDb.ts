@@ -1,11 +1,11 @@
 'use server';
 import WineDataBase from './wine-schema';
 
-export const updateCurrentValueInDb = (
+export const updateCurrentPriceInDb = (
   wineId: string,
-  currentValue: number
+  currentPrice: number
 ) => {
   WineDataBase.findByIdAndUpdate(wineId, {
-    $set: { currentValue },
+    $set: { currentPrice },
   }).exec();
 };

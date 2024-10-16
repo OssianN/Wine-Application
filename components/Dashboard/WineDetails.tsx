@@ -29,7 +29,7 @@ export const WineDetails = ({
     `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}&wineId=${wine?._id}`,
     fetcher,
     {
-      fallbackData: wine?.currentValue,
+      fallbackData: wine?.currentPrice,
     }
   );
 

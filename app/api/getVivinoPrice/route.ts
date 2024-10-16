@@ -1,5 +1,5 @@
-import { updateCurrentValueInDb } from '@/mongoDB/updateCurrentValue';
-import { getCurrentValueOfWine } from '@/scraping/getCurrentValueOfWine';
+import { updateCurrentPriceInDb } from '@/mongoDB/updateCurrentPriceInDb';
+import { getCurrentPriceOfWine } from '@/scraping/getCurrentPriceOfWine';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
   if (!title || !year) return Response.json({ error: 'Missing title or year' });
 
-  const vivinoPrice = await getCurrentValueOfWine({
+  const vivinoPrice = await getCurrentPriceOfWine({
     title,
     year: Number(year),
     link,
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   });
 
   if (wineId && vivinoPrice) {
-    updateCurrentValueInDb(wineId, vivinoPrice);
+    updateCurrentPriceInDb(wineId, vivinoPrice);
   }
 
   return Response.json(vivinoPrice);

@@ -28,7 +28,7 @@ export type Wine = {
   img: string;
   rating: string;
   price: number | null;
-  currentValue?: number | null;
+  currentPrice?: number | null;
   vivinoUrl: string | null;
 };
 
@@ -37,5 +37,5 @@ export type ScrapingResult = {
   rating: string | null;
   country: string | null;
   vivinoUrl: string | null;
-  currentValue?: number | null;
+  currentPrice?: number | null;
 };

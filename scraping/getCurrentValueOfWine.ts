@@ -3,7 +3,7 @@
 import { load } from 'cheerio';
 import { getWinePageUrl } from './cheerio';
 import { getHtmlFromTitle } from './getHtmlFromInput';
-import WineDataBase from '@/mongoDB/wine-schema';
+import { updateCurrentValueInDb } from '@/mongoDB/updateCurrentValue';
 
 export const getCurrentValueOfWine = async ({
   wineId,
@@ -46,9 +46,7 @@ export const getCurrentValueOfWine = async ({
     const currentValue = Math.floor(priceNumber);
 
     if (wineId) {
-      WineDataBase.findByIdAndUpdate(String(wineId), {
-        currentValue,
-      }).exec();
+      updateCurrentValueInDb(wineId, currentValue);
     }
 
     return currentValue;

@@ -3,10 +3,8 @@
 import { load } from 'cheerio';
 import { getWinePageUrl } from './cheerio';
 import { getHtmlFromTitle } from './getHtmlFromInput';
-import { updateCurrentValueInDb } from '@/mongoDB/updateCurrentValue';
 
 export const getCurrentValueOfWine = async ({
-  wineId,
   title,
   year,
   link,
@@ -44,10 +42,6 @@ export const getCurrentValueOfWine = async ({
     if (isNaN(priceNumber)) return null;
 
     const currentValue = Math.floor(priceNumber);
-
-    if (wineId) {
-      updateCurrentValueInDb(wineId, currentValue);
-    }
 
     return currentValue;
   } catch (e) {

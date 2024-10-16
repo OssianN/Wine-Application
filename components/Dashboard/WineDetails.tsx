@@ -9,8 +9,9 @@ import { deleteWine } from '@/mongoDB/deleteWine';
 import { WineDialogHeader } from './WineDialogHeader';
 import { archiveWine } from '@/mongoDB/archiveWine';
 import { Skeleton } from '../ui/skeleton';
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { updateCurrentValueInDb } from '@/mongoDB/updateCurrentValue';
 import type { Wine } from '@/types';
-import type { Dispatch, SetStateAction } from 'react';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -32,6 +33,12 @@ export const WineDetails = ({
       fallbackData: wine?.currentValue,
     }
   );
+
+  useEffect(() => {
+    if (wine?._id && !vivinoPrice) {
+      updateCurrentValueInDb(wine?._id, vivinoPrice);
+    }
+  }, [vivinoPrice, wine?._id]);
 
   if (!wine) return null;
 

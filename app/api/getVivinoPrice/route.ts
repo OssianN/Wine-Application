@@ -1,4 +1,3 @@
-import { updateCurrentValueInDb } from '@/mongoDB/updateCurrentValue';
 import { getCurrentValueOfWine } from '@/scraping/getCurrentValueOfWine';
 
 export async function GET(req: Request) {
@@ -16,10 +15,6 @@ export async function GET(req: Request) {
     link,
     wineId,
   });
-
-  if (wineId && vivinoPrice) {
-    updateCurrentValueInDb(wineId, vivinoPrice);
-  }
 
   return Response.json(vivinoPrice);
 }

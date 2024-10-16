@@ -24,11 +24,11 @@ export type Wine = {
   comment: string | null;
   shelf: number;
   column: number;
-  archived: boolean | null;
+  archived?: boolean | null;
   img: string;
   rating: string;
   price: number | null;
-  currentValue: number | null;
+  currentValue?: number | null;
   vivinoUrl: string | null;
 };
 
@@ -37,5 +37,5 @@ export type ScrapingResult = {
   rating: string | null;
   country: string | null;
   vivinoUrl: string | null;
-  currentValue: number | null;
+  currentValue?: number | null;
 };

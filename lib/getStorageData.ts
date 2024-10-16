@@ -32,7 +32,7 @@ export const getStorageData = (
   );
 
   const averageYear = Math.round(
-    totalYear / wineList.filter(wine => wine.year && wine.year > 1900).length
+    totalYear / wineList.filter(wine => wine.year && wine.year > 0).length
   );
 
   const averagePrice = Math.round(

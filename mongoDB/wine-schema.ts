@@ -10,8 +10,8 @@ const wineSchema = new Schema({
   archived: { type: Boolean },
   img: { type: String },
   rating: { type: String },
-  price: { type: String },
-  currentValue: { type: String },
+  price: { type: Number },
+  currentValue: { type: Number },
   vivinoUrl: { type: String },
 });
 

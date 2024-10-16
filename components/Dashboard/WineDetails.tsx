@@ -90,7 +90,7 @@ export const WineDetails = ({
 
             <div className="text-sm h-5 text-neutral-500">
               {isLoading ? (
-                <div className="space-y-1">
+                <div className="space-y-1 h-full flex flex-col justify-end">
                   <Skeleton className="h-1 w-4/5" />
                   <Skeleton className="h-1 w-full" />
                 </div>

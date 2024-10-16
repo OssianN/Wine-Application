@@ -5,6 +5,6 @@ export const updateCurrentValueInDb = (
   currentValue: number
 ) => {
   WineDataBase.findByIdAndUpdate(wineId, {
-    currentValue,
+    $set: { currentValue },
   });
 };

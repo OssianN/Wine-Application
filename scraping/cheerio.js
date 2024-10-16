@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { getAverageWinePrice } from './getAveragePrice';
+import { getCurrentValueOfWine } from './getCurrentValueOfWine';
 
 const getHtmlFromTitle = async (title, year) => {
   try {
@@ -80,9 +80,9 @@ const getVivinoData = async (title, year) => {
       getWineCountry(html),
       getWinePageUrl(html),
     ]);
-    const averagePrice = await getAverageWinePrice({ link: vivinoUrl });
+    const currentValue = await getCurrentValueOfWine({ link: vivinoUrl });
 
-    return { img: imgURL[0], rating, country, vivinoUrl, averagePrice };
+    return { img: imgURL[0], rating, country, vivinoUrl, currentValue };
   } catch (e) {
     console.error(e);
   }

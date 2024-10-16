@@ -8,9 +8,9 @@ import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
 import { WineDialogHeader } from './WineDialogHeader';
 import { archiveWine } from '@/mongoDB/archiveWine';
+import { Skeleton } from '../ui/skeleton';
 import type { Wine } from '@/types';
 import type { Dispatch, SetStateAction } from 'react';
-import { Skeleton } from '../ui/skeleton';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -26,8 +26,11 @@ export const WineDetails = ({
   const fetcher = (url: string) => fetch(url).then(res => res.json());
 
   const { data: vivinoPrice, isLoading } = useSwr(
-    `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}`,
-    fetcher
+    `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}&wineId=${wine?._id}`,
+    fetcher,
+    {
+      fallbackData: wine?.currentValue,
+    }
   );
 
   if (!wine) return null;
@@ -89,16 +92,20 @@ export const WineDetails = ({
             <p>{wine.price} kr</p>
 
             <div className="text-sm h-5 text-neutral-500">
-              {isLoading ? (
+              {isLoading && !vivinoPrice ? (
                 <div className="space-y-1 h-full flex flex-col justify-end">
                   <Skeleton className="h-1 w-4/5" />
                   <Skeleton className="h-1 w-full" />
                 </div>
               ) : (
                 <>
-                  <span>Avg. </span>
-                  <span className="whitespace-nowrap">
-                    {vivinoPrice ? `${vivinoPrice} kr` : 'not available'}
+                  <span>Today </span>
+                  <span
+                    className={`whitespace-nowrap ${
+                      isLoading ? 'animate-pulse' : ''
+                    }`}
+                  >
+                    {vivinoPrice ? `${vivinoPrice} kr` : 'N/A'}
                   </span>
                 </>
               )}

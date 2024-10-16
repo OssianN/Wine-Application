@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose'
+import { Schema, model, models } from 'mongoose';
 
 const UserSchema = new Schema({
   name: {
@@ -26,8 +26,8 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-})
+});
 
-const UserDataBase = models.users || model('users', UserSchema)
+const UserDataBase = models.users || model('users', UserSchema);
 
-export default UserDataBase
+export default UserDataBase;

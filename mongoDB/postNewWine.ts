@@ -34,8 +34,8 @@ export const postNewWine = async <T>(
       year,
       price,
       comment,
-      column,
       shelf,
+      column,
       scraping,
     });
 

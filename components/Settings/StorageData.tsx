@@ -2,8 +2,9 @@ import { StorageDataItem } from './StorageDataItem';
 import type { StorageDataType } from '@/lib/getStorageData';
 
 export const StorageData = ({
-  totalNumberOfBottles,
   totalCost,
+  totalValue,
+  totalNumberOfBottles,
   averageYear,
   averagePrice,
   usedSpacePercentage,
@@ -11,6 +12,11 @@ export const StorageData = ({
   return (
     <div className="flex flex-col gap-4">
       <StorageDataItem description="Total cost:" value={`${totalCost} kr`} />
+
+      <StorageDataItem
+        description="Estimated value:"
+        value={`${totalValue} kr`}
+      />
 
       <StorageDataItem
         description="Total number of bottles:"

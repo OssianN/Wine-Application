@@ -5,8 +5,8 @@ type WineDtoProps = {
   year: number;
   price: number;
   comment: string;
-  column?: number;
   shelf?: number;
+  column?: number;
   scraping?: ScrapingResult | null;
 };
 
@@ -15,20 +15,29 @@ export const wineDto = ({
   year,
   price,
   comment,
-  column,
   shelf,
+  column,
   scraping,
 }: WineDtoProps) => {
-  const positionObject = shelf && column ? { shelf, column } : {};
+  const positionObject =
+    isNotNullOrUndefined(shelf) && isNotNullOrUndefined(column)
+      ? { shelf, column }
+      : {};
+
   return {
     title,
     country: scraping?.country ?? null,
     year,
-    price: price > 0 ? price : scraping?.averagePrice ?? null,
+    price: price > 0 ? price : scraping?.currentValue ?? null,
+    currentValue: scraping?.currentValue ?? null,
     comment,
     img: scraping?.img ?? null,
     rating: scraping?.rating ?? null,
     vivinoUrl: scraping?.vivinoUrl ?? null,
     ...positionObject,
   };
+};
+
+const isNotNullOrUndefined = (value: unknown) => {
+  return value !== null && value !== undefined;
 };

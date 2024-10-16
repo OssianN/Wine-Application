@@ -11,6 +11,7 @@
     "vivinoUrl": null,
     "column": 0,
     "price": 6,
+    "currentValue": 5,
     "archived": null,
     "comment": "170425 köpt av Niklas."
   },
@@ -26,6 +27,7 @@
     "vivinoUrl": "https://www.vivino.com/NL/en/fr-reva-nebbiolo-d-alba/w/3623696?year=2014",
     "column": 1,
     "price": null,
+    "currentValue": 5,
     "archived": null,
     "comment": "170425 köpt av Niklas"
   },
@@ -41,6 +43,7 @@
     "vivinoUrl": null,
     "column": 1,
     "price": 2,
+    "currentValue": 5,
     "archived": null,
     "comment": ""
   },
@@ -56,6 +59,7 @@
     "vivinoUrl": "https://www.vivino.com/LU/fr/angelica-zapata-malbec-alta/w/68824?year=2010",
     "column": 0,
     "price": 2,
+    "currentValue": 5,
     "archived": null,
     "comment": null
   },
@@ -71,6 +75,7 @@
     "vivinoUrl": "https://www.vivino.com/LU/fr/artadi-vinas-de-gain-vino-de-mesa/w/49744?year=2017",
     "column": 2,
     "price": 2,
+    "currentValue": 5,
     "archived": null,
     "comment": null
   },
@@ -86,6 +91,7 @@
     "vivinoUrl": "https://www.vivino.com/NL/en/grosbois-gabare-chinon/w/1242466?year=2018",
     "column": 3,
     "price": 2,
+    "currentValue": 5,
     "archived": null,
     "comment": null
   },
@@ -101,6 +107,7 @@
     "vivinoUrl": "https://www.vivino.com/NL/nl/giacomo-fenocchio-barolo/w/1146815?year=2015",
     "column": 1,
     "price": 6,
+    "currentValue": 5,
     "archived": null,
     "comment": null
   },
@@ -116,6 +123,7 @@
     "vivinoUrl": null,
     "column": 2,
     "price": 8,
+    "currentValue": 5,
     "archived": null,
     "comment": ""
   },
@@ -131,6 +139,7 @@
     "vivinoUrl": "https://www.vivino.com/LU/fr/ricasoli-rocca-guicciarda-chianti-classico-riserva/w/1151294?year=2016",
     "column": 3,
     "price": 10,
+    "currentValue": null,
     "comment": null,
     "archived": null
   },
@@ -146,6 +155,7 @@
     "vivinoUrl": "https://www.vivino.com/SE/en/d-arenberg-the-peppermint-paddock-chambourcin/w/13410?year=2016",
     "column": 1,
     "price": 0,
+    "currentValue": null,
     "comment": null,
     "archived": null
   }

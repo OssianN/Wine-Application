@@ -2,6 +2,7 @@ import type { Wine } from '@/types';
 
 export type StorageDataType = {
   totalCost: number;
+  totalValue: number;
   averageYear: number;
   totalNumberOfBottles: number;
   averagePrice: number;
@@ -13,17 +14,21 @@ export const getStorageData = (
   shelves: number,
   columns: number
 ): StorageDataType => {
-  const { totalCost, totalYear } = wineList.reduce(
+  const { totalCost, totalValue, totalYear } = wineList.reduce(
     (acc, wine) => {
       const winePrice = wine.price ? Number(wine.price) : 0;
+      const wineCurrentValue = wine.currentValue
+        ? Number(wine.currentValue)
+        : winePrice;
       const wineYear = wine.year ? Number(wine.year) : 0;
 
       return {
         totalCost: acc.totalCost + winePrice,
+        totalValue: acc.totalValue + wineCurrentValue,
         totalYear: acc.totalYear + wineYear,
       };
     },
-    { totalCost: 0, totalYear: 0 }
+    { totalCost: 0, totalValue: 0, totalYear: 0 }
   );
 
   const averageYear = Math.round(
@@ -41,6 +46,7 @@ export const getStorageData = (
 
   return {
     totalCost,
+    totalValue,
     totalNumberOfBottles,
     averageYear,
     averagePrice,

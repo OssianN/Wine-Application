@@ -1,11 +1,10 @@
-'use server';
 import WineDataBase from './wine-schema';
 
-export const updateCurrentValueInDb = async (
+export const updateCurrentValueInDb = (
   wineId: string,
   currentValue: number
 ) => {
-  return await WineDataBase.findByIdAndUpdate(wineId, {
+  WineDataBase.findByIdAndUpdate(wineId, {
     currentValue,
   });
 };

@@ -7,6 +7,7 @@ export type StorageDataType = {
   totalNumberOfBottles: number;
   averagePrice: number;
   usedSpacePercentage: number;
+  costDifferencePercentage: number;
 };
 
 export const getStorageData = (
@@ -44,6 +45,10 @@ export const getStorageData = (
   const usedSpacePercentage =
     (totalNumberOfBottles / (shelves * columns)) * 100;
 
+  const costDifferencePercentage = Math.round(
+    ((totalValue - totalCost) / totalCost) * 100
+  );
+
   return {
     totalCost,
     totalValue,
@@ -51,5 +56,6 @@ export const getStorageData = (
     averageYear,
     averagePrice,
     usedSpacePercentage,
+    costDifferencePercentage,
   };
 };

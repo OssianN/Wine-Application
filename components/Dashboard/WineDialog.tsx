@@ -32,7 +32,7 @@ export const WineDialog = ({ wine, open, onOpenChange }: WineDialogProps) => {
                 description={
                   <>
                     <span>Edit wine at </span>
-                    <span className="text-neutral-100">
+                    <span className="text-neutral-800 dark:text-neutral-100 font-bold">
                       {Number(wine?.shelf) + 1}:{Number(wine?.column) + 1}
                     </span>
                   </>

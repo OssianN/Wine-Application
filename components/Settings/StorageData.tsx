@@ -8,6 +8,7 @@ export const StorageData = ({
   averageYear,
   averagePrice,
   usedSpacePercentage,
+  costDifferencePercentage,
 }: StorageDataType) => {
   return (
     <div className="flex flex-col gap-4">
@@ -15,7 +16,12 @@ export const StorageData = ({
 
       <StorageDataItem
         description="Estimated value:"
-        value={`${totalValue} kr`}
+        value={
+          <>
+            <span>{`${totalValue} kr`}</span>
+            <span className="text-neutral-500 text-sm">{` (${costDifferencePercentage}%)`}</span>
+          </>
+        }
       />
 
       <StorageDataItem

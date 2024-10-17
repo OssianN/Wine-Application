@@ -23,8 +23,6 @@ export const WineDetails = ({
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
-  const fetcher = (url: string) => fetch(url).then(res => res.json());
-
   const { data: vivinoPrice, isLoading } = useSwr(
     `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}&wineId=${wine?._id}`,
     fetcher,
@@ -34,6 +32,11 @@ export const WineDetails = ({
   );
 
   if (!wine) return null;
+
+  const pricePercent =
+    vivinoPrice && wine.price
+      ? Math.round(((vivinoPrice - wine.price) / wine.price) * 100)
+      : null;
 
   const handleArchive = async () => {
     await archiveWine(wine._id);
@@ -86,9 +89,13 @@ export const WineDetails = ({
       <Separator className="my-4" />
 
       <div className="flex flex-col items-center">
-        <div className="w-full grid grid-cols-3 pb-8 items-center">
+        <div className="w-full grid grid-cols-3 pb-8 items-center text-lg font-electrolize">
           <p className="text-center px-4 border-r-[1px]">{wine.year}</p>
           <div className="text-center px-4 flex flex-col gap-1 h-full">
+            <p className={'text-sm text-neutral-500 h-5'}>
+              {!isNaN(Number(pricePercent)) && <span>{pricePercent}%</span>}
+            </p>
+
             <p>{wine.price} kr</p>
 
             <div className="text-sm h-5 text-neutral-500">
@@ -137,3 +144,5 @@ export const WineDetails = ({
     </>
   );
 };
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());

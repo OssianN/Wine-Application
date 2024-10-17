@@ -88,10 +88,15 @@ export const WineCard = ({ wine }: WineCardProps) => {
         <p className="text-sm truncate w-full text-neutral-500">
           {wine.country}
         </p>
-        <p className="text-sm w-full dark:text-neutral-300">
-          <span>{wine.price} </span>
-          <span>kr</span>
-        </p>
+        <div className="font-electrolize flex justify-center text-sm w-full dark:text-neutral-300">
+          <p>{wine.price}</p>
+          {wine.currentPrice && (
+            <>
+              <span>/</span>
+              <p className="text-neutral-500">{wine.currentPrice} kr</p>
+            </>
+          )}
+        </div>
       </div>
     </article>
   );

@@ -76,6 +76,9 @@ const config: Config = {
       screens: {
         betterhover: { raw: '(hover: hover)' },
       },
+      fontFamily: {
+        electrolize: 'var(--font-electrolize)',
+      },
     },
   },
   plugins: [animate],

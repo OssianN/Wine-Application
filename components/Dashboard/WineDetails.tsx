@@ -133,6 +133,7 @@ export const WineDetails = ({
               variant: 'outline',
             })} w-48 flex-shrink`}
             href={wine.vivinoUrl}
+            target="_blank"
           >
             <span>Vivino</span>
             <span>

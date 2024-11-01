@@ -19,8 +19,9 @@ const WineFormDialog = ({
   const [isResize, setIsResize] = useState(0);
 
   useEffect(() => {
-    const handleResize = () =>
+    const handleResize = () => {
       setIsResize(window?.visualViewport?.height ?? window.innerHeight);
+    };
 
     window.visualViewport?.addEventListener('resize', handleResize);
     handleResize();
@@ -32,7 +33,7 @@ const WineFormDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="p-8 overflow-auto top-0"
+        className="p-8 overflow-auto"
         style={{
           maxHeight: `calc(${isResize}px - 4rem)`,
         }}

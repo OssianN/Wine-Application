@@ -1,6 +1,7 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { WineForm } from '.';
 import { WineDialogHeader } from '../Dashboard/WineDialogHeader';
+import { useEffect, useState } from 'react';
 
 type WineFormDialogProps = {
   open: boolean;
@@ -15,9 +16,26 @@ const WineFormDialog = ({
   shelf,
   column,
 }: WineFormDialogProps) => {
+  const [isResize, setIsResize] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () =>
+      setIsResize(window?.visualViewport?.height ?? window.innerHeight);
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-8 overflow-auto max-h-full">
+      <DialogContent
+        className="p-8 overflow-auto"
+        style={{
+          maxHeight: `calc(${isResize}px - 4rem)`,
+        }}
+      >
         <WineDialogHeader
           title="Add wine"
           description={

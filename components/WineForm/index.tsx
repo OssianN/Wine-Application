@@ -109,7 +109,12 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" step="1" />
+                <Input
+                  {...field}
+                  className="resize-none"
+                  step="1"
+                  enterKeyHint="next"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -128,6 +133,7 @@ export const WineForm = ({
                     className="resize-none"
                     inputMode="numeric"
                     step="2"
+                    enterKeyHint="next"
                   />
                 </FormControl>
                 <FormMessage />
@@ -146,6 +152,7 @@ export const WineForm = ({
                     className="resize-none"
                     inputMode="numeric"
                     step="3"
+                    enterKeyHint="next"
                   />
                 </FormControl>
                 <FormDescription>
@@ -164,7 +171,12 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Comment</FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" step="4" />
+                <Input
+                  {...field}
+                  className="resize-none"
+                  step="4"
+                  enterKeyHint="send"
+                />
               </FormControl>
 
               <FormMessage />
@@ -182,7 +194,7 @@ export const WineForm = ({
               Cancel
             </Button>
           )}
-          <SubmitButton buttonText="Submit" />
+          <SubmitButton buttonText={wine ? 'Update' : 'Add'} />
         </div>
       </form>
     </Form>

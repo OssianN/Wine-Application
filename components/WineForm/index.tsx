@@ -64,6 +64,22 @@ export const WineForm = ({
     useContext(WineContext);
   const [formState, formAction] = useFormState(serverAction, initialState);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const nextInputMap = new Map(
+      Object.entries({
+        title: 'year',
+        year: 'price',
+        price: 'comment',
+      })
+    );
+
+    if (e.key === 'Enter') {
+      form.setFocus(
+        nextInputMap.get(e.currentTarget.name) as keyof WineFormType
+      );
+    }
+  };
+
   const form = useForm<WineFormType>({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
@@ -114,6 +130,7 @@ export const WineForm = ({
                   className="resize-none"
                   step="1"
                   enterKeyHint="next"
+                  onKeyDown={handleKeyDown}
                 />
               </FormControl>
               <FormMessage />
@@ -134,6 +151,7 @@ export const WineForm = ({
                     inputMode="numeric"
                     step="2"
                     enterKeyHint="next"
+                    onKeyDown={handleKeyDown}
                   />
                 </FormControl>
                 <FormMessage />
@@ -153,6 +171,7 @@ export const WineForm = ({
                     inputMode="numeric"
                     step="3"
                     enterKeyHint="next"
+                    onKeyDown={handleKeyDown}
                   />
                 </FormControl>
                 <FormDescription>
@@ -171,12 +190,7 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Comment</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="resize-none"
-                  step="4"
-                  enterKeyHint="send"
-                />
+                <Input {...field} className="resize-none" step="4" />
               </FormControl>
 
               <FormMessage />

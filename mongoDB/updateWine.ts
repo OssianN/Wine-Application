@@ -15,7 +15,7 @@ export const updateWine = async <T>(
     const { data: parsedData, errors, isError } = await parseWine(formData);
 
     if (isError || !parsedData) {
-      return { errors, errorMessage: 'Something went wrong' } as T;
+      return { errors, errorMessage: 'Something went wrong, try again.' } as T;
     }
 
     const [scraping] = await Promise.all([

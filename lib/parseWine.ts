@@ -29,7 +29,7 @@ export const parseWine = async (
   return {
     data,
     positionData,
-    errors: error?.errors,
+    errors: [...(error?.errors ?? []), ...(positionError?.errors ?? [])],
     isError: error || positionError,
   };
 };

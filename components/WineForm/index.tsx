@@ -64,7 +64,7 @@ export const WineForm = ({
     useContext(WineContext);
   const [formState, formAction] = useFormState(serverAction, initialState);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     const nextInputMap = new Map(
       Object.entries({
         title: 'year',
@@ -72,11 +72,13 @@ export const WineForm = ({
         price: 'comment',
       })
     );
+    const inputMatch = nextInputMap.get(
+      (e.target as HTMLInputElement).name
+    ) as keyof WineFormType;
 
-    if (e.key === 'Enter') {
-      form.setFocus(
-        nextInputMap.get(e.currentTarget.name) as keyof WineFormType
-      );
+    if (e.key === 'Enter' && inputMatch) {
+      e.preventDefault();
+      form.setFocus(inputMatch);
     }
   };
 
@@ -117,7 +119,15 @@ export const WineForm = ({
 
   return (
     <Form {...form}>
-      <form action={e => formAction(e)} className="flex flex-col gap-8">
+      <form
+        action={e => formAction(e)}
+        className="flex flex-col gap-8"
+        onKeyDown={handleKeyDown}
+      >
+        <FormMessage>
+          <p>{formState.errorMessage}</p>
+        </FormMessage>
+
         <FormField
           control={form.control}
           name="title"
@@ -130,7 +140,6 @@ export const WineForm = ({
                   className="resize-none"
                   step="1"
                   enterKeyHint="next"
-                  onKeyDown={handleKeyDown}
                 />
               </FormControl>
               <FormMessage />
@@ -151,7 +160,6 @@ export const WineForm = ({
                     inputMode="numeric"
                     step="2"
                     enterKeyHint="next"
-                    onKeyDown={handleKeyDown}
                   />
                 </FormControl>
                 <FormMessage />
@@ -171,7 +179,6 @@ export const WineForm = ({
                     inputMode="numeric"
                     step="3"
                     enterKeyHint="next"
-                    onKeyDown={handleKeyDown}
                   />
                 </FormControl>
                 <FormDescription>
@@ -190,9 +197,13 @@ export const WineForm = ({
             <FormItem className="w-full">
               <FormLabel>Comment</FormLabel>
               <FormControl>
-                <Input {...field} className="resize-none" step="4" />
+                <Input
+                  {...field}
+                  className="resize-none"
+                  step="4"
+                  enterKeyHint="enter"
+                />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}

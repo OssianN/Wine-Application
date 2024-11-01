@@ -39,6 +39,6 @@ export const storageSizeSchema = z.object({
 });
 
 export const positionSchema = z.object({
-  shelf: z.coerce.number().min(1, { message: 'Must be at least 1' }),
-  column: z.coerce.number().min(1, { message: 'Must be at least 1' }),
+  shelf: z.coerce.number().min(0, { message: 'Must be at least 1' }),
+  column: z.coerce.number().min(0, { message: 'Must be at least 1' }),
 });

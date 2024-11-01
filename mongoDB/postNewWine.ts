@@ -26,7 +26,7 @@ export const postNewWine = async <T>(
     if (isError || !parsedData || !positionData) {
       return {
         errors,
-        errorMessage: 'Something went wrong',
+        errorMessage: 'Something went wrong, try again.',
       } as T;
     }
 

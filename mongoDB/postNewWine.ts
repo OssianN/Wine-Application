@@ -5,37 +5,39 @@ import getVivinoData from '../scraping/cheerio';
 import { connectMongo } from './';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
-import { parseWine } from '@/lib/parseWine';
 import { wineDto } from '@/lib/wineDto';
+import { parseWine } from '@/lib/parseWine';
 import type { User } from '@/types';
 
 export const postNewWine = async <T>(
   _: unknown,
   formData: FormData,
-  shelfInput?: string,
-  columnInput?: string
+  shelf?: string,
+  column?: string
 ) => {
   try {
-    const { title, year, price, comment, shelf, column, isError, errors } =
-      parseWine(formData, shelfInput, columnInput);
+    const {
+      isError,
+      errors,
+      data: parsedData,
+      positionData,
+    } = await parseWine(formData, shelf, column);
 
-    if (isError) {
-      return { errors, errorMessage: 'Something went wrong' } as T;
+    if (isError || !parsedData || !positionData) {
+      return {
+        errors,
+        errorMessage: 'Something went wrong',
+      } as T;
     }
 
     const [scraping, session] = await Promise.all([
-      getVivinoData(title, year),
+      getVivinoData(parsedData.title, parsedData.year),
       getUserSession(),
       connectMongo(),
     ]);
 
     const data = wineDto({
-      title,
-      year,
-      price,
-      comment,
-      shelf,
-      column,
+      ...parsedData,
       scraping,
     });
 
@@ -45,6 +47,7 @@ export const postNewWine = async <T>(
 
     const wine = new WineDataBase({
       ...data,
+      ...positionData,
     });
 
     const userDb = await UserDataBase.findById<User>({

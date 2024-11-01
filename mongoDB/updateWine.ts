@@ -12,27 +12,19 @@ export const updateWine = async <T>(
   wineId: string
 ) => {
   try {
-    const { title, year, price, comment, isError, errors } = parseWine(
-      formData,
-      undefined,
-      undefined,
-      true
-    );
+    const { data: parsedData, errors, isError } = await parseWine(formData);
 
-    if (isError) {
+    if (isError || !parsedData) {
       return { errors, errorMessage: 'Something went wrong' } as T;
     }
 
     const [scraping] = await Promise.all([
-      getVivinoData(title, year),
+      getVivinoData(parsedData.title, parsedData.year),
       connectMongo(),
     ]);
 
     const data = wineDto({
-      title,
-      year,
-      price,
-      comment,
+      ...parsedData,
       scraping,
     });
 

@@ -1,38 +1,39 @@
-import { wineFormSchema } from './schemas';
+import { positionSchema, wineFormSchema } from './schemas';
 
-export const parseWine = (
+export const parseWine = async (
   formData: FormData,
   shelf?: string,
-  column?: string,
-  isUpdated: boolean = false
+  column?: string
 ) => {
-  const formYear = Number(formData.get('year'));
-  const formPrice = Number(formData.get('price'));
+  const formTitle = formData.get('title') as string;
+  const formYear = formData.get('year') as string;
+  const formPrice = formData.get('price') as string;
+  const formComment = formData.get('comment') as string;
 
-  const title = formData.get('title') as string;
-  const comment = formData.get('comment') as string;
-  const year = isNaN(formYear) ? 'string' : formYear;
-  const price = isNaN(formPrice) ? 'string' : formPrice;
-
-  const parse = wineFormSchema.safeParse({
-    title,
-    year,
-    price,
-    comment,
-  });
-
-  const positionError = isUpdated
-    ? false
-    : isNaN(Number(shelf)) || isNaN(Number(column));
+  const [{ error, data }, { error: positionError, data: positionData }] =
+    await Promise.all([
+      wineFormSchema.safeParseAsync({
+        title: formTitle,
+        year: formYear,
+        price: formPrice,
+        comment: formComment,
+      }),
+      isNotNullOrUndefined(shelf) && isNotNullOrUndefined(column)
+        ? positionSchema.safeParseAsync({
+            shelf,
+            column,
+          })
+        : { error: null, data: null },
+    ]);
 
   return {
-    title,
-    year: year as number,
-    price: price as number,
-    comment,
-    errors: parse.error?.errors,
-    shelf: Number(shelf),
-    column: Number(column),
-    isError: !parse.success || positionError,
+    data,
+    positionData,
+    errors: error?.errors,
+    isError: error || positionError,
   };
+};
+
+const isNotNullOrUndefined = (value: unknown) => {
+  return value !== null && value !== undefined;
 };

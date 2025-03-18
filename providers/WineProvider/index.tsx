@@ -15,16 +15,7 @@ type WineProviderProps = {
   children: ReactNode;
 };
 
-export const WineContext = createContext<{
-  selectedWine: Wine | null;
-  openWineDialog: boolean;
-  setOpenWineDialog: Dispatch<SetStateAction<boolean>>;
-  setOpenWineFormDialog: Dispatch<SetStateAction<boolean>>;
-  handleOpenWineFormDialog: (position: Position) => void;
-  handleOpenWineDialog: (wine: Wine) => void;
-  setWineList: Dispatch<SetStateAction<Wine[]>>;
-  wineList: Wine[];
-}>({
+export const WineContext = createContext<WineContextProps>({
   selectedWine: null,
   openWineDialog: false,
   setOpenWineDialog: () => false,
@@ -90,3 +81,14 @@ export const WineDetailsDialogProvider = ({ children }: WineProviderProps) => {
 };
 
 export default WineContext;
+
+type WineContextProps = {
+  selectedWine: Wine | null;
+  openWineDialog: boolean;
+  setOpenWineDialog: Dispatch<SetStateAction<boolean>>;
+  setOpenWineFormDialog: Dispatch<SetStateAction<boolean>>;
+  handleOpenWineFormDialog: (position: Position) => void;
+  handleOpenWineDialog: (wine: Wine) => void;
+  setWineList: Dispatch<SetStateAction<Wine[]>>;
+  wineList: Wine[];
+};

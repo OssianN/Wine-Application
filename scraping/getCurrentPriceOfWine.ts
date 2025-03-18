@@ -37,7 +37,7 @@ export const getCurrentPriceOfWine = async ({
     const priceString = currentPriceString ?? averagePriceString;
     if (!priceString) return null;
 
-    const priceNumber = Number(priceString?.split(' kr')[0]);
+    const priceNumber = Number(priceString?.split('SEK')[1].trim());
 
     if (isNaN(priceNumber)) return null;
 

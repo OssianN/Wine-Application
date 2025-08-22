@@ -1,23 +1,5 @@
-import * as cheerio from 'cheerio';
 import { getCurrentPriceOfWine } from './getCurrentPriceOfWine';
-
-const getHtmlFromTitle = async (title, year) => {
-  try {
-    const searchTitle = title.split(' ').join('+');
-    const cleanSearchTitle = searchTitle
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f’]/g, '');
-
-    const vivinoSite = await fetch(
-      `https://www.vivino.com/search/wines?q=${cleanSearchTitle}+${year}`
-    );
-    const body = await vivinoSite.text();
-    return cheerio.load(body);
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
+import { getHtmlFromTitle } from './getHtmlFromInput';
 
 const getWineCountry = html => {
   try {
@@ -73,6 +55,8 @@ const getVivinoData = async (title, year) => {
     if (!html) {
       return null;
     }
+
+    console.log({ html });
 
     const [imgURL, rating, country, vivinoUrl] = await Promise.all([
       getWineImg(html),

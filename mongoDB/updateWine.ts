@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import WineDataBase from '../mongoDB/wine-schema';
-import getVivinoData from '../scraping/cheerio';
+import getVivinoData from '../scraping/getWineData';
 import { connectMongo } from './';
 import { parseWine } from '@/lib/parseWine';
 import { wineDto } from '@/lib/wineDto';

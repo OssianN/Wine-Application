@@ -2,7 +2,7 @@ import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
 import { EditWineMenu } from './EditWineMenu';
 import Image from 'next/image';
-import useSwr from 'swr';
+// import useSwr from 'swr';
 import { Separator } from '../ui/separator';
 import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
@@ -23,13 +23,15 @@ export const WineDetails = ({
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
-  const { data: vivinoPrice, isLoading } = useSwr(
-    `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}&wineId=${wine?._id}`,
-    fetcher,
-    {
-      fallbackData: wine?.currentPrice,
-    }
-  );
+  // const { data: vivinoPrice, isLoading } = useSwr(
+  //   `/api/getVivinoPrice?title=${wine?.title}&year=${wine?.year}&vivinoUrl=${wine?.vivinoUrl}&wineId=${wine?._id}`,
+  //   fetcher,
+  //   {
+  //     fallbackData: wine?.currentPrice,
+  //   }
+  // );
+  const vivinoPrice = wine?.currentPrice;
+  const isLoading = false;
 
   if (!wine) return null;
 
@@ -79,10 +81,11 @@ export const WineDetails = ({
             className="drop-shadow-2xl object-contain p-8 pt-0"
             fill={true}
             sizes="200"
-            src={`https:${wine.img}`}
+            src={wine.img ? `https:${wine.img}` : '/wineNotFound.png'}
             alt="wine image"
           />
         </div>
+
         <BlueBackground className="opacity-70" />
       </WineDialogHeader>
 
@@ -146,4 +149,4 @@ export const WineDetails = ({
   );
 };
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+// const fetcher = (url: string) => fetch(url).then(res => res.json());

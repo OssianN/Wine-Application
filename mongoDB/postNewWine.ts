@@ -1,7 +1,7 @@
 'use server';
 import WineDataBase from '../mongoDB/wine-schema';
 import UserDataBase from './user-schema';
-import getVivinoData from '../scraping/cheerio';
+import getVivinoData from '../scraping/getWineData';
 import { connectMongo } from './';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';

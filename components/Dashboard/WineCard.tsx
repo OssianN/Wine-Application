@@ -55,7 +55,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
     >
       <div
         ref={setNodeRef}
-        className="flex flex-col items-center rounded-md text-center gap-2 min-w-32 p-4 relative overflow-hidden cursor-pointer betterhover:hover:scale-[1.03] transition-all duration-300"
+        className="flex flex-col items-center rounded-md text-center gap-2 min-w-32 h-full p-4 relative overflow-hidden cursor-pointer betterhover:hover:scale-[1.03] transition-all duration-300"
       >
         <p className="absolute top-4 left-4 text-neutral-500 text-sm">
           <span>{wine.shelf + 1}</span>:<span>{wine.column + 1}</span>
@@ -76,10 +76,10 @@ export const WineCard = ({ wine }: WineCardProps) => {
           key={wine._id}
           width={200}
           height={200}
-          src={`https:${wine.img}`}
+          src={wine.img ? `https:${wine.img}` : '/wineNotFound.png'}
           alt={wine.title}
           style={{ touchAction: 'none' }}
-          className="pt-5 drop-shadow-2xl"
+          className="pt-5 drop-shadow-2xl h-36 object-contain"
         />
 
         <h3 className="text-sm font-bold line-clamp-2 w-full pt-2">

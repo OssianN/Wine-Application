@@ -5,7 +5,7 @@ type WineDtoProps = {
   year: number;
   price?: number;
   comment?: string;
-  scraping?: ScrapingResult | null;
+  scraping?: ScrapingResult;
 };
 
 export const wineDto = ({

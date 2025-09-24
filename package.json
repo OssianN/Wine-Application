@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "postinstall": "npx playwright install chromium"
+    "postinstall": "npx playwright install-deps"
   },
   "dependencies": {
     "@ai-sdk/xai": "^2.0.7",

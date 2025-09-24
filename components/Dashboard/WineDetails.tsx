@@ -76,17 +76,16 @@ export const WineDetails = ({
           {wine.shelf + 1}:{wine.column + 1}
         </p>
 
-        {wine.img && (
-          <div className="relative h-64 w-full">
-            <Image
-              className="drop-shadow-2xl object-contain p-8 pt-0"
-              fill={true}
-              sizes="200"
-              src={`https:${wine.img}`}
-              alt="wine image"
-            />
-          </div>
-        )}
+        <div className="relative h-64 w-full">
+          <Image
+            className="drop-shadow-2xl object-contain p-8 pt-0"
+            fill={true}
+            sizes="200"
+            src={wine.img ? `https:${wine.img}` : '/wineNotFound.png'}
+            alt="wine image"
+          />
+        </div>
+
         <BlueBackground className="opacity-70" />
       </WineDialogHeader>
 

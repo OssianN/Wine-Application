@@ -1,5 +1,5 @@
 'use server';
-import type { Page } from 'playwright';
+import type { Page } from 'puppeteer';
 
 export const getWineCountry = async (page: Page) => {
   try {
@@ -23,7 +23,9 @@ export const getWineCountry = async (page: Page) => {
 export const getWineImg = async (page: Page) => {
   try {
     const imageElement = await page.$('.wineLabel-module__image--3HOnd');
-    return imageElement ? imageElement.getAttribute('src') : null;
+    return imageElement
+      ? await imageElement.evaluate(el => el.getAttribute('src'))
+      : null;
   } catch (e) {
     console.error(e);
     return null;

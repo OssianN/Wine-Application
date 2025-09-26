@@ -1,5 +1,6 @@
 'use server';
-import puppeteer, { type Page } from 'puppeteer';
+import puppeteer, { type Page } from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 import {
   getCurrentPriceOfWine,
@@ -103,26 +104,48 @@ const configurePageSettings = async (page: Page) => {
 };
 
 export const startBrowser = async () => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--disable-gpu',
-      '--disable-extensions',
-      '--disable-default-apps',
-      '--disable-features=TranslateUI',
-      '--disable-ipc-flooding-protection',
-      '--disable-background-networking',
-      '--disable-renderer-backgrounding',
-      '--disable-field-trial-config',
-      '--disable-background-timer-throttling',
-    ],
-    timeout: 60000,
-  });
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  return browser;
+  try {
+    let executablePath;
+
+    if (isProduction) {
+      executablePath = await chromium.executablePath();
+    }
+
+    const browser = await puppeteer.launch({
+      args: isProduction
+        ? [
+            ...chromium.args,
+            '--hide-scrollbars',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+          ]
+        : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--disable-gpu',
+            '--disable-extensions',
+            '--disable-default-apps',
+            '--disable-features=TranslateUI',
+            '--disable-ipc-flooding-protection',
+            '--disable-background-networking',
+            '--disable-renderer-backgrounding',
+            '--disable-field-trial-config',
+            '--disable-background-timer-throttling',
+          ],
+      executablePath,
+      headless: true,
+      timeout: 60000,
+    });
+
+    return browser;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Browser launch failed: ${errorMessage}`);
+  }
 };

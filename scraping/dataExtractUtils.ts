@@ -1,5 +1,5 @@
 'use server';
-import type { Page } from 'puppeteer';
+import type { Page } from 'puppeteer-core';
 
 export const getWineCountry = async (page: Page) => {
   try {

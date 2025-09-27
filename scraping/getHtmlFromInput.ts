@@ -106,10 +106,7 @@ export const startBrowser = async () => {
   try {
     const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
     const executablePath =
-      process.env.CHROME_EXECUTABLE_PATH ||
-      (await chromium.executablePath(
-        'https://drive.google.com/drive/folders/1wGhDVZLh1Pt2OaB-M2-9DdYsXc7Xasam?usp=share_link'
-      ));
+      process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath());
 
     const browser = await puppeteer.launch({
       args: isLocal

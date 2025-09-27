@@ -1,6 +1,6 @@
 'use server';
 import puppeteer, { type Page } from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import chromium from '@sparticuz/chromium-min';
 
 import {
   getCurrentPriceOfWine,
@@ -85,10 +85,9 @@ export const getHtmlFromTitle = async ({
 };
 
 const configurePageSettings = async (page: Page) => {
-  await page.setUserAgent({
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-  });
+  await page.setUserAgent(
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+  );
 
   await page.setViewport({ width: 1920, height: 1080 });
 
@@ -104,38 +103,28 @@ const configurePageSettings = async (page: Page) => {
 };
 
 export const startBrowser = async () => {
-  const isProduction = process.env.NODE_ENV === 'production';
-
   try {
-    let executablePath;
-
-    if (isProduction) {
-      executablePath = await chromium.executablePath();
-    }
+    const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
+    const executablePath =
+      process.env.CHROME_EXECUTABLE_PATH ||
+      (await chromium.executablePath(
+        'https://drive.google.com/file/d/19ONSIMSwAarMEsP8j53LwVayDRl0sU1m/view?usp=share_link'
+      ));
 
     const browser = await puppeteer.launch({
-      args: isProduction
-        ? [
+      args: isLocal
+        ? puppeteer.defaultArgs()
+        : [
             ...chromium.args,
             '--hide-scrollbars',
             '--disable-web-security',
             '--disable-features=VizDisplayCompositor',
-          ]
-        : [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
             '--no-first-run',
-            '--disable-gpu',
-            '--disable-extensions',
-            '--disable-default-apps',
-            '--disable-features=TranslateUI',
-            '--disable-ipc-flooding-protection',
-            '--disable-background-networking',
-            '--disable-renderer-backgrounding',
-            '--disable-field-trial-config',
             '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-ipc-flooding-protection',
+            '--single-process',
           ],
       executablePath,
       headless: true,

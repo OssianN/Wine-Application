@@ -108,7 +108,7 @@ export const startBrowser = async () => {
     const executablePath =
       process.env.CHROME_EXECUTABLE_PATH ||
       (await chromium.executablePath(
-        'https://drive.google.com/file/d/19ONSIMSwAarMEsP8j53LwVayDRl0sU1m/view?usp=share_link'
+        'https://drive.google.com/drive/folders/1wGhDVZLh1Pt2OaB-M2-9DdYsXc7Xasam?usp=share_link'
       ));
 
     const browser = await puppeteer.launch({

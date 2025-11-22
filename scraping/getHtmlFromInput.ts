@@ -31,7 +31,7 @@ export const getHtmlFromTitle = async ({
 
     await searchPage.goto(
       `https://www.vivino.com/sv/search/wines?q=${cleanSearchTitle}+${year}`,
-      { waitUntil: 'networkidle0', timeout: 30000 }
+      { waitUntil: 'networkidle0', timeout: 3000 }
     );
     await new Promise(resolve =>
       setTimeout(resolve, Math.random() * 500 + 200)
@@ -52,12 +52,12 @@ export const getHtmlFromTitle = async ({
     const winePage = await browser.newPage();
     await configurePageSettings(winePage as Page);
 
-    winePage.setDefaultNavigationTimeout(30000);
-    winePage.setDefaultTimeout(30000);
+    winePage.setDefaultNavigationTimeout(3000);
+    winePage.setDefaultTimeout(3000);
 
     await winePage.goto(winePageUrl, {
       waitUntil: 'networkidle0',
-      timeout: 30000,
+      timeout: 3000,
     });
     await new Promise(resolve =>
       setTimeout(resolve, Math.random() * 500 + 200)

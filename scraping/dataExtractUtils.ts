@@ -3,6 +3,7 @@ import type { Page } from 'puppeteer-core';
 
 export const getWineCountry = async (page: Page) => {
   try {
+    await page.waitForSelector('.wineInfoLocation__regionAndCountry--1nEJz', { timeout: 5000 });
     const countryElement = await page.$(
       '.wineInfoLocation__regionAndCountry--1nEJz'
     );
@@ -22,6 +23,7 @@ export const getWineCountry = async (page: Page) => {
 
 export const getWineImg = async (page: Page) => {
   try {
+    await page.waitForSelector('.wineLabel-module__image--3HOnd', { timeout: 5000 });
     const imageElement = await page.$('.wineLabel-module__image--3HOnd');
     return imageElement
       ? await imageElement.evaluate(el => el.getAttribute('src'))
@@ -34,6 +36,7 @@ export const getWineImg = async (page: Page) => {
 
 export const getWineRating = async (page: Page) => {
   try {
+    await page.waitForSelector('.vivinoRating_averageValue__uDdPM', { timeout: 5000 });
     const ratingElement = await page.$('.vivinoRating_averageValue__uDdPM');
     return (
       (await ratingElement?.evaluate(el => el.textContent?.trim())) ??
@@ -47,6 +50,7 @@ export const getWineRating = async (page: Page) => {
 
 export const getCurrentPriceOfWine = async (page: Page) => {
   try {
+    await page.waitForSelector('.purchaseAvailabilityPPC__betterValueSentence--3OMTX', { timeout: 5000 });
     const priceElement = await page.$(
       '.purchaseAvailabilityPPC__betterValueSentence--3OMTX'
     );

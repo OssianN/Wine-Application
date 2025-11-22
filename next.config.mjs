@@ -4,7 +4,9 @@ const nextConfig = {
     remotePatterns: [{ hostname: 'images.vivino.com' }],
   },
   reactStrictMode: false,
-  serverComponentsExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
+  experimental: {
+    serverComponentsExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
+  },
 };
 
 export default nextConfig;

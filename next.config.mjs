@@ -5,7 +5,7 @@ const nextConfig = {
   },
   reactStrictMode: false,
   experimental: {
-    serverComponentsExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
+    serverComponentsExternalPackages: ['@sparticuz/chromium'],
   },
 };
 

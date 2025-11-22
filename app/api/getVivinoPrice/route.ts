@@ -1,6 +1,7 @@
 import { updateCurrentPriceInDb } from '@/mongoDB/updateCurrentPriceInDb';
 import { getCurrentPriceOfWine } from '@/scraping/dataExtractUtils';
 import { startBrowser } from '@/scraping/getHtmlFromInput';
+import type { Page } from 'puppeteer-core';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -13,7 +14,7 @@ export async function GET(req: Request) {
 
   const browser = await startBrowser();
 
-  const page = await browser.newPage();
+  const page = (await browser.newPage()) as Page;
   await page.setUserAgent(
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
   );

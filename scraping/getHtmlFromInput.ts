@@ -115,18 +115,7 @@ export const startBrowser = async () => {
       const executablePath = await getChromiumPath();
       launchOptions = {
         ...launchOptions,
-        args: [
-          chromium.args,
-          '--hide-scrollbars',
-          '--disable-web-security',
-          '--disable-features=VizDisplayCompositor',
-          '--no-first-run',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding',
-          '--disable-ipc-flooding-protection',
-          '--single-process',
-        ],
+        args: chromium.args,
         executablePath,
       };
       console.log('Launching browser with executable path:', executablePath);

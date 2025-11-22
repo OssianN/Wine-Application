@@ -1,13 +1,12 @@
 'use server';
-import puppeteer, { type Page } from 'puppeteer-core';
-import chromium from '@sparticuz/chromium-min';
-
+import type { Browser, Page } from 'puppeteer-core';
 import {
   getCurrentPriceOfWine,
   getWineCountry,
   getWineImg,
   getWineRating,
 } from './dataExtractUtils';
+import { getChromiumPath } from './setupChromium';
 
 export const getHtmlFromTitle = async ({
   title,
@@ -22,10 +21,10 @@ export const getHtmlFromTitle = async ({
       .normalize('NFD')
       .replace(/[\u0300-\u036f’]/g, '');
 
-    const browser = await startBrowser();
+    const browser = (await startBrowser()) as Browser;
 
     const searchPage = await browser.newPage();
-    await configurePageSettings(searchPage);
+    await configurePageSettings(searchPage as Page);
 
     searchPage.setDefaultNavigationTimeout(60000);
     searchPage.setDefaultTimeout(60000);
@@ -51,7 +50,7 @@ export const getHtmlFromTitle = async ({
     const winePageUrl = `https://www.vivino.com${href.replace('/en', '/sv')}`;
 
     const winePage = await browser.newPage();
-    await configurePageSettings(winePage);
+    await configurePageSettings(winePage as Page);
 
     winePage.setDefaultNavigationTimeout(60000);
     winePage.setDefaultTimeout(60000);
@@ -104,31 +103,38 @@ const configurePageSettings = async (page: Page) => {
 
 export const startBrowser = async () => {
   try {
-    const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
-    const executablePath =
-      process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath());
-
-    const browser = await puppeteer.launch({
-      args: isLocal
-        ? puppeteer.defaultArgs()
-        : [
-            ...chromium.args,
-            '--hide-scrollbars',
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor',
-            '--no-first-run',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--disable-ipc-flooding-protection',
-            '--single-process',
-          ],
-      executablePath,
+    const isVercel = !!process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    let puppeteer;
+    let launchOptions: Record<string, unknown> = {
       headless: true,
-      timeout: 60000,
-    });
+    };
 
-    return browser;
+    if (isVercel) {
+      const chromium = (await import('@sparticuz/chromium-min')).default;
+      puppeteer = await import('puppeteer-core');
+      const executablePath = await getChromiumPath();
+      launchOptions = {
+        ...launchOptions,
+        args: [
+          chromium.args,
+          '--hide-scrollbars',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--no-first-run',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-ipc-flooding-protection',
+          '--single-process',
+        ],
+        executablePath,
+      };
+      console.log('Launching browser with executable path:', executablePath);
+    } else {
+      puppeteer = await import('puppeteer');
+    }
+
+    return await puppeteer.launch(launchOptions);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';

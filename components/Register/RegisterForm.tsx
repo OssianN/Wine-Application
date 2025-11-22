@@ -13,9 +13,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z, ZodIssue } from 'zod';
 import { registerNewUser } from '@/mongoDB/registerNewUser';
-import { useFormState } from 'react-dom';
 import { registerFormSchema } from '@/lib/schemas';
-import { useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 
 const initialState: { errors: ZodIssue[] } = {
   errors: [
@@ -42,7 +41,7 @@ export const RegisterForm = () => {
 
   const serverAction = (prev: unknown, formData: FormData) =>
     registerNewUser(prev, formData);
-  const [formState, formAction] = useFormState(serverAction, initialState);
+  const [formState, formAction] = useActionState(serverAction, initialState);
 
   useEffect(() => {
     formState?.errors.forEach(({ path, message }) => {

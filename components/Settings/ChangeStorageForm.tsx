@@ -13,8 +13,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateStorageSize } from '@/mongoDB/updateStorageSize';
 import { z } from 'zod';
-import { useFormState } from 'react-dom';
-import { useEffect } from 'react';
+import { useEffect, useActionState } from 'react';
 import { storageSizeSchema } from '@/lib/schemas';
 import type { User } from '@/types';
 
@@ -46,7 +45,7 @@ export const ChangeStorageForm = ({
 
   const serverAction = (prev: unknown, formData: FormData) =>
     updateStorageSize<typeof initialState>(prev, formData);
-  const [formState, formAction] = useFormState(serverAction, initialState);
+  const [formState, formAction] = useActionState(serverAction, initialState);
 
   useEffect(() => {
     if (formState.isSubmitted) {

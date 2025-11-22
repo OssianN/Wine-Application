@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ZodIssue } from 'zod';
 import { postNewWine } from '@/mongoDB/postNewWine';
 import { updateWine } from '@/mongoDB/updateWine';
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { WineContext } from '@/providers/WineProvider';
 import { SubmitButton } from '../SubmitButton';
 import { wineFormSchema } from '@/lib/schemas';
@@ -62,7 +62,7 @@ export const WineForm = ({
 
   const { setOpenWineFormDialog, handleOpenWineDialog } =
     useContext(WineContext);
-  const [formState, formAction] = useFormState(serverAction, initialState);
+  const [formState, formAction] = useActionState(serverAction, initialState);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     const nextInputMap = new Map(

@@ -35,6 +35,7 @@ export const getHtmlFromTitle = async ({
     );
 
     const wineAnchor = await searchPage.$('.anchor_anchor__m8Qi-');
+    console.log({ wineAnchor });
     const href = await wineAnchor?.evaluate(el => {
       return el.getAttribute('href');
     });

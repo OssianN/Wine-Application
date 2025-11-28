@@ -1,7 +1,7 @@
 'use server';
 import WineDataBase from '../mongoDB/wine-schema';
 import UserDataBase from './user-schema';
-import getVivinoData from '../scraping/getWineData';
+import { getVivinoData } from '../scraping/getVivinoData';
 import { connectMongo } from './';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
@@ -31,7 +31,7 @@ export const postNewWine = async <T>(
     }
 
     const [scraping, session] = await Promise.all([
-      getVivinoData(parsedData.title, parsedData.year),
+      getVivinoData({ title: parsedData.title }),
       getUserSession(),
       connectMongo(),
     ]);

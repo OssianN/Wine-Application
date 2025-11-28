@@ -11,6 +11,7 @@ import { archiveWine } from '@/mongoDB/archiveWine';
 import { Skeleton } from '../ui/skeleton';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Wine } from '@/types';
+import { ensureHttps } from '@/lib/utils';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -81,7 +82,7 @@ export const WineDetails = ({
             className="drop-shadow-2xl object-contain p-8 pt-0"
             fill={true}
             sizes="200"
-            src={wine.img ? `https:${wine.img}` : '/wineNotFound.png'}
+            src={ensureHttps(wine.img)}
             alt="wine image"
           />
         </div>

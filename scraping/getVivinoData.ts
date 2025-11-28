@@ -1,20 +1,9 @@
 'use server';
 import type { Browser, Page } from 'puppeteer-core';
-import {
-  getCurrentPriceOfWine,
-  getWineCountry,
-  getWineImg,
-  getWineRating,
-} from './dataExtractUtils';
+import { getCurrentPriceOfWine, getWineImg } from './dataExtractUtils';
 import { getChromiumPath } from './setupChromium';
 
-export const getHtmlFromTitle = async ({
-  title,
-  year,
-}: {
-  title: string;
-  year: number;
-}) => {
+export const getVivinoData = async ({ title }: { title: string }) => {
   try {
     const searchTitle = title.split(' ').join('+');
     const cleanSearchTitle = searchTitle
@@ -26,54 +15,32 @@ export const getHtmlFromTitle = async ({
     const searchPage = await browser.newPage();
     await configurePageSettings(searchPage as Page);
 
-    searchPage.setDefaultNavigationTimeout(10000);
-    searchPage.setDefaultTimeout(10000);
-
     await searchPage.goto(
-      `https://www.vivino.com/sv/search/wines?q=${cleanSearchTitle}+${year}`,
-      { waitUntil: 'domcontentloaded', timeout: 10000 }
+      `https://www.systembolaget.se/sortiment/?q=${cleanSearchTitle}`,
+      {
+        waitUntil: 'domcontentloaded',
+        timeout: 10000,
+      }
     );
 
-    const wineAnchor = await searchPage.$('.anchor_anchor__m8Qi-');
-    console.log({ wineAnchor });
-    const href = await wineAnchor?.evaluate(el => {
-      return el.getAttribute('href');
-    });
-
-    if (!href) {
-      await browser.close();
-      return undefined;
-    }
-
-    const winePageUrl = `https://www.vivino.com${href.replace('/en', '/sv')}`;
-
-    await searchPage.close();
-
-    const winePage = await browser.newPage();
-    await configurePageSettings(winePage as Page);
-
-    winePage.setDefaultNavigationTimeout(10000);
-    winePage.setDefaultTimeout(10000);
-
-    await winePage.goto(winePageUrl, {
-      waitUntil: 'domcontentloaded',
+    await searchPage.waitForSelector('#stock_scrollcontainer', {
       timeout: 10000,
     });
 
-    if (!winePage) {
-      return undefined;
-    }
-
-    const [img, rating, country, currentPrice] = await Promise.all([
-      getWineImg(winePage),
-      getWineRating(searchPage),
-      getWineCountry(searchPage),
-      getCurrentPriceOfWine(winePage),
+    const [img, currentPrice] = await Promise.all([
+      getWineImg(searchPage),
+      getCurrentPriceOfWine(searchPage),
     ]);
 
     browser.close();
 
-    return { img, rating, country, currentPrice, winePageUrl };
+    return {
+      img,
+      currentPrice,
+      rating: null,
+      country: null,
+      winePageUrl: null,
+    };
   } catch (e) {
     console.error(e);
     return undefined;

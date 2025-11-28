@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import WineDataBase from '../mongoDB/wine-schema';
-import getVivinoData from '../scraping/getWineData';
+import { getVivinoData } from '../scraping/getVivinoData';
 import { connectMongo } from './';
 import { parseWine } from '@/lib/parseWine';
 import { wineDto } from '@/lib/wineDto';
@@ -19,7 +19,7 @@ export const updateWine = async <T>(
     }
 
     const [scraping] = await Promise.all([
-      getVivinoData(parsedData.title, parsedData.year),
+      getVivinoData({ title: parsedData.title }),
       connectMongo(),
     ]);
 

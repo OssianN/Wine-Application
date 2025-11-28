@@ -3,20 +3,9 @@ import type { Page } from 'puppeteer-core';
 
 export const getWineCountry = async (page: Page) => {
   try {
-    await page.waitForSelector('.wineInfoLocation__regionAndCountry--1nEJz', {
-      timeout: 5000,
-    });
-    const countryElement = await page.$(
-      '.wineInfoLocation__regionAndCountry--1nEJz'
+    return page.evaluate(() =>
+      Array.from(document.querySelectorAll('img'), el => el.getAttribute('src'))
     );
-
-    if (!countryElement) return 'No country found';
-
-    const text = await countryElement.evaluate(el => el.textContent?.trim());
-
-    const [region, country] = text.split(',').map(part => part.trim());
-
-    return `${region}, ${country}`;
   } catch (e) {
     console.error(e);
     return null;
@@ -25,13 +14,12 @@ export const getWineCountry = async (page: Page) => {
 
 export const getWineImg = async (page: Page) => {
   try {
-    await page.waitForSelector('.wineLabel-module__image--3HOnd', {
-      timeout: 5000,
-    });
-    const imageElement = await page.$('.wineLabel-module__image--3HOnd');
-    return imageElement
-      ? await imageElement.evaluate(el => el.getAttribute('src'))
-      : null;
+    const images = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('img'), (el: HTMLElement) =>
+        el.getAttribute('src')
+      )
+    );
+    return images[2];
   } catch (e) {
     console.error(e);
     return null;
@@ -56,21 +44,14 @@ export const getWineRating = async (page: Page) => {
 
 export const getCurrentPriceOfWine = async (page: Page) => {
   try {
-    await page.waitForSelector(
-      '.purchaseAvailabilityPPC__betterValueSentence--3OMTX',
-      { timeout: 5000 }
+    const price = await page.evaluate(
+      () =>
+        Array.from(document.querySelectorAll('.sans-strong-175.shrink-0'), el =>
+          el.innerHTML.replace(':-', '').trim()
+        )[2]
     );
-    const priceElement = await page.$(
-      '.purchaseAvailabilityPPC__betterValueSentence--3OMTX'
-    );
 
-    if (!priceElement) return undefined;
-
-    const priceText = await priceElement.evaluate(el => el.textContent?.trim());
-
-    if (!priceText || isNaN(Number(priceText))) return undefined;
-
-    return priceText;
+    return isNaN(Number(price)) ? null : Number(price);
   } catch (e) {
     console.error(e);
     return undefined;

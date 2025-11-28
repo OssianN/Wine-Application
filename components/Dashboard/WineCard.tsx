@@ -6,6 +6,7 @@ import { BlueBackground } from '../ui/blue-light-background';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { GripIcon } from 'lucide-react';
 import type { Wine } from '@/types';
+import { ensureHttps } from '@/lib/utils';
 
 type WineCardProps = {
   wine: Wine;
@@ -76,7 +77,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
           key={wine._id}
           width={200}
           height={200}
-          src={wine.img ? `https:${wine.img}` : '/wineNotFound.png'}
+          src={ensureHttps(wine.img)}
           alt={wine.title}
           style={{ touchAction: 'none' }}
           className="pt-5 drop-shadow-2xl h-36 object-contain"

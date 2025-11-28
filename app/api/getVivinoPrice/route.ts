@@ -1,6 +1,6 @@
 import { updateCurrentPriceInDb } from '@/mongoDB/updateCurrentPriceInDb';
 import { getCurrentPriceOfWine } from '@/scraping/dataExtractUtils';
-import { startBrowser } from '@/scraping/getHtmlFromInput';
+import { startBrowser } from '@/scraping/getVivinoData';
 import type { Page } from 'puppeteer-core';
 
 export async function GET(req: Request) {

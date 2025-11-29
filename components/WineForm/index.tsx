@@ -2,7 +2,6 @@
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -181,9 +180,6 @@ export const WineForm = ({
                     enterKeyHint="next"
                   />
                 </FormControl>
-                <FormDescription>
-                  Leave empty for average price from Vivino
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

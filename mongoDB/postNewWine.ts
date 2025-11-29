@@ -31,7 +31,7 @@ export const postNewWine = async <T>(
     }
 
     const [scraping, session] = await Promise.all([
-      getVivinoData({ title: parsedData.title }),
+      getVivinoData({ title: parsedData.title, year: parsedData.year }),
       getUserSession(),
       connectMongo(),
     ]);

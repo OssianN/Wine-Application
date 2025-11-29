@@ -19,7 +19,7 @@ export const updateWine = async <T>(
     }
 
     const [scraping] = await Promise.all([
-      getVivinoData({ title: parsedData.title }),
+      getVivinoData({ title: parsedData.title, year: parsedData.year }),
       connectMongo(),
     ]);
 

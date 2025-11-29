@@ -1,18 +1,18 @@
 'use server';
+import { load } from 'cheerio';
 // import type { Browser, Page } from 'puppeteer-core';
 // import { getCurrentPriceOfWine, getWineImg } from './dataExtractUtils';
 // import { getChromiumPath } from './setupChromium';
 
 export const getVivinoData = async ({ title }: { title: string }) => {
   try {
-    const { data } = await fetchWebsiteData(title);
-    const img = data[0].results[2].attributes.find(
-      attr => attr.name === 'srcset'
-    );
-    console.log({ data: data[0].results });
+    const { content } = await fetchWebsiteData(title);
+    const $ = load(content);
+
+    const img = $('.wineCard__bottleSection--3Bzic img').attr('src');
 
     return {
-      img: img?.value,
+      img,
       currentPrice: null,
       rating: null,
       country: null,
@@ -28,7 +28,7 @@ export const fetchWebsiteData = async (
   title: string
 ): Promise<ScrapingResponse> => {
   const TOKEN = process.env.BROWSWER_IO_KEY;
-  const url = `https://production-sfo.browserless.io/scrape?token=${TOKEN}`;
+  const url = `https://production-sfo.browserless.io/unblock?token=${TOKEN}&proxy=residential`;
   const headers = {
     'Cache-Control': 'no-cache',
     'Content-Type': 'application/json',
@@ -40,12 +40,8 @@ export const fetchWebsiteData = async (
     .replace(/[\u0300-\u036f’]/g, '');
 
   const data = {
-    url: `https://www.systembolaget.se/sortiment/?q=${cleanSearchTitle}`,
-    elements: [{ selector: 'img' }],
-    waitForSelector: {
-      selector: '#stock_scrollcontainer',
-      timeout: 5000,
-    },
+    url: `https://www.vivino.com/sv/search/wines?q=${cleanSearchTitle}`,
+    content: true,
   };
 
   const response = await fetch(url, {
@@ -58,19 +54,6 @@ export const fetchWebsiteData = async (
 };
 
 type ScrapingResponse = {
-  data: {
-    results: {
-      attributes: {
-        name: string;
-        value: string;
-      }[];
-      height: number;
-      html: string;
-      left: number;
-      text: string;
-      top: number;
-      width: number;
-    }[];
-    selector: string;
-  }[];
+  content: string;
+  cookies: [];
 };

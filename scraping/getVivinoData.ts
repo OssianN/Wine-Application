@@ -47,7 +47,16 @@ export const getVivinoData = async ({ title }: { title: string }) => {
   }
 };
 
-const configurePageSettings = async (page: Page) => {
+export const configurePageSettings = async (page: Page) => {
+  await page.setRequestInterception(true);
+  page.on('request', req => {
+    if (['image', 'stylesheet', 'font'].includes(req.resourceType())) {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
+
   await page.setUserAgent(
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
   );

@@ -3,6 +3,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { hostname: 'images.vivino.com' },
+      { hostname: 'web-common.vivino.com' },
       { hostname: 'product-cdn.systembolaget.se' },
     ],
   },

@@ -25,8 +25,6 @@ export const getVivinoData = async ({
       .text();
     const vivinoUrl = $('.wineCard__cardLink--3F_uB').first().attr('href');
 
-    console.log({ vivinoUrl });
-
     return {
       img,
       rating,

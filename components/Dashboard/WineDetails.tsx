@@ -2,7 +2,7 @@ import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
 import { EditWineMenu } from './EditWineMenu';
 import Image from 'next/image';
-import useSwr from 'swr';
+// import useSwr from 'swr';
 import { Separator } from '../ui/separator';
 import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
@@ -24,13 +24,19 @@ export const WineDetails = ({
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
-  console.log({ wine });
-  const {
-    data: { price: vivinoPrice },
-    isLoading,
-  } = useSwr(`/api/getVivinoPrice?vivinoUrl=${wine?.vivinoUrl}`, fetcher, {
-    fallbackData: { price: wine?.currentPrice },
-  });
+  // const { data, isLoading } = useSwr(
+  //   wine?.vivinoUrl ? `/api/getVivinoPrice?vivinoUrl=${wine.vivinoUrl}` : null,
+  //   fetcher,
+  //   {
+  //     fallbackData: { price: wine?.currentPrice },
+  //     revalidateOnFocus: false,
+  //     revalidateOnReconnect: false,
+  //     dedupingInterval: 60000 * 60,
+  //   }
+  // );
+
+  const vivinoPrice = wine?.price;
+  const isLoading = false;
 
   if (!wine) return null;
 
@@ -148,4 +154,4 @@ export const WineDetails = ({
   );
 };
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+// const fetcher = (url: string) => fetch(url).then(res => res.json());

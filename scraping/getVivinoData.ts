@@ -33,34 +33,39 @@ export const getVivinoData = async ({
     };
   } catch (e) {
     console.error(e);
-    return undefined;
+    throw e;
   }
 };
 
 export const fetchWebsiteData = async (
   url: string
 ): Promise<ScrapingResponse> => {
-  const TOKEN = process.env.BROWSWER_IO_KEY;
-  const browserIOUrl = `https://production-sfo.browserless.io/unblock?token=${TOKEN}&proxy=residential`;
-  const headers = {
-    'Cache-Control': 'no-cache',
-    'Content-Type': 'application/json',
-  };
+  try {
+    const TOKEN = process.env.BROWSWER_IO_KEY;
+    const browserIOUrl = `https://production-sfo.browserless.io/unblock?token=${TOKEN}&proxy=residential`;
+    const headers = {
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+    };
 
-  const data = {
-    url,
-    content: true,
-    // rejectResourceTypes: ['image'],
-    // rejectRequestPattern: ['/^.*\\.(css)'],
-  };
+    const data = {
+      url,
+      content: true,
+      // rejectResourceTypes: ['image'],
+      // rejectRequestPattern: ['/^.*\\.(css)'],
+    };
 
-  const response = await fetch(browserIOUrl, {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify(data),
-  });
+    const response = await fetch(browserIOUrl, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(data),
+    });
 
-  return await response.json();
+    return await response.json();
+  } catch (e) {
+    console.error('Error fetching website data:', e);
+    throw e;
+  }
 };
 
 type ScrapingResponse = {

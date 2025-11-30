@@ -1,5 +1,5 @@
 'use server';
-import { load } from 'cheerio';
+// import { load } from 'cheerio';
 
 export const getVivinoData = async ({
   title,
@@ -15,23 +15,22 @@ export const getVivinoData = async ({
       .replace(/[\u0300-\u036f’]/g, '');
     const url = `https://www.vivino.com/sv/search/wines?q=${cleanSearchTitle}+${year}`;
 
-    const { content } = await fetchWebsiteData(url);
-    const $ = load(content);
+    const { data } = await fetchWebsiteData(url);
+    console.log({ data });
+    // const $ = load(content);
 
-    const img = $('.wineCard__bottleSection--3Bzic img').first().attr('src');
-    const rating = $('.vivinoRating__averageValue--3p6Wp').first().text();
-    const country = $('.wineInfoLocation__regionAndCountry--1nEJz')
-      .first()
-      .text();
-    const vivinoUrl = $('.wineCard__cardLink--3F_uB').first().attr('href');
-
-    console.log({ vivinoUrl });
+    // const img = $('.wineCard__bottleSection--3Bzic img').first().attr('src');
+    // const rating = $('.vivinoRating__averageValue--3p6Wp').first().text();
+    // const country = $('.wineInfoLocation__regionAndCountry--1nEJz')
+    //   .first()
+    //   .text();
+    // const vivinoUrl = $('.wineCard__cardLink--3F_uB').first().attr('href');
 
     return {
-      img,
-      rating,
-      country,
-      vivinoUrl: vivinoUrl ? `https://www.vivino.com${vivinoUrl}` : null,
+      img: null,
+      rating: null,
+      country: null,
+      vivinoUrl: null,
     };
   } catch (e) {
     console.error(e);
@@ -43,7 +42,7 @@ export const fetchWebsiteData = async (
   url: string
 ): Promise<ScrapingResponse> => {
   const TOKEN = process.env.BROWSWER_IO_KEY;
-  const browserIOUrl = `https://production-sfo.browserless.io/unblock?token=${TOKEN}&proxy=residential`;
+  const browserIOUrl = `https://production-sfo.browserless.io/scrape?token=${TOKEN}`;
   const headers = {
     'Cache-Control': 'no-cache',
     'Content-Type': 'application/json',
@@ -51,7 +50,16 @@ export const fetchWebsiteData = async (
 
   const data = {
     url,
-    content: true,
+    elements: [
+      { selector: '.wineCard__bottleSection--3Bzic img' },
+      { selector: '.vivinoRating__averageValue--3p6Wp' },
+      { selector: '.wineInfoLocation__regionAndCountry--1nEJz' },
+      { selector: '.wineCard__cardLink--3F_uB' },
+    ],
+    waitForSelector: {
+      selector: '.vivinoRating__averageValue--3p6Wp',
+      timeout: 5000,
+    },
     // rejectResourceTypes: ['image'],
     // rejectRequestPattern: ['/^.*\\.(css)'],
   };
@@ -65,7 +73,25 @@ export const fetchWebsiteData = async (
   return await response.json();
 };
 
+// type ScrapingResponse = {
+//   content: string;
+//   cookies: [];
+// };
+
 type ScrapingResponse = {
-  content: string;
-  cookies: [];
+  data: {
+    results: {
+      attributes: {
+        name: string;
+        value: string;
+      }[];
+      height: number;
+      html: string;
+      left: number;
+      text: string;
+      top: number;
+      width: number;
+    }[];
+    selector: string;
+  }[];
 };

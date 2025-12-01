@@ -1,5 +1,4 @@
-import { fetchWebsiteData } from '@/scraping/getVivinoData';
-import { load } from 'cheerio';
+// import { fetchWebsiteData } from '@/scraping/getVivinoData';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -7,9 +6,8 @@ export async function GET(req: Request) {
 
   if (!url) return Response.json({ price: null, error: 'Missing URL' });
 
-  const { content } = await fetchWebsiteData(url);
-  const $ = load(content);
-  const price = $('.purchaseAvailability__currentPrice--3mO4u').first().text();
+  // const { value } = await fetchWebsiteData(url);
+  // const price = $('.purchaseAvailability__currentPrice--3mO4u').first().text();
 
-  return Response.json({ price });
+  return Response.json({ price: null });
 }

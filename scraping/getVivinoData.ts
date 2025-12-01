@@ -1,5 +1,4 @@
 'use server';
-import { load } from 'cheerio';
 
 export const getVivinoData = async ({
   title,
@@ -15,15 +14,31 @@ export const getVivinoData = async ({
       .replace(/[\u0300-\u036f’]/g, '');
     const url = `https://www.vivino.com/sv/search/wines?q=${cleanSearchTitle}+${year}`;
 
-    const { content } = await fetchWebsiteData(url);
-    const $ = load(content);
+    const evaluateScript = `
+      (() => {
+        try {
+          const img = document.querySelector('.wineCard__bottleSection--3Bzic img')?.getAttribute('src');
+          const rating = document.querySelector('.vivinoRating__averageValue--3p6Wp')?.textContent;
+          const country = document.querySelector('.wineInfoLocation__regionAndCountry--1nEJz')?.textContent;
+          const vivinoUrl = document.querySelector('.wineCard__cardLink--3F_uB')?.getAttribute('href');
+          return JSON.stringify({ img, rating, country, vivinoUrl, error: null });
+        } catch (e) {
+          return JSON.stringify({ error: (e?.message ?? String(e)) });
+        }
+      })()
+    `;
 
-    const img = $('.wineCard__bottleSection--3Bzic img').first().attr('src');
-    const rating = $('.vivinoRating__averageValue--3p6Wp').first().text();
-    const country = $('.wineInfoLocation__regionAndCountry--1nEJz')
-      .first()
-      .text();
-    const vivinoUrl = $('.wineCard__cardLink--3F_uB').first().attr('href');
+    const { value } = await fetchWebsiteData(url, evaluateScript);
+
+    if (!value) {
+      throw new Error('No data returned from scraping');
+    }
+    const parsedValue = JSON.parse(value);
+    if (parsedValue.error) {
+      throw new Error(`Error in scraped data: ${parsedValue.error}`);
+    }
+
+    const { img, rating, country, vivinoUrl } = parsedValue;
 
     return {
       img,
@@ -38,30 +53,55 @@ export const getVivinoData = async ({
 };
 
 export const fetchWebsiteData = async (
-  url: string
+  url: string,
+  evaluateScript: string
 ): Promise<ScrapingResponse> => {
   try {
     const TOKEN = process.env.BROWSWER_IO_KEY;
-    const browserIOUrl = `https://production-sfo.browserless.io/unblock?token=${TOKEN}&proxy=residential`;
+    const browserIOUrl = `https://production-sfo.browserless.io/stealth/bql?token=${TOKEN}&proxy=residential&proxyCountry=se&proxySticky=true`;
     const headers = {
-      'Cache-Control': 'no-cache',
       'Content-Type': 'application/json',
     };
 
-    const data = {
-      url,
-      content: true,
-      // rejectResourceTypes: ['image'],
-      // rejectRequestPattern: ['/^.*\\.(css)'],
-    };
+    const query = `
+      mutation MultiLineEvaluate($url: String!) {
+        reject(type: [image, stylesheet, media]) {
+          time
+        }
+        goto(url: $url) {
+          status
+        }
+        waitForSelector(selector: ".wineCard__bottleSection--3Bzic") {
+          selector  
+          time  
+        }
+        evaluate(content: """
+          ${evaluateScript}
+          """) {
+            value
+          }
+      }
+    `;
 
     const response = await fetch(browserIOUrl, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        query,
+        variables: {
+          url,
+        },
+      }),
     });
 
-    return await response.json();
+    const result = await response.json();
+
+    if (result.errors) {
+      console.error('GraphQL Errors:', result.errors);
+      throw new Error(JSON.stringify(result.errors));
+    }
+
+    return result.data.evaluate;
   } catch (e) {
     console.error('Error fetching website data:', e);
     throw e;
@@ -69,6 +109,5 @@ export const fetchWebsiteData = async (
 };
 
 type ScrapingResponse = {
-  content: string;
-  cookies: [];
+  value: string;
 };

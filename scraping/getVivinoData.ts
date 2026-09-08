@@ -17,19 +17,30 @@ export const getVivinoData = async ({
 
     const { content } = await fetchWebsiteData(url);
     const $ = load(content);
-
-    const img = $('.wineCard__bottleSection--3Bzic img').first().attr('src');
-    const rating = $('.vivinoRating__averageValue--3p6Wp').first().text();
-    const country = $('.wineInfoLocation__regionAndCountry--1nEJz')
-      .first()
-      .text();
-    const vivinoUrl = $('.wineCard__cardLink--3F_uB').first().attr('href');
+    const card = $('[class*="wineCard__wineCard"]').first();
+    const imgEl = card
+      .find('[class*="wineCard__bottleSection"] img, [class*="wineCard__bottleShot"] img')
+      .first();
+    const img = imgEl.attr('src') || imgEl.attr('data-src');
+    const rating = card.find('[class*="averageValue"]').first().text().trim();
+    const country = (
+      card.find('[class*="regionAndCountry"]').first().text() ||
+      card.find('[class*="wineInfoLocation"]').first().text()
+    ).trim();
+    const vivinoHref =
+      (card.is('a') ? card.attr('href') : undefined) ||
+      card.find('[class*="wineCard__cardLink"]').first().attr('href') ||
+      $('[class*="wineCard__cardLink"]').first().attr('href');
 
     return {
       img,
       rating,
       country,
-      vivinoUrl: vivinoUrl ? `https://www.vivino.com${vivinoUrl}` : null,
+      vivinoUrl: vivinoHref
+        ? vivinoHref.startsWith('http')
+          ? vivinoHref
+          : `https://www.vivino.com${vivinoHref}`
+        : null,
     };
   } catch (e) {
     console.error(e);

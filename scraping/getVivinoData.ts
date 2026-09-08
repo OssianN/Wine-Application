@@ -1,6 +1,8 @@
 'use server';
 import { load } from 'cheerio';
 
+const WINE_CARD_SELECTOR = '[class*="wineCard__wineCard"]';
+
 export const getVivinoData = async ({
   title,
   year,
@@ -16,8 +18,10 @@ export const getVivinoData = async ({
     const url = `https://www.vivino.com/sv/search/wines?q=${cleanSearchTitle}+${year}`;
 
     const { content } = await fetchWebsiteData(url);
+    if (!content) return undefined;
+
     const $ = load(content);
-    const card = $('[class*="wineCard__wineCard"]').first();
+    const card = $(WINE_CARD_SELECTOR).first();
     const imgEl = card
       .find('[class*="wineCard__bottleSection"] img, [class*="wineCard__bottleShot"] img')
       .first();
@@ -52,27 +56,51 @@ export const fetchWebsiteData = async (
   url: string
 ): Promise<ScrapingResponse> => {
   const TOKEN = process.env.BROWSWER_IO_KEY;
-  const browserIOUrl = `https://production-sfo.browserless.io/unblock?token=${TOKEN}&proxy=residential`;
-  const headers = {
-    'Cache-Control': 'no-cache',
-    'Content-Type': 'application/json',
-  };
-
-  const data = {
-    url,
-    content: true,
-  };
+  const params = new URLSearchParams({
+    token: TOKEN ?? '',
+    proxy: 'residential',
+    proxyCountry: 'se',
+    blockAds: 'true',
+    blockAdsInclude:
+      'ublock-filters,easylist,easyprivacy,pgl,ublock-badware,urlhaus-full',
+  });
+  // Amsterdam is closer to the Swedish proxy than SFO, so less round-trip.
+  const browserIOUrl = `https://production-ams.browserless.io/unblock?${params}`;
 
   const response = await fetch(browserIOUrl, {
     method: 'POST',
-    headers: headers,
-    body: JSON.stringify(data),
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url,
+      content: true,
+      cookies: false,
+      screenshot: false,
+      browserWSEndpoint: false,
+      bestAttempt: true,
+      gotoOptions: {
+        waitUntil: 'domcontentloaded',
+        timeout: 15000,
+      },
+      waitForSelector: {
+        selector: WINE_CARD_SELECTOR,
+        timeout: 8000,
+      },
+    }),
   });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(
+      `Browserless unblock failed: ${response.status} ${errorBody}`
+    );
+  }
 
   return await response.json();
 };
 
 type ScrapingResponse = {
-  content: string;
-  cookies: [];
+  content?: string;
 };

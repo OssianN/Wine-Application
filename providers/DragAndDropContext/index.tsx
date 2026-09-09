@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { moveWine } from '@/mongoDB/moveWine';
 import { CheckCircle2, Loader2 } from 'lucide-react';
@@ -27,6 +28,10 @@ export const DragAndDropContext = ({ children }: { children: ReactNode }) => {
     if (!over?.data.current || !activeData) return;
 
     if (activeData.supports.includes(over?.data.current?.type)) {
+      const wineId = String(active.id);
+      const previousShelf = String(activeData.shelf);
+      const previousColumn = String(activeData.column);
+
       setElementOpacity(event, '0');
       const loadingToast = toast({
         itemID: 'move-wine-loading',
@@ -34,10 +39,10 @@ export const DragAndDropContext = ({ children }: { children: ReactNode }) => {
         action: <Loader2 className="animate-spin" />,
       });
 
-      await moveWine(
+      const result = await moveWine(
         over.data.current.shelf,
         over.data.current.column,
-        String(active.id)
+        wineId
       );
       setElementOpacity(event, '1');
 
@@ -48,10 +53,58 @@ export const DragAndDropContext = ({ children }: { children: ReactNode }) => {
         }, 1000)
       );
 
+      if (!result.ok) {
+        toast({
+          itemID: 'move-wine-error',
+          title: 'Could not move wine',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const undoMove = async () => {
+        const undoLoadingToast = toast({
+          itemID: 'undo-wine-loading',
+          title: 'Undoing move...',
+          action: <Loader2 className="animate-spin" />,
+        });
+
+        const undoResult = await moveWine(
+          previousShelf,
+          previousColumn,
+          wineId
+        );
+        undoLoadingToast.dismiss();
+
+        if (undoResult.ok) {
+          toast({
+            itemID: 'undo-wine-success',
+            title: 'Move undone',
+            action: <CheckCircle2 />,
+          });
+          return;
+        }
+
+        toast({
+          itemID: 'undo-wine-error',
+          title: 'Could not undo move',
+          description:
+            undoResult.reason === 'occupied'
+              ? 'The original slot is no longer empty.'
+              : undefined,
+          variant: 'destructive',
+        });
+      };
+
       toast({
         itemID: 'move-wine-success',
         title: 'Wine Moved',
-        action: <CheckCircle2 />,
+        duration: 8000,
+        action: (
+          <Button variant="outline" onClick={() => void undoMove()}>
+            Undo
+          </Button>
+        ),
       });
     }
   };

@@ -8,7 +8,6 @@ const nextConfig = {
     ],
   },
   reactStrictMode: false,
-  serverExternalPackages: ['@sparticuz/chromium-min', 'puppeteer-core'],
 };
 
 export default nextConfig;

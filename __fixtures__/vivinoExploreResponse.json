@@ -1,0 +1,57 @@
+{
+  "explore_vintage": {
+    "market": {
+      "country": "se",
+      "currency": {
+        "code": "SEK",
+        "name": "Svenska kronor",
+        "prefix": null,
+        "suffix": " kr."
+      }
+    },
+    "records_matched": 875,
+    "matches": [
+      {
+        "vintage": {
+          "id": 127064316,
+          "seo_name": "giacomo-conterno-barolo-cascina-francia-2016",
+          "name": "Giacomo Conterno Barolo Cascina Francia 2016",
+          "year": 2016,
+          "statistics": {
+            "ratings_average": 4.7,
+            "ratings_count": 345
+          },
+          "image": {
+            "location": "//images.vivino.com/thumbs/mBgw3aGmRqKQwX9JnSxLDg_pl_480x640.png",
+            "variations": {
+              "bottle_medium_square": "//images.vivino.com/thumbs/mBgw3aGmRqKQwX9JnSxLDg_pb_600x600.png",
+              "bottle_small_square": "//images.vivino.com/thumbs/mBgw3aGmRqKQwX9JnSxLDg_pb_300x300.png"
+            }
+          },
+          "wine": {
+            "id": 82203,
+            "seo_name": "barolo-cascina-francia",
+            "name": "Barolo Cascina Francia",
+            "region": {
+              "name": "Barolo",
+              "country": {
+                "name": "Italien",
+                "code": "it"
+              }
+            },
+            "winery": {
+              "name": "Giacomo Conterno",
+              "seo_name": "giacomo-conterno"
+            }
+          }
+        },
+        "price": {
+          "amount": 6503,
+          "currency": {
+            "code": "SEK"
+          }
+        }
+      }
+    ]
+  }
+}

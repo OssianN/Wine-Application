@@ -1,9 +1,17 @@
 'use server';
-import { load } from 'cheerio';
+import type { ScrapingResult } from '@/types';
+import {
+  mapExploreMatch,
+  type ExploreMatch,
+  type ExploreResponse,
+} from './mapExploreMatch';
+import { pickExploreMatch } from './pickExploreMatch';
+import { pickVintageId, searchAlgoliaWines } from './searchAlgolia';
+import { getSwedishVivinoSession, vivinoJsonHeaders } from './vivinoSession';
 
-const WINE_CARD_SELECTOR = '[data-testid="wineCard"]';
-const WINE_IMAGE_SELECTOR = '[data-testid="deferredHiddenImage"]';
-const WINE_LINK_SELECTOR = '[data-testid="vintagePageLink"]';
+const EXPLORE_API_URL = 'https://www.vivino.com/api/explore/explore';
+const VINTAGE_API_URL = 'https://www.vivino.com/api/vintages';
+const FETCH_TIMEOUT_MS = 10_000;
 
 export const getVivinoData = async ({
   title,
@@ -11,100 +19,87 @@ export const getVivinoData = async ({
 }: {
   title: string;
   year: number;
-}) => {
+}): Promise<ScrapingResult | undefined> => {
   try {
-    const searchTitle = title.split(' ').join('+');
-    const cleanSearchTitle = searchTitle
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f’]/g, '');
-    const url = `https://www.vivino.com/sv/explore?search_term=${cleanSearchTitle}+${year}`;
-
-    const { content } = await fetchWebsiteData(url);
-    if (!content) return undefined;
-
-    const $ = load(content);
-    const card = $(WINE_CARD_SELECTOR).first();
-    const imgEl = card.find(WINE_IMAGE_SELECTOR).first();
-    const rawImg = imgEl.attr('src') || imgEl.attr('data-src');
-    const img = rawImg
-      ? rawImg.startsWith('http')
-        ? rawImg
-        : `https:${rawImg}`
-      : undefined;
-    const rating = card.find('[class*="averageValue"]').first().text().trim();
-    const country = (
-      card.find('[class*="regionAndCountry"]').first().text() ||
-      card.find('[class*="wineInfoLocation"]').first().text()
-    ).trim();
-    const vivinoHref =
-      card.find(WINE_LINK_SELECTOR).first().attr('href') ||
-      (card.is('a') ? card.attr('href') : undefined);
-
-    return {
-      img,
-      rating,
-      country,
-      vivinoUrl: vivinoHref
-        ? vivinoHref.startsWith('http')
-          ? vivinoHref
-          : `https://www.vivino.com${vivinoHref}`
-        : null,
-    };
+    return (
+      (await getVivinoDataFromAlgolia(title, year)) ??
+      (await getVivinoDataFromExploreApi(title, year))
+    );
   } catch (e) {
     console.error(e);
     return undefined;
   }
 };
 
-export const fetchWebsiteData = async (
-  url: string
-): Promise<ScrapingResponse> => {
-  const TOKEN = process.env.BROWSWER_IO_KEY;
-  const params = new URLSearchParams({
-    token: TOKEN ?? '',
-    proxy: 'residential',
-    proxyCountry: 'se',
-    blockAds: 'true',
-    blockAdsInclude:
-      'ublock-filters,easylist,easyprivacy,pgl,ublock-badware,urlhaus-full',
-  });
-  // Amsterdam is closer to the Swedish proxy than SFO, so less round-trip.
-  const browserIOUrl = `https://production-ams.browserless.io/unblock?${params}`;
+const getVivinoDataFromAlgolia = async (title: string, year: number) => {
+  try {
+    const hits = await searchAlgoliaWines(title);
+    const vintageId = pickVintageId(hits[0]?.vintages, year);
+    if (!vintageId) return undefined;
 
-  const response = await fetch(browserIOUrl, {
-    method: 'POST',
-    headers: {
-      'Cache-Control': 'no-cache',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      url,
-      content: true,
-      cookies: false,
-      screenshot: false,
-      browserWSEndpoint: false,
-      bestAttempt: true,
-      gotoOptions: {
-        waitUntil: 'domcontentloaded',
-        timeout: 15000,
-      },
-      waitForSelector: {
-        selector: `${WINE_CARD_SELECTOR} ${WINE_IMAGE_SELECTOR}`,
-        timeout: 8000,
-      },
-    }),
+    const response = await fetch(
+      `${VINTAGE_API_URL}/${vintageId}?language=sv`,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': 'sv-SE,sv;q=0.9,en;q=0.8',
+          'X-Requested-With': 'XMLHttpRequest',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      }
+    );
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(
+        `Vivino vintage API failed: ${response.status} ${errorBody.slice(0, 300)}`
+      );
+    }
+
+    const data = (await response.json()) as ExploreMatch;
+    return mapExploreMatch(data);
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
+};
+
+const getVivinoDataFromExploreApi = async (title: string, year: number) => {
+  const session = await getSwedishVivinoSession();
+  const params = new URLSearchParams({
+    search_term: buildSearchTerm(title, year).replace(/\+/g, ' '),
+    country_code: 'se',
+    currency_code: 'SEK',
+    language: 'sv',
+    order_by: 'relevance',
+    page: '1',
+    per_page: '24',
+  });
+
+  const response = await fetch(`${EXPLORE_API_URL}?${params}`, {
+    headers: vivinoJsonHeaders(session),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
     throw new Error(
-      `Browserless unblock failed: ${response.status} ${errorBody}`
+      `Vivino explore API failed: ${response.status} ${errorBody.slice(0, 300)}`
     );
   }
 
-  return await response.json();
+  const data = (await response.json()) as ExploreResponse;
+  return mapExploreMatch(
+    pickExploreMatch(data.explore_vintage?.matches, title, year)
+  );
 };
 
-type ScrapingResponse = {
-  content?: string;
+const buildSearchTerm = (title: string, year: number) => {
+  const searchTitle = title.split(' ').join('+');
+  const cleanSearchTitle = searchTitle
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f’']/g, '');
+  return `${cleanSearchTitle}+${year}`;
 };

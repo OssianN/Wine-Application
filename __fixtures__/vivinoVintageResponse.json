@@ -1,0 +1,34 @@
+{
+  "vintage": {
+    "id": 156524504,
+    "seo_name": "ossian-vinas-viejas-verdejo-castilla-and-leon-2016",
+    "name": "Ossian Viñas Viejas Verdejo 2016",
+    "year": 2016,
+    "statistics": {
+      "ratings_average": 4.3,
+      "ratings_count": 1303
+    },
+    "image": {
+      "location": "//images.vivino.com/thumbs/QR0Qn_-GTfe5QCwltBNT-g_pl_480x640.png",
+      "variations": {
+        "bottle_small_square": "//images.vivino.com/thumbs/QR0Qn_-GTfe5QCwltBNT-g_pb_300x300.png"
+      }
+    },
+    "wine": {
+      "id": 6142915,
+      "seo_name": "vinas-viejas-verdejo-castilla-and-leon",
+      "name": "Viñas Viejas Verdejo",
+      "region": {
+        "name": "Castilla y León",
+        "country": {
+          "name": "Spanien",
+          "code": "es"
+        }
+      },
+      "winery": {
+        "name": "Ossian",
+        "seo_name": "ossian"
+      }
+    }
+  }
+}

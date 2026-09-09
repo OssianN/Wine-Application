@@ -2,7 +2,7 @@ import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
 import { EditWineMenu } from './EditWineMenu';
 import Image from 'next/image';
-// import useSwr from 'swr';
+import useSwr from 'swr';
 import { Separator } from '../ui/separator';
 import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
@@ -11,7 +11,7 @@ import { archiveWine } from '@/mongoDB/archiveWine';
 import { Skeleton } from '../ui/skeleton';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Wine } from '@/types';
-import { ensureHttps } from '@/lib/utils';
+import { ensureHttps, vivinoWineIdFromUrl } from '@/lib/utils';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -19,24 +19,26 @@ type WineDetailsProps = {
   setOpenWineForm: Dispatch<SetStateAction<boolean>>;
 };
 
+const priceQuery = (wine: Wine | null) => {
+  if (!wine) return null;
+  const wineId = vivinoWineIdFromUrl(wine.vivinoUrl);
+  if (wineId == null || !wine.year) return null;
+  return `/api/getVivinoPrice?id=${wine._id}&wineId=${wineId}&year=${wine.year}`;
+};
+
 export const WineDetails = ({
   wine,
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
-  // const { data, isLoading } = useSwr(
-  //   wine?.vivinoUrl ? `/api/getVivinoPrice?vivinoUrl=${wine.vivinoUrl}` : null,
-  //   fetcher,
-  //   {
-  //     fallbackData: { price: wine?.currentPrice },
-  //     revalidateOnFocus: false,
-  //     revalidateOnReconnect: false,
-  //     dedupingInterval: 60000 * 60,
-  //   }
-  // );
+  const { data, isLoading } = useSwr(priceQuery(wine), fetcher, {
+    fallbackData: { price: wine?.currentPrice },
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000 * 60,
+  });
 
-  const vivinoPrice = wine?.price;
-  const isLoading = false;
+  const vivinoPrice = data?.price ?? wine?.currentPrice ?? null;
 
   if (!wine) return null;
 
@@ -101,10 +103,10 @@ export const WineDetails = ({
           <p className="text-center px-4 border-r-[1px]">{wine.year}</p>
           <div className="text-center px-4 flex flex-col gap-1 h-full">
             <p className={'text-sm text-neutral-500 h-5'}>
-              {!isNaN(Number(pricePercent)) && <span>{pricePercent}%</span>}
+              {pricePercent != null && <span>{pricePercent}%</span>}
             </p>
 
-            <p>{wine.price} kr</p>
+            <p>{wine.price != null ? `${wine.price} kr` : '—'}</p>
 
             <div className="text-sm h-5 text-neutral-500">
               {isLoading && !vivinoPrice ? (
@@ -154,4 +156,5 @@ export const WineDetails = ({
   );
 };
 
-// const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'same-origin' }).then(res => res.json());

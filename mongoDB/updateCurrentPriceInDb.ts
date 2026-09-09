@@ -8,7 +8,7 @@ export const updateCurrentPriceInDb = async (
 ) => {
   await connectMongo();
 
-  WineDataBase.findByIdAndUpdate(wineId, {
+  await WineDataBase.findByIdAndUpdate(wineId, {
     $set: { currentPrice },
   }).exec();
 };

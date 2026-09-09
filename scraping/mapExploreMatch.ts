@@ -1,4 +1,5 @@
 import type { ScrapingResult } from '@/types';
+import { toSekAmount } from './getVivinoPrice';
 
 export const mapExploreMatch = (
   match: ExploreMatch | undefined
@@ -16,12 +17,18 @@ export const mapExploreMatch = (
   const countryName = wine?.region?.country?.name?.trim();
   const country = [regionName, countryName].filter(Boolean).join(', ');
   const rating = vintage.statistics?.ratings_average;
+  const currentPrice = toSekAmount(
+    match.price?.amount,
+    match.price?.currency?.code
+  );
 
   return {
     img: toHttpsUrl(rawImg),
     rating: rating == null ? undefined : String(rating),
     country: country || undefined,
     vivinoUrl: winePageUrl(vintage),
+    ...(currentPrice != null ? { currentPrice } : {}),
+    ...(vintage.id != null ? { vintageId: vintage.id } : {}),
   };
 };
 
@@ -71,8 +78,14 @@ type ExploreVintage = {
   } | null;
 };
 
+export type ExplorePrice = {
+  amount?: number | null;
+  currency?: { code?: string | null } | null;
+};
+
 export type ExploreMatch = {
   vintage?: ExploreVintage;
+  price?: ExplorePrice | null;
 };
 
 export type ExploreResponse = {

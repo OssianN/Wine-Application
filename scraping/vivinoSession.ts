@@ -1,21 +1,17 @@
-const HOME_URL = 'https://www.vivino.com/sv';
+import { vivinoFetch } from './vivinoFetch';
+
+const COUNTRIES_URL = 'https://www.vivino.com/api/countries';
 const SHIP_TO_URL = 'https://www.vivino.com/api/ship_to/';
 const SESSION_TTL_MS = 5 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 10_000;
-
-const HTML_HEADERS = {
-  Accept: 'text/html',
-  'Accept-Language': 'sv-SE,sv;q=0.9,en;q=0.8',
-  'User-Agent':
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-};
 
 const JSON_HEADERS = {
   Accept: 'application/json',
   'Accept-Language': 'sv-SE,sv;q=0.9,en;q=0.8',
   'Content-Type': 'application/json',
   'X-Requested-With': 'XMLHttpRequest',
-  'User-Agent': HTML_HEADERS['User-Agent'],
+  'User-Agent':
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 };
 
 export type VivinoSession = {
@@ -34,28 +30,28 @@ export const getSwedishVivinoSession = async (): Promise<VivinoSession> => {
     return cachedSession.value;
   }
 
-  const home = await fetch(HOME_URL, {
-    headers: HTML_HEADERS,
+  const countries = await vivinoFetch(COUNTRIES_URL, {
+    headers: JSON_HEADERS,
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
-  if (!home.ok) {
-    throw new Error(`Vivino homepage failed: ${home.status}`);
+  if (!countries.ok) {
+    throw new Error(`Vivino countries failed: ${countries.status}`);
   }
+  await countries.json().catch(() => undefined);
 
-  const html = await home.text();
-  const csrf = html.match(/name="csrf-token"\s+content="([^"]+)"/)?.[1];
+  let cookie = mergeCookies('', getSetCookies(countries));
+  const csrf = cookieValue(cookie, 'csrf_token');
   if (!csrf) {
     throw new Error('Vivino CSRF token missing');
   }
 
-  let cookie = mergeCookies('', getSetCookies(home));
-  const shipTo = await fetch(SHIP_TO_URL, {
+  const shipTo = await vivinoFetch(SHIP_TO_URL, {
     method: 'PUT',
     headers: {
       ...JSON_HEADERS,
       'X-CSRF-Token': csrf,
       Origin: 'https://www.vivino.com',
-      Referer: HOME_URL,
+      Referer: 'https://www.vivino.com/sv',
       ...(cookie ? { Cookie: cookie } : {}),
     },
     body: JSON.stringify({
@@ -74,7 +70,11 @@ export const getSwedishVivinoSession = async (): Promise<VivinoSession> => {
   }
 
   cookie = mergeCookies(cookie, getSetCookies(shipTo));
-  const session = { cookie, csrf };
+  if (!cookieValue(cookie, 'ship_to')) {
+    throw new Error('Vivino ship_to cookie missing');
+  }
+
+  const session = { cookie, csrf: cookieValue(cookie, 'csrf_token') ?? csrf };
   cachedSession = { value: session, expiresAt: Date.now() + SESSION_TTL_MS };
   return session;
 };
@@ -93,6 +93,16 @@ const getSetCookies = (response: Response) => {
   }
   const header = response.headers.get('set-cookie');
   return header ? [header] : [];
+};
+
+const cookieValue = (cookie: string, name: string) => {
+  const match = cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  if (!match) return undefined;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 };
 
 const mergeCookies = (existing: string, setCookies: string[]) => {

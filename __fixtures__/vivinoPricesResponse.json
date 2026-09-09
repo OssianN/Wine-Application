@@ -1,0 +1,25 @@
+{
+  "prices": {
+    "market": {
+      "country": "se",
+      "currency": {
+        "code": "SEK",
+        "name": "Svenska kronor"
+      }
+    },
+    "vintages": {
+      "156524504": {
+        "vintage": {
+          "id": 156524504,
+          "year": 2016
+        },
+        "median": {
+          "amount": 499
+        },
+        "price": {
+          "amount": 499
+        }
+      }
+    }
+  }
+}

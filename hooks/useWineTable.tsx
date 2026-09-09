@@ -10,7 +10,9 @@ import {
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import Image from 'next/image';
 import type { Wine } from '@/types';
+import { ensureHttps } from '@/lib/utils';
 
 export const useWineTable = (data: Wine[]) => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -33,14 +35,15 @@ export const useWineTable = (data: Wine[]) => {
   const columns = [
     columnHelper.accessor('img', {
       cell: info => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={`https:${info.getValue()}`}
-          alt="Vivino Image"
-          width={200}
-          height={400}
-          className="max-w-32 md:max-w-48"
-        />
+        <div className="relative size-36 shrink-0 overflow-hidden">
+          <Image
+            src={ensureHttps(info.getValue())}
+            alt={info.row.original.title}
+            fill
+            sizes="144px"
+            className="object-contain"
+          />
+        </div>
       ),
       header: () => <span></span>,
     }),

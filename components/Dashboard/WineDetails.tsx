@@ -23,7 +23,7 @@ const priceQuery = (wine: Wine | null) => {
   if (!wine) return null;
   const wineId = vivinoWineIdFromUrl(wine.vivinoUrl);
   if (wineId == null || !wine.year) return null;
-  return `/api/getVivinoPrice?wineId=${wineId}&year=${wine.year}`;
+  return `/api/getVivinoPrice?id=${wine._id}&wineId=${wineId}&year=${wine.year}`;
 };
 
 export const WineDetails = ({

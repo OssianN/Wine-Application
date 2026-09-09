@@ -75,7 +75,6 @@ describe('getVivinoData', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
-    delete process.env.VIVINO_FETCH;
     clearVivinoSessionCache();
   });
 
@@ -174,32 +173,5 @@ describe('getVivinoData', () => {
     await expect(
       getVivinoData({ title: 'Unknown Wine', year: 1999 })
     ).resolves.toBeUndefined();
-  });
-
-  it('uses Browserless when VIVINO_FETCH=browserless', async () => {
-    process.env.VIVINO_FETCH = 'browserless';
-    const fetchMock = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        content: `
-          <a data-testid="wineCard" href="/SE/sv/giacomo-conterno-barolo-cascina-francia/w/82203?year=2016">
-            <img data-testid="deferredHiddenImage" src="//images.vivino.com/thumbs/mBgw3aGmRqKQwX9JnSxLDg_pb_300x300.png" />
-            <span class="averageValue">4.7</span>
-            <span class="regionAndCountry">Barolo, Italien</span>
-            <a data-testid="vintagePageLink" href="/SE/sv/giacomo-conterno-barolo-cascina-francia/w/82203?year=2016"></a>
-          </a>
-        `,
-      }),
-    });
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const result = await getVivinoData({
-      title: 'Giacomo Conterno Barolo Cascina Francia',
-      year: 2016,
-    });
-
-    const requestedUrl = String(fetchMock.mock.calls[0][0]);
-    expect(requestedUrl).toContain('production-ams.browserless.io/unblock');
-    expect(result?.rating).toBe('4.7');
   });
 });

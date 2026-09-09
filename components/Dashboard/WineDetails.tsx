@@ -103,10 +103,10 @@ export const WineDetails = ({
           <p className="text-center px-4 border-r-[1px]">{wine.year}</p>
           <div className="text-center px-4 flex flex-col gap-1 h-full">
             <p className={'text-sm text-neutral-500 h-5'}>
-              {!isNaN(Number(pricePercent)) && <span>{pricePercent}%</span>}
+              {pricePercent != null && <span>{pricePercent}%</span>}
             </p>
 
-            <p>{wine.price} kr</p>
+            <p>{wine.price != null ? `${wine.price} kr` : '—'}</p>
 
             <div className="text-sm h-5 text-neutral-500">
               {isLoading && !vivinoPrice ? (

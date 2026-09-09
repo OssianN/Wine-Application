@@ -91,7 +91,7 @@ describe('getVivinoPriceForVintage', () => {
     await expect(getVivinoPriceForVintage(156524504)).resolves.toBe(499);
   });
 
-  it('returns null when Vivino substitutes a sibling vintage', async () => {
+  it('uses the market listing when Vivino substitutes a sibling vintage', async () => {
     mockVivinoFetches(url => {
       if (url.includes('/api/prices')) {
         return jsonResponse(substituteFixture);
@@ -99,7 +99,7 @@ describe('getVivinoPriceForVintage', () => {
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
-    await expect(getVivinoPriceForVintage(156524504)).resolves.toBeNull();
+    await expect(getVivinoPriceForVintage(156524504)).resolves.toBe(559);
   });
 });
 
@@ -122,7 +122,7 @@ describe('getVivinoPriceForWineYear', () => {
     await expect(getVivinoPriceForWineYear(82203, 2016)).resolves.toBe(6503);
   });
 
-  it('returns null when that year is not listed', async () => {
+  it('falls back to the closest listed year', async () => {
     mockVivinoFetches(url => {
       if (url.includes('/checkout_prices')) {
         return jsonResponse(checkoutFixture);
@@ -130,6 +130,6 @@ describe('getVivinoPriceForWineYear', () => {
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
-    await expect(getVivinoPriceForWineYear(82203, 2010)).resolves.toBeNull();
+    await expect(getVivinoPriceForWineYear(82203, 2010)).resolves.toBe(6503);
   });
 });

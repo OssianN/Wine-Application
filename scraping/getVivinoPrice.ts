@@ -67,13 +67,6 @@ export const getVivinoPriceForVintage = async (
   const marketCurrency = data?.prices?.market?.currency?.code;
   const entry = data?.prices?.vintages?.[String(vintageId)];
   if (!entry) return null;
-  // Vivino may substitute a sibling vintage when the requested year has no listing.
-  if (Number(entry.vintage?.id) !== vintageId) {
-    console.warn(
-      `Vivino prices substituted vintage ${entry.vintage?.id} for ${vintageId}`
-    );
-    return null;
-  }
 
   return (
     toSekAmount(entry.price?.amount, marketCurrency) ??
@@ -90,15 +83,30 @@ export const getVivinoPriceForWineYear = async (
   const data = await fetchVivinoJson<CheckoutPricesResponse>(
     `${CHECKOUT_PRICES_API_URL}/${wineId}/checkout_prices?language=sv`
   );
-  const wantedYear = String(year);
-  const match = data?.checkout_prices?.find(
-    item => String(item.availability?.vintage?.year) === wantedYear
-  );
-  if (!match) return null;
+  const wantedYear = Number(year);
+  const listings = (data?.checkout_prices ?? [])
+    .map(item => ({
+      year: Number(item.availability?.vintage?.year),
+      amount:
+        toSekAmount(
+          item.availability?.price?.amount,
+          item.market?.currency?.code
+        ) ??
+        toSekAmount(
+          item.availability?.median?.amount,
+          item.market?.currency?.code
+        ),
+    }))
+    .filter(
+      (item): item is { year: number; amount: number } =>
+        item.amount != null && Number.isFinite(item.year)
+    );
 
-  const currency = match.market?.currency?.code;
-  return (
-    toSekAmount(match.availability?.price?.amount, currency) ??
-    toSekAmount(match.availability?.median?.amount, currency)
-  );
+  const exact = listings.find(item => item.year === wantedYear);
+  if (exact) return exact.amount;
+  if (!listings.length) return null;
+
+  return listings.sort(
+    (a, b) => Math.abs(a.year - wantedYear) - Math.abs(b.year - wantedYear)
+  )[0].amount;
 };

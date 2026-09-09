@@ -2,10 +2,8 @@ import { getUserSession } from '@/lib/session';
 import { connectMongo } from '@/mongoDB';
 import { updateCurrentPriceInDb } from '@/mongoDB/updateCurrentPriceInDb';
 import UserDataBase from '@/mongoDB/user-schema';
-import {
-  getVivinoCurrentPrice,
-  parseVivinoUrl,
-} from '@/scraping/getVivinoPrice';
+import WineDataBase from '@/mongoDB/wine-schema';
+import { getVivinoPriceForWineYear } from '@/scraping/getVivinoPrice';
 
 export async function GET(req: Request) {
   const session = await getUserSession();
@@ -17,29 +15,31 @@ export async function GET(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const vivinoUrl = searchParams.get('vivinoUrl');
-  const wineDocId = searchParams.get('wineId');
-  const parsed = vivinoUrl ? parseVivinoUrl(vivinoUrl) : {};
-  const vintageParam = searchParams.get('vintageId');
-  const yearParam = searchParams.get('year');
-  const vintageId = vintageParam ? Number(vintageParam) : parsed.vintageId;
-  const year = yearParam ? Number(yearParam) : parsed.year;
+  const wineId = Number(searchParams.get('wineId'));
+  const year = Number(searchParams.get('year'));
+  if (!Number.isInteger(wineId) || wineId <= 0 || !Number.isInteger(year)) {
+    return Response.json(
+      { price: null, error: 'Missing wineId or year' },
+      { status: 400 }
+    );
+  }
 
-  const price = await getVivinoCurrentPrice({
-    vintageId: vintageId != null && Number.isFinite(vintageId) ? vintageId : undefined,
-    wineId: parsed.wineId,
-    year: year != null && Number.isFinite(year) ? year : undefined,
-  });
+  const price = await getVivinoPriceForWineYear(wineId, year);
 
-  if (price != null && wineDocId) {
+  if (price != null) {
     await connectMongo();
     const user = await UserDataBase.findById(session.user._id);
-    const ownsWine = user?.wineList?.some(
-      (id: unknown) => String(id) === wineDocId
+    const ownedIds = user?.wineList ?? [];
+    const wines = await WineDataBase.find({ _id: { $in: ownedIds } });
+    await Promise.all(
+      wines
+        .filter(
+          wine =>
+            Number(wine.year) === year &&
+            String(wine.vivinoUrl ?? '').includes(`/w/${wineId}`)
+        )
+        .map(wine => updateCurrentPriceInDb(String(wine._id), price))
     );
-    if (ownsWine) {
-      await updateCurrentPriceInDb(wineDocId, price);
-    }
   }
 
   return Response.json({ price });

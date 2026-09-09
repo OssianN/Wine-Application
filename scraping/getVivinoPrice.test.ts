@@ -4,11 +4,10 @@
 import checkoutFixture from '@/__fixtures__/vivinoCheckoutPricesResponse.json';
 import pricesFixture from '@/__fixtures__/vivinoPricesResponse.json';
 import substituteFixture from '@/__fixtures__/vivinoPricesSubstituteResponse.json';
+import { vivinoWineIdFromUrl } from '@/lib/utils';
 import {
-  getVivinoCurrentPrice,
   getVivinoPriceForVintage,
   getVivinoPriceForWineYear,
-  parseVivinoUrl,
   toSekAmount,
 } from './getVivinoPrice';
 import { clearVivinoSessionCache } from './vivinoSession';
@@ -60,19 +59,19 @@ describe('toSekAmount', () => {
   });
 });
 
-describe('parseVivinoUrl', () => {
-  it('reads wine id and year from a wine page URL', () => {
+describe('vivinoWineIdFromUrl', () => {
+  it('reads the wine id from a wine page URL', () => {
     expect(
-      parseVivinoUrl(
+      vivinoWineIdFromUrl(
         'https://www.vivino.com/SE/sv/ossian-vinas-viejas-verdejo-castilla-and-leon/w/6142915?year=2016'
       )
-    ).toEqual({ wineId: 6142915, vintageId: undefined, year: 2016 });
+    ).toBe(6142915);
   });
 
-  it('reads vintage id from a vintage wines URL', () => {
+  it('returns null when the URL has no wine id', () => {
     expect(
-      parseVivinoUrl('https://www.vivino.com/SE/sv/wines/156524504')
-    ).toEqual({ wineId: undefined, vintageId: 156524504, year: undefined });
+      vivinoWineIdFromUrl('https://www.vivino.com/SE/sv/wines/156524504')
+    ).toBeNull();
   });
 });
 
@@ -135,31 +134,5 @@ describe('getVivinoPriceForWineYear', () => {
     });
 
     await expect(getVivinoPriceForWineYear(82203, 2010)).resolves.toBeNull();
-  });
-});
-
-describe('getVivinoCurrentPrice', () => {
-  const originalFetch = global.fetch;
-
-  afterEach(() => {
-    global.fetch = originalFetch;
-    clearVivinoSessionCache();
-  });
-
-  it('prefers vintage id over wine id and year', async () => {
-    mockVivinoFetches(url => {
-      if (url.includes('/api/prices')) {
-        return jsonResponse(pricesFixture);
-      }
-      throw new Error(`Unexpected fetch: ${url}`);
-    });
-
-    await expect(
-      getVivinoCurrentPrice({
-        vintageId: 156524504,
-        wineId: 6142915,
-        year: 2016,
-      })
-    ).resolves.toBe(499);
   });
 });

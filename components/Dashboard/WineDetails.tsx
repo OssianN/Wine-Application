@@ -11,7 +11,7 @@ import { archiveWine } from '@/mongoDB/archiveWine';
 import { Skeleton } from '../ui/skeleton';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Wine } from '@/types';
-import { ensureHttps } from '@/lib/utils';
+import { ensureHttps, vivinoWineIdFromUrl } from '@/lib/utils';
 
 type WineDetailsProps = {
   wine: Wine | null;
@@ -21,14 +21,9 @@ type WineDetailsProps = {
 
 const priceQuery = (wine: Wine | null) => {
   if (!wine) return null;
-  if (!wine.vivinoUrl && wine.vintageId == null) return null;
-  const params = new URLSearchParams({
-    wineId: wine._id,
-    year: String(wine.year),
-  });
-  if (wine.vivinoUrl) params.set('vivinoUrl', wine.vivinoUrl);
-  if (wine.vintageId != null) params.set('vintageId', String(wine.vintageId));
-  return `/api/getVivinoPrice?${params}`;
+  const wineId = vivinoWineIdFromUrl(wine.vivinoUrl);
+  if (wineId == null || !wine.year) return null;
+  return `/api/getVivinoPrice?wineId=${wineId}&year=${wine.year}`;
 };
 
 export const WineDetails = ({

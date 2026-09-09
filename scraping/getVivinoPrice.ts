@@ -15,26 +15,6 @@ export const toSekAmount = (
   return Math.round(amount);
 };
 
-export const parseVivinoUrl = (url: string) => {
-  try {
-    const parsed = new URL(url);
-    const wineMatch = parsed.pathname.match(/\/w\/(\d+)/);
-    const vintagePathMatch = parsed.pathname.match(/\/wines\/(\d+)/);
-    const yearParam = parsed.searchParams.get('year');
-    const wineId = wineMatch ? Number(wineMatch[1]) : undefined;
-    const vintageId = vintagePathMatch ? Number(vintagePathMatch[1]) : undefined;
-    const year = yearParam ? Number(yearParam) : undefined;
-    return {
-      wineId: wineId != null && Number.isFinite(wineId) ? wineId : undefined,
-      vintageId:
-        vintageId != null && Number.isFinite(vintageId) ? vintageId : undefined,
-      year: year != null && Number.isFinite(year) ? year : undefined,
-    };
-  } catch {
-    return {};
-  }
-};
-
 type PricesResponse = {
   prices?: {
     market?: { currency?: { code?: string | null } | null };
@@ -115,22 +95,4 @@ export const getVivinoPriceForWineYear = async (
     toSekAmount(match.availability?.price?.amount, currency) ??
     toSekAmount(match.availability?.median?.amount, currency)
   );
-};
-
-export const getVivinoCurrentPrice = async ({
-  vintageId,
-  wineId,
-  year,
-}: {
-  vintageId?: number;
-  wineId?: number;
-  year?: number;
-}): Promise<number | null> => {
-  if (vintageId != null) {
-    return getVivinoPriceForVintage(vintageId);
-  }
-  if (wineId != null && year != null) {
-    return getVivinoPriceForWineYear(wineId, year);
-  }
-  return null;
 };

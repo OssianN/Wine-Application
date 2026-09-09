@@ -6,19 +6,13 @@ import {
   toHttpsUrl,
   type ExploreResponse,
 } from './mapExploreMatch';
+import { getSwedishVivinoSession, vivinoJsonHeaders } from './vivinoSession';
 
 const WINE_CARD_SELECTOR = '[data-testid="wineCard"]';
 const WINE_IMAGE_SELECTOR = '[data-testid="deferredHiddenImage"]';
 const WINE_LINK_SELECTOR = '[data-testid="vintagePageLink"]';
 const EXPLORE_API_URL = 'https://www.vivino.com/api/explore/explore';
 const FETCH_TIMEOUT_MS = 10_000;
-
-const BROWSER_HEADERS = {
-  Accept: 'application/json',
-  'Accept-Language': 'sv-SE,sv;q=0.9,en;q=0.8',
-  'User-Agent':
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-};
 
 export const getVivinoData = async ({
   title,
@@ -89,16 +83,18 @@ export const fetchWebsiteData = async (
 };
 
 const getVivinoDataFromExploreApi = async (searchTerm: string) => {
+  const session = await getSwedishVivinoSession();
   const params = new URLSearchParams({
     search_term: searchTerm.replace(/\+/g, ' '),
     country_code: 'se',
     currency_code: 'SEK',
+    language: 'sv',
     page: '1',
     per_page: '1',
   });
 
   const response = await fetch(`${EXPLORE_API_URL}?${params}`, {
-    headers: BROWSER_HEADERS,
+    headers: vivinoJsonHeaders(session),
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
 

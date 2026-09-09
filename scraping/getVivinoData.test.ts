@@ -4,6 +4,40 @@
 import exploreFixture from '@/__fixtures__/vivinoExploreResponse.json';
 import { getVivinoData } from './getVivinoData';
 import { mapExploreMatch } from './mapExploreMatch';
+import { clearVivinoSessionCache } from './vivinoSession';
+
+const mockHeaders = (cookies: string[] = []) => ({
+  getSetCookie: () => cookies,
+  get: (name: string) =>
+    name.toLowerCase() === 'set-cookie' ? cookies[0] ?? null : null,
+});
+
+const mockSwedishSessionFetch = (
+  exploreResponse: { ok: true; json: () => Promise<unknown> } | { ok: false; status: number; text: () => Promise<string> }
+) =>
+  jest.fn(async (input: string | URL | Request) => {
+    const url = String(input);
+    if (url === 'https://www.vivino.com/sv') {
+      return {
+        ok: true,
+        headers: mockHeaders(['_ruby-web_session=session; Path=/']),
+        text: async () =>
+          '<meta name="csrf-token" content="test-csrf" />',
+      };
+    }
+    if (url === 'https://www.vivino.com/api/ship_to/') {
+      return {
+        ok: true,
+        headers: mockHeaders([]),
+        json: async () => ({ ship_to: { country_code: 'se' } }),
+        text: async () => '',
+      };
+    }
+    if (url.startsWith('https://www.vivino.com/api/explore/explore')) {
+      return exploreResponse;
+    }
+    throw new Error(`Unexpected fetch: ${url}`);
+  });
 
 describe('mapExploreMatch', () => {
   it('maps the first explore match to scraping fields', () => {
@@ -35,10 +69,11 @@ describe('getVivinoData', () => {
   afterEach(() => {
     global.fetch = originalFetch;
     delete process.env.VIVINO_FETCH;
+    clearVivinoSessionCache();
   });
 
-  it('fetches the explore JSON API and returns the first match', async () => {
-    const fetchMock = jest.fn().mockResolvedValue({
+  it('sets ship-to Sweden then fetches the explore JSON API', async () => {
+    const fetchMock = mockSwedishSessionFetch({
       ok: true,
       json: async () => exploreFixture,
     });
@@ -49,23 +84,34 @@ describe('getVivinoData', () => {
       year: 2016,
     });
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const requestedUrl = String(fetchMock.mock.calls[0][0]);
-    expect(requestedUrl).toContain(
+    const urls = fetchMock.mock.calls.map((call) => String(call[0]));
+    expect(urls[0]).toBe('https://www.vivino.com/sv');
+    expect(urls[1]).toBe('https://www.vivino.com/api/ship_to/');
+    expect(urls[2]).toContain(
       'https://www.vivino.com/api/explore/explore?'
     );
-    expect(requestedUrl).toContain(
+
+    const shipToInit = fetchMock.mock.calls[1][1] as RequestInit;
+    expect(shipToInit.method).toBe('PUT');
+    expect(JSON.parse(String(shipToInit.body))).toEqual({
+      country_code: 'se',
+      state_code: null,
+      zip_code: null,
+    });
+
+    expect(urls[2]).toContain(
       'search_term=Giacomo+Conterno+Barolo+Cascina+Francia+2016'
     );
-    expect(requestedUrl).toContain('country_code=se');
-    expect(requestedUrl).toContain('per_page=1');
+    expect(urls[2]).toContain('country_code=se');
+    expect(urls[2]).toContain('language=sv');
+    expect(urls[2]).toContain('per_page=1');
     expect(result?.rating).toBe('4.7');
     expect(result?.country).toBe('Barolo, Italien');
     expect(result?.vivinoUrl).toContain('/w/82203?year=2016');
   });
 
   it('returns undefined when the API has no matches', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = mockSwedishSessionFetch({
       ok: true,
       json: async () => ({ explore_vintage: { matches: [] } }),
     }) as unknown as typeof fetch;
@@ -77,7 +123,7 @@ describe('getVivinoData', () => {
 
   it('returns undefined when the API is blocked', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = mockSwedishSessionFetch({
       ok: false,
       status: 403,
       text: async () => 'forbidden',

@@ -56,6 +56,7 @@ type ExploreImage = {
 
 type ExploreVintage = {
   id?: number;
+  name?: string | null;
   year?: number | string | null;
   statistics?: { ratings_average?: number | null };
   image?: ExploreImage | null;

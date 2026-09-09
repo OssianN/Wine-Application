@@ -17,10 +17,10 @@ const mockHeaders = (cookies: string[] = []) => ({
 });
 
 const jsonResponse = (body: unknown) => ({
-  ok: true,
+  ok: true as const,
   headers: mockHeaders(),
   json: async () => body,
-  text: async () => JSON.stringify(body),
+  text: async (): Promise<string> => JSON.stringify(body),
 });
 
 describe('pickVintageId', () => {
@@ -80,16 +80,18 @@ describe('getVivinoData', () => {
   });
 
   it('uses Algolia search then the matching vintage', async () => {
-    const fetchMock = jest.fn(async (input: string | URL | Request) => {
-      const url = String(input);
-      if (url.includes('algolia.net')) {
-        return jsonResponse(algoliaFixture);
+    const fetchMock = jest.fn(
+      async (input: string | URL | Request, init?: RequestInit) => {
+        const url = String(input);
+        if (url.includes('algolia.net')) {
+          return jsonResponse(algoliaFixture);
+        }
+        if (url.includes('/api/vintages/156524504')) {
+          return jsonResponse(vintageFixture);
+        }
+        throw new Error(`Unexpected fetch: ${url} ${init?.method ?? ''}`);
       }
-      if (url.includes('/api/vintages/156524504')) {
-        return jsonResponse(vintageFixture);
-      }
-      throw new Error(`Unexpected fetch: ${url}`);
-    });
+    );
     global.fetch = fetchMock as unknown as typeof fetch;
 
     const result = await getVivinoData({
@@ -119,7 +121,8 @@ describe('getVivinoData', () => {
         return {
           ok: true,
           headers: mockHeaders(['_ruby-web_session=session; Path=/']),
-          text: async () => '<meta name="csrf-token" content="test-csrf" />',
+          text: async (): Promise<string> =>
+            '<meta name="csrf-token" content="test-csrf" />',
         };
       }
       if (url === 'https://www.vivino.com/api/ship_to/') {
@@ -155,7 +158,8 @@ describe('getVivinoData', () => {
         return {
           ok: true,
           headers: mockHeaders(['_ruby-web_session=session; Path=/']),
-          text: async () => '<meta name="csrf-token" content="test-csrf" />',
+          text: async (): Promise<string> =>
+            '<meta name="csrf-token" content="test-csrf" />',
         };
       }
       if (url === 'https://www.vivino.com/api/ship_to/') {

@@ -18,32 +18,29 @@ const mockHeaders = (cookies: string[] = []) => ({
     name.toLowerCase() === 'set-cookie' ? cookies[0] ?? null : null,
 });
 
-const jsonResponse = (body: unknown) => ({
+const jsonResponse = (body: unknown, cookies: string[] = []) => ({
   ok: true as const,
-  headers: mockHeaders(),
+  headers: mockHeaders(cookies),
   json: async () => body,
   text: async (): Promise<string> => JSON.stringify(body),
 });
 
-const sessionHome = () => ({
-  ok: true as const,
-  headers: mockHeaders(['_ruby-web_session=session; Path=/']),
-  text: async (): Promise<string> =>
-    '<meta name="csrf-token" content="test-csrf" />',
-});
-
 const mockVivinoFetches = (
-  handlers: (url: string) => ReturnType<typeof jsonResponse> | ReturnType<
-    typeof sessionHome
-  >
+  handlers: (url: string) => ReturnType<typeof jsonResponse>
 ) => {
   global.fetch = jest.fn(async (input: string | URL | Request) => {
     const url = String(input);
-    if (url === 'https://www.vivino.com/sv') {
-      return sessionHome();
+    if (url === 'https://www.vivino.com/api/countries') {
+      return jsonResponse({ countries: [] }, [
+        'csrf_token=test-csrf; Path=/',
+        '_ruby-web_session=session; Path=/',
+      ]);
     }
     if (url === 'https://www.vivino.com/api/ship_to/') {
-      return jsonResponse({ ship_to: { country_code: 'se' } });
+      return jsonResponse({ ship_to: { country_code: 'se' } }, [
+        'ship_to=se; Path=/',
+        'csrf_token=test-csrf; Path=/',
+      ]);
     }
     return handlers(url);
   }) as unknown as typeof fetch;

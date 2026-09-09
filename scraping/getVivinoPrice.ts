@@ -1,4 +1,5 @@
 import { getSwedishVivinoSession, vivinoJsonHeaders } from './vivinoSession';
+import { vivinoFetch } from './vivinoFetch';
 
 const PRICES_API_URL = 'https://www.vivino.com/api/prices';
 const CHECKOUT_PRICES_API_URL = 'https://www.vivino.com/api/wines';
@@ -43,7 +44,7 @@ type CheckoutPricesResponse = {
 const fetchVivinoJson = async <T>(url: string): Promise<T | null> => {
   try {
     const session = await getSwedishVivinoSession();
-    const response = await fetch(url, {
+    const response = await vivinoFetch(url, {
       headers: vivinoJsonHeaders(session),
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
@@ -67,7 +68,12 @@ export const getVivinoPriceForVintage = async (
   const entry = data?.prices?.vintages?.[String(vintageId)];
   if (!entry) return null;
   // Vivino may substitute a sibling vintage when the requested year has no listing.
-  if (Number(entry.vintage?.id) !== vintageId) return null;
+  if (Number(entry.vintage?.id) !== vintageId) {
+    console.warn(
+      `Vivino prices substituted vintage ${entry.vintage?.id} for ${vintageId}`
+    );
+    return null;
+  }
 
   return (
     toSekAmount(entry.price?.amount, marketCurrency) ??

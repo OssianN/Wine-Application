@@ -4,6 +4,8 @@ import { updateCurrentPriceInDb } from '@/mongoDB/updateCurrentPriceInDb';
 import UserDataBase from '@/mongoDB/user-schema';
 import { getVivinoPriceForWineYear } from '@/scraping/getVivinoPrice';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   const session = await getUserSession();
   if (!session.user) {

@@ -2,7 +2,8 @@
  * @jest-environment node
  */
 import exploreFixture from '@/__fixtures__/vivinoExploreResponse.json';
-import { getVivinoData, mapExploreMatch } from './getVivinoData';
+import { getVivinoData } from './getVivinoData';
+import { mapExploreMatch } from './mapExploreMatch';
 
 describe('mapExploreMatch', () => {
   it('maps the first explore match to scraping fields', () => {

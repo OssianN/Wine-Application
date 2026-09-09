@@ -1,6 +1,11 @@
 'use server';
 import { load } from 'cheerio';
 import type { ScrapingResult } from '@/types';
+import {
+  mapExploreMatch,
+  toHttpsUrl,
+  type ExploreResponse,
+} from './mapExploreMatch';
 
 const WINE_CARD_SELECTOR = '[data-testid="wineCard"]';
 const WINE_IMAGE_SELECTOR = '[data-testid="deferredHiddenImage"]';
@@ -32,31 +37,6 @@ export const getVivinoData = async ({
     console.error(e);
     return undefined;
   }
-};
-
-export const mapExploreMatch = (
-  match: ExploreMatch | undefined
-): ScrapingResult | undefined => {
-  const vintage = match?.vintage;
-  if (!vintage) return undefined;
-
-  const wine = vintage.wine;
-  const image = vintage.image;
-  const rawImg =
-    image?.variations?.bottle_small_square ||
-    image?.variations?.bottle_medium_square ||
-    image?.location;
-  const regionName = wine?.region?.name?.trim();
-  const countryName = wine?.region?.country?.name?.trim();
-  const country = [regionName, countryName].filter(Boolean).join(', ');
-  const rating = vintage.statistics?.ratings_average;
-
-  return {
-    img: toHttpsUrl(rawImg),
-    rating: rating == null ? undefined : String(rating),
-    country: country || undefined,
-    vivinoUrl: winePageUrl(vintage),
-  };
 };
 
 export const fetchWebsiteData = async (
@@ -163,61 +143,6 @@ const buildSearchTerm = (title: string, year: number) => {
     .normalize('NFD')
     .replace(/[\u0300-\u036f’']/g, '');
   return `${cleanSearchTitle}+${year}`;
-};
-
-const toHttpsUrl = (url?: string | null) => {
-  if (!url) return undefined;
-  if (url.startsWith('http')) return url;
-  if (url.startsWith('//')) return `https:${url}`;
-  return `https://www.vivino.com${url}`;
-};
-
-const winePageUrl = (vintage: ExploreVintage): string | null => {
-  const wineId = vintage.wine?.id;
-  const winerySeo = vintage.wine?.winery?.seo_name;
-  const wineSeo = vintage.wine?.seo_name;
-  if (winerySeo && wineSeo && wineId) {
-    const yearQuery = vintage.year ? `?year=${vintage.year}` : '';
-    return `https://www.vivino.com/SE/sv/${winerySeo}-${wineSeo}/w/${wineId}${yearQuery}`;
-  }
-  if (vintage.id) {
-    return `https://www.vivino.com/SE/sv/wines/${vintage.id}`;
-  }
-  return null;
-};
-
-type ExploreImage = {
-  location?: string | null;
-  variations?: {
-    bottle_small_square?: string | null;
-    bottle_medium_square?: string | null;
-  };
-};
-
-type ExploreVintage = {
-  id?: number;
-  year?: number | string | null;
-  statistics?: { ratings_average?: number | null };
-  image?: ExploreImage | null;
-  wine?: {
-    id?: number;
-    seo_name?: string | null;
-    region?: {
-      name?: string | null;
-      country?: { name?: string | null };
-    } | null;
-    winery?: { seo_name?: string | null } | null;
-  } | null;
-};
-
-export type ExploreMatch = {
-  vintage?: ExploreVintage;
-};
-
-type ExploreResponse = {
-  explore_vintage?: {
-    matches?: ExploreMatch[];
-  };
 };
 
 type ScrapingResponse = {

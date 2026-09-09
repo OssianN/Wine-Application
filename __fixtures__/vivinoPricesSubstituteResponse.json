@@ -1,0 +1,24 @@
+{
+  "prices": {
+    "market": {
+      "country": "se",
+      "currency": {
+        "code": "SEK"
+      }
+    },
+    "vintages": {
+      "156524504": {
+        "vintage": {
+          "id": 171474647,
+          "year": 2022
+        },
+        "median": {
+          "amount": 559
+        },
+        "price": {
+          "amount": 559
+        }
+      }
+    }
+  }
+}

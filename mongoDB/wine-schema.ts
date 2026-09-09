@@ -12,6 +12,7 @@ const wineSchema = new Schema({
   rating: { type: String },
   price: { type: Number },
   currentPrice: { type: Number },
+  vintageId: { type: Number },
   vivinoUrl: { type: String },
 });
 

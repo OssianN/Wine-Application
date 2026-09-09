@@ -6,6 +6,7 @@ import {
   type ExploreResponse,
 } from './mapExploreMatch';
 import { pickExploreMatch } from './pickExploreMatch';
+import { getVivinoPriceForVintage } from './getVivinoPrice';
 import { pickVintageId, searchAlgoliaWines } from './searchAlgolia';
 import { getSwedishVivinoSession, vivinoJsonHeaders } from './vivinoSession';
 
@@ -59,7 +60,15 @@ const getVivinoDataFromAlgolia = async (title: string, year: number) => {
     }
 
     const data = (await response.json()) as ExploreMatch;
-    return mapExploreMatch(data);
+    const mapped = mapExploreMatch(data);
+    if (!mapped) return undefined;
+
+    const currentPrice = await getVivinoPriceForVintage(vintageId);
+    return {
+      ...mapped,
+      vintageId,
+      ...(currentPrice != null ? { currentPrice } : {}),
+    };
   } catch (e) {
     console.error(e);
     return undefined;

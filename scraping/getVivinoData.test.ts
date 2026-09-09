@@ -3,6 +3,7 @@
  */
 import algoliaFixture from '@/__fixtures__/vivinoAlgoliaResponse.json';
 import exploreFixture from '@/__fixtures__/vivinoExploreResponse.json';
+import pricesFixture from '@/__fixtures__/vivinoPricesResponse.json';
 import vintageFixture from '@/__fixtures__/vivinoVintageResponse.json';
 import { getVivinoData } from './getVivinoData';
 import { mapExploreMatch } from './mapExploreMatch';
@@ -56,11 +57,21 @@ describe('mapExploreMatch', () => {
       country: 'Castilla y León, Spanien',
       vivinoUrl:
         'https://www.vivino.com/SE/sv/ossian-vinas-viejas-verdejo-castilla-and-leon/w/6142915?year=2016',
+      vintageId: 156524504,
     });
   });
 
-  it('does not map merchant price onto currentPrice', () => {
+  it('maps merchant price onto currentPrice', () => {
     const result = mapExploreMatch(exploreFixture.explore_vintage.matches[0]);
+    expect(result?.currentPrice).toBe(6503);
+    expect(result?.vintageId).toBe(127064316);
+  });
+
+  it('skips a non-SEK merchant price', () => {
+    const result = mapExploreMatch({
+      vintage: exploreFixture.explore_vintage.matches[0].vintage,
+      price: { amount: 99, currency: { code: 'EUR' } },
+    });
     expect(result).not.toHaveProperty('currentPrice');
   });
 
@@ -88,6 +99,20 @@ describe('getVivinoData', () => {
         if (url.includes('/api/vintages/156524504')) {
           return jsonResponse(vintageFixture);
         }
+        if (url === 'https://www.vivino.com/sv') {
+          return {
+            ok: true,
+            headers: mockHeaders(['_ruby-web_session=session; Path=/']),
+            text: async (): Promise<string> =>
+              '<meta name="csrf-token" content="test-csrf" />',
+          };
+        }
+        if (url === 'https://www.vivino.com/api/ship_to/') {
+          return jsonResponse({ ship_to: { country_code: 'se' } });
+        }
+        if (url.includes('/api/prices')) {
+          return jsonResponse(pricesFixture);
+        }
         throw new Error(`Unexpected fetch: ${url} ${init?.method ?? ''}`);
       }
     );
@@ -105,9 +130,14 @@ describe('getVivinoData', () => {
       hitsPerPage: 6,
     });
     expect(urls[1]).toContain('/api/vintages/156524504?language=sv');
+    expect(urls.some(url => url.includes('/api/prices?vintage_ids[]=156524504'))).toBe(
+      true
+    );
     expect(result?.rating).toBe('4.3');
     expect(result?.country).toBe('Castilla y León, Spanien');
     expect(result?.vivinoUrl).toContain('/w/6142915?year=2016');
+    expect(result?.currentPrice).toBe(499);
+    expect(result?.vintageId).toBe(156524504);
   });
 
   it('falls back to explore when Algolia has no matching year', async () => {
@@ -145,6 +175,7 @@ describe('getVivinoData', () => {
     expect(exploreUrl).toContain('order_by=relevance');
     expect(exploreUrl).toContain('per_page=24');
     expect(result?.vivinoUrl).toContain('/w/82203?year=2016');
+    expect(result?.currentPrice).toBe(6503);
   });
 
   it('returns undefined when explore has no matches', async () => {

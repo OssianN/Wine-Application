@@ -2,7 +2,7 @@ import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
 import { EditWineMenu } from './EditWineMenu';
 import Image from 'next/image';
-// import useSwr from 'swr';
+import useSwr from 'swr';
 import { Separator } from '../ui/separator';
 import { buttonVariants } from '../ui/button';
 import { deleteWine } from '@/mongoDB/deleteWine';
@@ -19,24 +19,31 @@ type WineDetailsProps = {
   setOpenWineForm: Dispatch<SetStateAction<boolean>>;
 };
 
+const priceQuery = (wine: Wine | null) => {
+  if (!wine) return null;
+  if (!wine.vivinoUrl && wine.vintageId == null) return null;
+  const params = new URLSearchParams({
+    wineId: wine._id,
+    year: String(wine.year),
+  });
+  if (wine.vivinoUrl) params.set('vivinoUrl', wine.vivinoUrl);
+  if (wine.vintageId != null) params.set('vintageId', String(wine.vintageId));
+  return `/api/getVivinoPrice?${params}`;
+};
+
 export const WineDetails = ({
   wine,
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
-  // const { data, isLoading } = useSwr(
-  //   wine?.vivinoUrl ? `/api/getVivinoPrice?vivinoUrl=${wine.vivinoUrl}` : null,
-  //   fetcher,
-  //   {
-  //     fallbackData: { price: wine?.currentPrice },
-  //     revalidateOnFocus: false,
-  //     revalidateOnReconnect: false,
-  //     dedupingInterval: 60000 * 60,
-  //   }
-  // );
+  const { data, isLoading } = useSwr(priceQuery(wine), fetcher, {
+    fallbackData: { price: wine?.currentPrice },
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000 * 60,
+  });
 
-  const vivinoPrice = wine?.price;
-  const isLoading = false;
+  const vivinoPrice = data?.price ?? wine?.currentPrice ?? null;
 
   if (!wine) return null;
 
@@ -154,4 +161,4 @@ export const WineDetails = ({
   );
 };
 
-// const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then(res => res.json());

@@ -1,0 +1,36 @@
+{
+  "checkout_prices": [
+    {
+      "market": {
+        "currency": {
+          "code": "SEK"
+        }
+      },
+      "availability": {
+        "vintage": {
+          "id": 167186194,
+          "year": 2021
+        },
+        "price": {
+          "amount": 8054
+        }
+      }
+    },
+    {
+      "market": {
+        "currency": {
+          "code": "SEK"
+        }
+      },
+      "availability": {
+        "vintage": {
+          "id": 127064316,
+          "year": 2016
+        },
+        "price": {
+          "amount": 6503
+        }
+      }
+    }
+  ]
+}

@@ -1,9 +1,19 @@
 'use server';
 import { load } from 'cheerio';
+import type { ScrapingResult } from '@/types';
 
 const WINE_CARD_SELECTOR = '[data-testid="wineCard"]';
 const WINE_IMAGE_SELECTOR = '[data-testid="deferredHiddenImage"]';
 const WINE_LINK_SELECTOR = '[data-testid="vintagePageLink"]';
+const EXPLORE_API_URL = 'https://www.vivino.com/api/explore/explore';
+const FETCH_TIMEOUT_MS = 10_000;
+
+const BROWSER_HEADERS = {
+  Accept: 'application/json',
+  'Accept-Language': 'sv-SE,sv;q=0.9,en;q=0.8',
+  'User-Agent':
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+};
 
 export const getVivinoData = async ({
   title,
@@ -11,49 +21,42 @@ export const getVivinoData = async ({
 }: {
   title: string;
   year: number;
-}) => {
+}): Promise<ScrapingResult | undefined> => {
   try {
-    const searchTitle = title.split(' ').join('+');
-    const cleanSearchTitle = searchTitle
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f’]/g, '');
-    const url = `https://www.vivino.com/sv/explore?search_term=${cleanSearchTitle}+${year}`;
-
-    const { content } = await fetchWebsiteData(url);
-    if (!content) return undefined;
-
-    const $ = load(content);
-    const card = $(WINE_CARD_SELECTOR).first();
-    const imgEl = card.find(WINE_IMAGE_SELECTOR).first();
-    const rawImg = imgEl.attr('src') || imgEl.attr('data-src');
-    const img = rawImg
-      ? rawImg.startsWith('http')
-        ? rawImg
-        : `https:${rawImg}`
-      : undefined;
-    const rating = card.find('[class*="averageValue"]').first().text().trim();
-    const country = (
-      card.find('[class*="regionAndCountry"]').first().text() ||
-      card.find('[class*="wineInfoLocation"]').first().text()
-    ).trim();
-    const vivinoHref =
-      card.find(WINE_LINK_SELECTOR).first().attr('href') ||
-      (card.is('a') ? card.attr('href') : undefined);
-
-    return {
-      img,
-      rating,
-      country,
-      vivinoUrl: vivinoHref
-        ? vivinoHref.startsWith('http')
-          ? vivinoHref
-          : `https://www.vivino.com${vivinoHref}`
-        : null,
-    };
+    const searchTerm = buildSearchTerm(title, year);
+    if (process.env.VIVINO_FETCH === 'browserless') {
+      return await getVivinoDataFromHtml(searchTerm);
+    }
+    return await getVivinoDataFromExploreApi(searchTerm);
   } catch (e) {
     console.error(e);
     return undefined;
   }
+};
+
+export const mapExploreMatch = (
+  match: ExploreMatch | undefined
+): ScrapingResult | undefined => {
+  const vintage = match?.vintage;
+  if (!vintage) return undefined;
+
+  const wine = vintage.wine;
+  const image = vintage.image;
+  const rawImg =
+    image?.variations?.bottle_small_square ||
+    image?.variations?.bottle_medium_square ||
+    image?.location;
+  const regionName = wine?.region?.name?.trim();
+  const countryName = wine?.region?.country?.name?.trim();
+  const country = [regionName, countryName].filter(Boolean).join(', ');
+  const rating = vintage.statistics?.ratings_average;
+
+  return {
+    img: toHttpsUrl(rawImg),
+    rating: rating == null ? undefined : String(rating),
+    country: country || undefined,
+    vivinoUrl: winePageUrl(vintage),
+  };
 };
 
 export const fetchWebsiteData = async (
@@ -103,6 +106,118 @@ export const fetchWebsiteData = async (
   }
 
   return await response.json();
+};
+
+const getVivinoDataFromExploreApi = async (searchTerm: string) => {
+  const params = new URLSearchParams({
+    search_term: searchTerm.replace(/\+/g, ' '),
+    country_code: 'se',
+    currency_code: 'SEK',
+    page: '1',
+    per_page: '1',
+  });
+
+  const response = await fetch(`${EXPLORE_API_URL}?${params}`, {
+    headers: BROWSER_HEADERS,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(
+      `Vivino explore API failed: ${response.status} ${errorBody.slice(0, 300)}`
+    );
+  }
+
+  const data = (await response.json()) as ExploreResponse;
+  return mapExploreMatch(data.explore_vintage?.matches?.[0]);
+};
+
+const getVivinoDataFromHtml = async (searchTerm: string) => {
+  const url = `https://www.vivino.com/sv/explore?search_term=${searchTerm}`;
+  const { content } = await fetchWebsiteData(url);
+  if (!content) return undefined;
+
+  const $ = load(content);
+  const card = $(WINE_CARD_SELECTOR).first();
+  const imgEl = card.find(WINE_IMAGE_SELECTOR).first();
+  const rawImg = imgEl.attr('src') || imgEl.attr('data-src');
+  const vivinoHref =
+    card.find(WINE_LINK_SELECTOR).first().attr('href') ||
+    (card.is('a') ? card.attr('href') : undefined);
+
+  return {
+    img: toHttpsUrl(rawImg),
+    rating: card.find('[class*="averageValue"]').first().text().trim(),
+    country: (
+      card.find('[class*="regionAndCountry"]').first().text() ||
+      card.find('[class*="wineInfoLocation"]').first().text()
+    ).trim(),
+    vivinoUrl: toHttpsUrl(vivinoHref) ?? null,
+  };
+};
+
+const buildSearchTerm = (title: string, year: number) => {
+  const searchTitle = title.split(' ').join('+');
+  const cleanSearchTitle = searchTitle
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f’']/g, '');
+  return `${cleanSearchTitle}+${year}`;
+};
+
+const toHttpsUrl = (url?: string | null) => {
+  if (!url) return undefined;
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('//')) return `https:${url}`;
+  return `https://www.vivino.com${url}`;
+};
+
+const winePageUrl = (vintage: ExploreVintage): string | null => {
+  const wineId = vintage.wine?.id;
+  const winerySeo = vintage.wine?.winery?.seo_name;
+  const wineSeo = vintage.wine?.seo_name;
+  if (winerySeo && wineSeo && wineId) {
+    const yearQuery = vintage.year ? `?year=${vintage.year}` : '';
+    return `https://www.vivino.com/SE/sv/${winerySeo}-${wineSeo}/w/${wineId}${yearQuery}`;
+  }
+  if (vintage.id) {
+    return `https://www.vivino.com/SE/sv/wines/${vintage.id}`;
+  }
+  return null;
+};
+
+type ExploreImage = {
+  location?: string | null;
+  variations?: {
+    bottle_small_square?: string | null;
+    bottle_medium_square?: string | null;
+  };
+};
+
+type ExploreVintage = {
+  id?: number;
+  year?: number | string | null;
+  statistics?: { ratings_average?: number | null };
+  image?: ExploreImage | null;
+  wine?: {
+    id?: number;
+    seo_name?: string | null;
+    region?: {
+      name?: string | null;
+      country?: { name?: string | null };
+    } | null;
+    winery?: { seo_name?: string | null } | null;
+  } | null;
+};
+
+export type ExploreMatch = {
+  vintage?: ExploreVintage;
+};
+
+type ExploreResponse = {
+  explore_vintage?: {
+    matches?: ExploreMatch[];
+  };
 };
 
 type ScrapingResponse = {

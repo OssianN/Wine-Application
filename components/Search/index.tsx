@@ -9,7 +9,10 @@ export const Search = () => {
   const { searchTerm, setSearchTerm } = useContext(SearchContext);
 
   return (
-    <form className="w-full flex justify-center">
+    <form
+      className="w-full flex justify-center"
+      onSubmit={event => event.preventDefault()}
+    >
       <FormItem className="w-full">
         <div className="relative flex max-w-96 flex-shrink">
           <SearchIcon
@@ -19,8 +22,14 @@ export const Search = () => {
             }`}
           />
           <Input
+            type="search"
+            value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="resize-none rounded-full"
+            placeholder="Search name, country, region, comments"
+            aria-label="Search name, country, region, comments"
+            className={`resize-none rounded-full ${
+              searchTerm.length > 0 ? '' : 'pl-10'
+            }`}
           />
         </div>
       </FormItem>

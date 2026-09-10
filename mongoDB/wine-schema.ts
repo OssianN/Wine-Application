@@ -13,6 +13,14 @@ const wineSchema = new Schema({
   price: { type: Number },
   currentPrice: { type: Number },
   vintageId: { type: Number },
+  drinkingWindow: {
+    type: {
+      startYear: { type: Number },
+      endYear: { type: Number },
+      status: { type: Number },
+    },
+    _id: false,
+  },
   vivinoUrl: { type: String },
 });
 

@@ -22,6 +22,7 @@ export const wineDto = ({
     price: price && price > 0 ? price : null,
     currentPrice: scraping?.currentPrice ?? null,
     vintageId: scraping?.vintageId ?? null,
+    drinkingWindow: scraping?.drinkingWindow ?? null,
     comment,
     img: scraping?.img ?? null,
     rating: scraping?.rating ?? null,

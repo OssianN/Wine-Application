@@ -7,6 +7,11 @@ describe('wineDto', () => {
     currentPrice: 6503,
     vintageId: 127064316,
     rating: '4.7',
+    drinkingWindow: {
+      startYear: 2021,
+      endYear: 2036,
+      status: 4,
+    },
   };
 
   it('does not copy merchant currentPrice into purchase price', () => {
@@ -20,6 +25,11 @@ describe('wineDto', () => {
       price: null,
       currentPrice: 6503,
       vintageId: 127064316,
+      drinkingWindow: {
+        startYear: 2021,
+        endYear: 2036,
+        status: 4,
+      },
     });
   });
 

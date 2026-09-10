@@ -8,6 +8,11 @@
       "ratings_average": 4.3,
       "ratings_count": 1303
     },
+    "recommended_drinking_window": {
+      "start_year": 2018,
+      "end_year": 2024,
+      "status": 5
+    },
     "image": {
       "location": "//images.vivino.com/thumbs/QR0Qn_-GTfe5QCwltBNT-g_pl_480x640.png",
       "variations": {

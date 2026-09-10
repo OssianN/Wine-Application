@@ -11,6 +11,10 @@ import { archiveWine } from '@/mongoDB/archiveWine';
 import { Skeleton } from '../ui/skeleton';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Wine } from '@/types';
+import {
+  drinkingWindowStatusLabel,
+  formatDrinkingWindow,
+} from '@/lib/drinkingWindow';
 import { ensureHttps, vivinoWineIdFromUrl } from '@/lib/utils';
 
 type WineDetailsProps = {
@@ -41,6 +45,9 @@ export const WineDetails = ({
   const vivinoPrice = data?.price ?? wine?.currentPrice ?? null;
 
   if (!wine) return null;
+
+  const windowYears = formatDrinkingWindow(wine.drinkingWindow);
+  const windowStatus = drinkingWindowStatusLabel(wine.drinkingWindow?.status);
 
   const pricePercent =
     vivinoPrice && wine.price
@@ -135,6 +142,14 @@ export const WineDetails = ({
             </span>
           </p>
         </div>
+
+        {(windowYears || windowStatus) && (
+          <p className="text-sm text-neutral-500 pb-6 font-electrolize">
+            {windowYears}
+            {windowYears && windowStatus ? ' · ' : ''}
+            {windowStatus}
+          </p>
+        )}
 
         {wine.vivinoUrl && (
           <a

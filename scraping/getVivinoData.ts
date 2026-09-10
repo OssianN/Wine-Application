@@ -110,12 +110,13 @@ const getVivinoDataFromExploreApi = async (title: string, year: number) => {
   if (!mapped) return mapped;
 
   const vintageId = match?.vintage?.id;
-  const drinkingWindow =
-    mapped.drinkingWindow ??
-    (vintageId != null ? await getDrinkingWindowForVintage(vintageId) : undefined);
-  const withWindow = drinkingWindow
-    ? { ...mapped, drinkingWindow }
-    : mapped;
+  const fromVintage =
+    mapped.drinkingWindowStart == null &&
+    mapped.drinkingWindowEnd == null &&
+    vintageId != null
+      ? await getDrinkingWindowForVintage(vintageId)
+      : undefined;
+  const withWindow = fromVintage ? { ...mapped, ...fromVintage } : mapped;
 
   if (withWindow.currentPrice != null || vintageId == null) return withWindow;
 
@@ -143,7 +144,19 @@ const getDrinkingWindowForVintage = async (vintageId: number) => {
     );
     if (!response.ok) return undefined;
     const data = (await response.json()) as ExploreMatch;
-    return mapExploreMatch(data)?.drinkingWindow;
+    const mapped = mapExploreMatch(data);
+    if (
+      mapped?.drinkingWindowStart == null &&
+      mapped?.drinkingWindowEnd == null &&
+      mapped?.drinkingWindowStatus == null
+    ) {
+      return undefined;
+    }
+    return {
+      drinkingWindowStart: mapped?.drinkingWindowStart,
+      drinkingWindowEnd: mapped?.drinkingWindowEnd,
+      drinkingWindowStatus: mapped?.drinkingWindowStatus,
+    };
   } catch (e) {
     console.error(e);
     return undefined;

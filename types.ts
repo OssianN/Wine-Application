@@ -36,7 +36,9 @@ export type Wine = {
   price: number | null;
   currentPrice?: number | null;
   vintageId?: number | null;
-  drinkingWindow?: DrinkingWindow | null;
+  drinkingWindowStart?: number | null;
+  drinkingWindowEnd?: number | null;
+  drinkingWindowStatus?: number | null;
   vivinoUrl: string | null;
 };
 
@@ -47,5 +49,7 @@ export type ScrapingResult = {
   vivinoUrl?: string | null;
   currentPrice?: number | null;
   vintageId?: number | null;
-  drinkingWindow?: DrinkingWindow | null;
+  drinkingWindowStart?: number | null;
+  drinkingWindowEnd?: number | null;
+  drinkingWindowStatus?: number | null;
 };

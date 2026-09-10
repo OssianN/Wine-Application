@@ -22,9 +22,12 @@ export const getUserWine = async ({
   if (!userDb) {
     return [];
   }
-  const list = (
-    await WineDataBase.find<Wine>({ _id: { $in: [...userDb.wineList] } })
-  ).filter(wine => !!wine.archived === !!isArchived);
 
-  return list;
+  const list = await WineDataBase.find({
+    _id: { $in: [...userDb.wineList] },
+  }).lean();
+
+  return JSON.parse(JSON.stringify(list)).filter(
+    (wine: Wine) => !!wine.archived === !!isArchived
+  );
 };

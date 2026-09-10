@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 
 const wineSchema = new Schema({
   title: { type: String },
@@ -13,17 +13,16 @@ const wineSchema = new Schema({
   price: { type: Number },
   currentPrice: { type: Number },
   vintageId: { type: Number },
-  drinkingWindow: {
-    type: {
-      startYear: { type: Number },
-      endYear: { type: Number },
-      status: { type: Number },
-    },
-    _id: false,
-  },
+  drinkingWindowStart: { type: Number },
+  drinkingWindowEnd: { type: Number },
+  drinkingWindowStatus: { type: Number },
   vivinoUrl: { type: String },
 });
 
-const WineDataBase = models.wines || model('wines', wineSchema);
+if (mongoose.models.wines) {
+  mongoose.deleteModel('wines');
+}
+
+const WineDataBase = model('wines', wineSchema);
 
 export default WineDataBase;

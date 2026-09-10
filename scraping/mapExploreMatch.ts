@@ -30,7 +30,15 @@ export const mapExploreMatch = (
     vivinoUrl: winePageUrl(vintage),
     ...(currentPrice != null ? { currentPrice } : {}),
     ...(vintage.id != null ? { vintageId: vintage.id } : {}),
-    ...(drinkingWindow ? { drinkingWindow } : {}),
+    ...(drinkingWindow?.startYear != null
+      ? { drinkingWindowStart: drinkingWindow.startYear }
+      : {}),
+    ...(drinkingWindow?.endYear != null
+      ? { drinkingWindowEnd: drinkingWindow.endYear }
+      : {}),
+    ...(drinkingWindow?.status != null
+      ? { drinkingWindowStatus: drinkingWindow.status }
+      : {}),
   };
 };
 

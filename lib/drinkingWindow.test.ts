@@ -1,7 +1,9 @@
 import {
+  drinkingWindowFromWine,
   drinkingWindowStatusLabel,
   formatDrinkingWindow,
 } from './drinkingWindow';
+import type { Wine } from '@/types';
 
 describe('formatDrinkingWindow', () => {
   it('formats a start and end year', () => {
@@ -33,5 +35,21 @@ describe('drinkingWindowStatusLabel', () => {
   it('returns null for an unknown status', () => {
     expect(drinkingWindowStatusLabel(undefined)).toBeNull();
     expect(drinkingWindowStatusLabel(99)).toBeNull();
+  });
+});
+
+describe('drinkingWindowFromWine', () => {
+  it('reads flat wine fields', () => {
+    expect(
+      drinkingWindowFromWine({
+        drinkingWindowStart: 2021,
+        drinkingWindowEnd: 2036,
+        drinkingWindowStatus: 4,
+      } as Wine)
+    ).toEqual({
+      startYear: 2021,
+      endYear: 2036,
+      status: 4,
+    });
   });
 });

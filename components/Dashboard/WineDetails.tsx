@@ -12,6 +12,7 @@ import { Skeleton } from '../ui/skeleton';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Wine } from '@/types';
 import {
+  drinkingWindowFromWine,
   drinkingWindowStatusLabel,
   formatDrinkingWindow,
 } from '@/lib/drinkingWindow';
@@ -46,8 +47,9 @@ export const WineDetails = ({
 
   if (!wine) return null;
 
-  const windowYears = formatDrinkingWindow(wine.drinkingWindow);
-  const windowStatus = drinkingWindowStatusLabel(wine.drinkingWindow?.status);
+  const drinkingWindow = drinkingWindowFromWine(wine);
+  const windowYears = formatDrinkingWindow(drinkingWindow);
+  const windowStatus = drinkingWindowStatusLabel(drinkingWindow?.status);
 
   const pricePercent =
     vivinoPrice && wine.price
@@ -107,7 +109,19 @@ export const WineDetails = ({
 
       <div className="flex flex-col items-center">
         <div className="w-full grid grid-cols-3 pb-8 items-center text-lg font-electrolize">
-          <p className="text-center px-4 border-r-[1px]">{wine.year}</p>
+          <div className="text-center px-4 border-r-[1px]">
+            <p>{wine.year}</p>
+            {windowYears && (
+              <p className="text-sm text-neutral-500 font-normal pt-1">
+                {windowYears}
+              </p>
+            )}
+            {windowStatus && (
+              <p className="text-xs text-neutral-500 font-normal">
+                {windowStatus}
+              </p>
+            )}
+          </div>
           <div className="text-center px-4 flex flex-col gap-1 h-full">
             <p className={'text-sm text-neutral-500 h-5'}>
               {pricePercent != null && <span>{pricePercent}%</span>}
@@ -142,14 +156,6 @@ export const WineDetails = ({
             </span>
           </p>
         </div>
-
-        {(windowYears || windowStatus) && (
-          <p className="text-sm text-neutral-500 pb-6 font-electrolize">
-            {windowYears}
-            {windowYears && windowStatus ? ' · ' : ''}
-            {windowStatus}
-          </p>
-        )}
 
         {wine.vivinoUrl && (
           <a

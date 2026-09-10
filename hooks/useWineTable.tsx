@@ -12,6 +12,10 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import Image from 'next/image';
 import type { Wine } from '@/types';
+import {
+  drinkingWindowFromWine,
+  formatDrinkingWindow,
+} from '@/lib/drinkingWindow';
 import { ensureHttps } from '@/lib/utils';
 
 export const useWineTable = (data: Wine[]) => {
@@ -73,6 +77,18 @@ export const useWineTable = (data: Wine[]) => {
       header: ({ column }) => (
         <Button variant="ghost" onClick={() => column.toggleSorting()}>
           Year
+          <ArrowUpDown className="ml-2 h-4" />
+        </Button>
+      ),
+    }),
+    columnHelper.accessor(row => row.drinkingWindowStart, {
+      id: 'drinkingWindow',
+      cell: info =>
+        formatDrinkingWindow(drinkingWindowFromWine(info.row.original)) ?? '',
+      sortUndefined: 'last',
+      header: ({ column }) => (
+        <Button variant="ghost" onClick={() => column.toggleSorting()}>
+          Window
           <ArrowUpDown className="ml-2 h-4" />
         </Button>
       ),

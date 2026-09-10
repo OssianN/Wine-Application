@@ -74,6 +74,9 @@ describe('mapExploreMatch', () => {
       vivinoUrl:
         'https://www.vivino.com/SE/sv/ossian-vinas-viejas-verdejo-castilla-and-leon/w/6142915?year=2016',
       vintageId: 156524504,
+      drinkingWindowStart: 2018,
+      drinkingWindowEnd: 2024,
+      drinkingWindowStatus: 5,
     });
   });
 
@@ -81,6 +84,38 @@ describe('mapExploreMatch', () => {
     const result = mapExploreMatch(exploreFixture.explore_vintage.matches[0]);
     expect(result?.currentPrice).toBe(6503);
     expect(result?.vintageId).toBe(127064316);
+    expect(result).not.toHaveProperty('drinkingWindowStart');
+    expect(result).not.toHaveProperty('drinkingWindowEnd');
+  });
+
+  it('maps a recommended drinking window from the vintage payload', () => {
+    const result = mapExploreMatch({
+      vintage: {
+        ...vintageFixture.vintage,
+        recommended_drinking_window: {
+          start_year: 2021,
+          end_year: 2036,
+          status: 4,
+        },
+      },
+    });
+
+    expect(result).toMatchObject({
+      drinkingWindowStart: 2021,
+      drinkingWindowEnd: 2036,
+      drinkingWindowStatus: 4,
+    });
+  });
+
+  it('keeps drinking window status 0', () => {
+    const result = mapExploreMatch({
+      vintage: {
+        id: 1,
+        recommended_drinking_window: { status: 0 },
+      },
+    });
+
+    expect(result?.drinkingWindowStatus).toBe(0);
   });
 
   it('skips a non-SEK merchant price', () => {
@@ -145,6 +180,9 @@ describe('getVivinoData', () => {
     expect(result?.vivinoUrl).toContain('/w/6142915?year=2016');
     expect(result?.currentPrice).toBe(499);
     expect(result?.vintageId).toBe(156524504);
+    expect(result?.drinkingWindowStart).toBe(2018);
+    expect(result?.drinkingWindowEnd).toBe(2024);
+    expect(result?.drinkingWindowStatus).toBe(5);
   });
 
   it('falls back to explore when Algolia has no matching year', async () => {
@@ -157,6 +195,18 @@ describe('getVivinoData', () => {
       }
       if (url.startsWith('https://www.vivino.com/api/explore/explore')) {
         return jsonResponse(exploreFixture);
+      }
+      if (url.includes('/api/vintages/127064316')) {
+        return jsonResponse({
+          vintage: {
+            ...exploreFixture.explore_vintage.matches[0].vintage,
+            recommended_drinking_window: {
+              start_year: 2021,
+              end_year: 2036,
+              status: 4,
+            },
+          },
+        });
       }
       throw new Error(`Unexpected fetch: ${url}`);
     });
@@ -174,6 +224,9 @@ describe('getVivinoData', () => {
     expect(exploreUrl).toContain('per_page=24');
     expect(result?.vivinoUrl).toContain('/w/82203?year=2016');
     expect(result?.currentPrice).toBe(6503);
+    expect(result?.drinkingWindowStart).toBe(2021);
+    expect(result?.drinkingWindowEnd).toBe(2036);
+    expect(result?.drinkingWindowStatus).toBe(4);
   });
 
   it('returns undefined when explore has no matches', async () => {

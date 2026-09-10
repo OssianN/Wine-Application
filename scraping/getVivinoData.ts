@@ -107,14 +107,60 @@ const getVivinoDataFromExploreApi = async (title: string, year: number) => {
   const data = (await response.json()) as ExploreResponse;
   const match = pickExploreMatch(data.explore_vintage?.matches, title, year);
   const mapped = mapExploreMatch(match);
-  if (!mapped || mapped.currentPrice != null) return mapped;
-  if (match?.vintage?.id == null) return mapped;
+  if (!mapped) return mapped;
 
-  const currentPrice = await getVivinoPriceForVintage(match.vintage.id);
+  const vintageId = match?.vintage?.id;
+  const fromVintage =
+    mapped.drinkingWindowStart == null &&
+    mapped.drinkingWindowEnd == null &&
+    vintageId != null
+      ? await getDrinkingWindowForVintage(vintageId)
+      : undefined;
+  const withWindow = fromVintage ? { ...mapped, ...fromVintage } : mapped;
+
+  if (withWindow.currentPrice != null || vintageId == null) return withWindow;
+
+  const currentPrice = await getVivinoPriceForVintage(vintageId);
   return {
-    ...mapped,
+    ...withWindow,
     ...(currentPrice != null ? { currentPrice } : {}),
   };
+};
+
+const getDrinkingWindowForVintage = async (vintageId: number) => {
+  try {
+    const response = await vivinoFetch(
+      `${VINTAGE_API_URL}/${vintageId}?language=sv`,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': 'sv-SE,sv;q=0.9,en;q=0.8',
+          'X-Requested-With': 'XMLHttpRequest',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      }
+    );
+    if (!response.ok) return undefined;
+    const data = (await response.json()) as ExploreMatch;
+    const mapped = mapExploreMatch(data);
+    if (
+      mapped?.drinkingWindowStart == null &&
+      mapped?.drinkingWindowEnd == null &&
+      mapped?.drinkingWindowStatus == null
+    ) {
+      return undefined;
+    }
+    return {
+      drinkingWindowStart: mapped?.drinkingWindowStart,
+      drinkingWindowEnd: mapped?.drinkingWindowEnd,
+      drinkingWindowStatus: mapped?.drinkingWindowStatus,
+    };
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
 };
 
 const buildSearchTerm = (title: string, year: number) => {

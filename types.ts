@@ -16,6 +16,12 @@ export type SessionUser = {
   shelves: number;
 };
 
+export type DrinkingWindow = {
+  startYear?: number | null;
+  endYear?: number | null;
+  status?: number | null;
+};
+
 export type Wine = {
   _id: string;
   title: string;
@@ -30,6 +36,9 @@ export type Wine = {
   price: number | null;
   currentPrice?: number | null;
   vintageId?: number | null;
+  drinkingWindowStart?: number | null;
+  drinkingWindowEnd?: number | null;
+  drinkingWindowStatus?: number | null;
   vivinoUrl: string | null;
 };
 
@@ -40,4 +49,7 @@ export type ScrapingResult = {
   vivinoUrl?: string | null;
   currentPrice?: number | null;
   vintageId?: number | null;
+  drinkingWindowStart?: number | null;
+  drinkingWindowEnd?: number | null;
+  drinkingWindowStatus?: number | null;
 };

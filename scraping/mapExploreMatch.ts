@@ -1,4 +1,4 @@
-import type { ScrapingResult } from '@/types';
+import type { DrinkingWindow, ScrapingResult } from '@/types';
 import { toSekAmount } from './getVivinoPrice';
 
 export const mapExploreMatch = (
@@ -21,6 +21,7 @@ export const mapExploreMatch = (
     match.price?.amount,
     match.price?.currency?.code
   );
+  const drinkingWindow = mapDrinkingWindow(vintage);
 
   return {
     img: toHttpsUrl(rawImg),
@@ -29,7 +30,46 @@ export const mapExploreMatch = (
     vivinoUrl: winePageUrl(vintage),
     ...(currentPrice != null ? { currentPrice } : {}),
     ...(vintage.id != null ? { vintageId: vintage.id } : {}),
+    ...(drinkingWindow?.startYear != null
+      ? { drinkingWindowStart: drinkingWindow.startYear }
+      : {}),
+    ...(drinkingWindow?.endYear != null
+      ? { drinkingWindowEnd: drinkingWindow.endYear }
+      : {}),
+    ...(drinkingWindow?.status != null
+      ? { drinkingWindowStatus: drinkingWindow.status }
+      : {}),
   };
+};
+
+export const mapDrinkingWindow = (
+  vintage?: ExploreVintage | null
+): DrinkingWindow | undefined => {
+  const raw = vintage?.recommended_drinking_window;
+  if (!raw) return undefined;
+
+  const startYear = toYear(raw.start_year);
+  const endYear = toYear(raw.end_year);
+  const status =
+    typeof raw.status === 'number' && Number.isFinite(raw.status)
+      ? raw.status
+      : undefined;
+
+  if (startYear == null && endYear == null && status == null) {
+    return undefined;
+  }
+
+  return {
+    ...(startYear != null ? { startYear } : {}),
+    ...(endYear != null ? { endYear } : {}),
+    ...(status != null ? { status } : {}),
+  };
+};
+
+const toYear = (value?: number | string | null) => {
+  if (value == null || value === '') return undefined;
+  const year = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(year) ? year : undefined;
 };
 
 export const toHttpsUrl = (url?: string | null) => {
@@ -66,6 +106,7 @@ type ExploreVintage = {
   name?: string | null;
   year?: number | string | null;
   statistics?: { ratings_average?: number | null };
+  recommended_drinking_window?: RecommendedDrinkingWindow | null;
   image?: ExploreImage | null;
   wine?: {
     id?: number;
@@ -78,7 +119,13 @@ type ExploreVintage = {
   } | null;
 };
 
-export type ExplorePrice = {
+type RecommendedDrinkingWindow = {
+  start_year?: number | string | null;
+  end_year?: number | string | null;
+  status?: number | null;
+};
+
+type ExplorePrice = {
   amount?: number | null;
   currency?: { code?: string | null } | null;
 };

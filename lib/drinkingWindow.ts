@@ -1,4 +1,4 @@
-import type { DrinkingWindow, Wine } from '@/types';
+import type { DrinkingWindow } from '@/types';
 
 const STATUS_LABELS: Record<number, string> = {
   0: 'Drink at your pace',
@@ -10,7 +10,15 @@ const STATUS_LABELS: Record<number, string> = {
   6: 'Past its peak',
 };
 
-export const drinkingWindowFromWine = (wine: Wine): DrinkingWindow | null => {
+type DrinkingWindowFields = {
+  drinkingWindowStart?: number | null;
+  drinkingWindowEnd?: number | null;
+  drinkingWindowStatus?: number | null;
+};
+
+export const drinkingWindowFromWine = (
+  wine: DrinkingWindowFields
+): DrinkingWindow | null => {
   if (
     wine.drinkingWindowStart == null &&
     wine.drinkingWindowEnd == null &&

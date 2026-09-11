@@ -4,7 +4,7 @@
 import checkoutFixture from '@/__fixtures__/vivinoCheckoutPricesResponse.json';
 import pricesFixture from '@/__fixtures__/vivinoPricesResponse.json';
 import substituteFixture from '@/__fixtures__/vivinoPricesSubstituteResponse.json';
-import { vivinoWineIdFromUrl } from '@/lib/utils';
+import { vivinoVintageIdFromUrl, vivinoWineIdFromUrl } from '@/lib/utils';
 import {
   getVivinoPriceForVintage,
   getVivinoPriceForWineYear,
@@ -68,6 +68,22 @@ describe('vivinoWineIdFromUrl', () => {
   it('returns null when the URL has no wine id', () => {
     expect(
       vivinoWineIdFromUrl('https://www.vivino.com/SE/sv/wines/156524504')
+    ).toBeNull();
+  });
+});
+
+describe('vivinoVintageIdFromUrl', () => {
+  it('reads the vintage id from a wines URL', () => {
+    expect(
+      vivinoVintageIdFromUrl('https://www.vivino.com/SE/sv/wines/156524504')
+    ).toBe(156524504);
+  });
+
+  it('returns null when the URL has no vintage id', () => {
+    expect(
+      vivinoVintageIdFromUrl(
+        'https://www.vivino.com/SE/sv/ossian-vinas-viejas-verdejo-castilla-and-leon/w/6142915?year=2016'
+      )
     ).toBeNull();
   });
 });

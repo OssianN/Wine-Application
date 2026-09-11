@@ -129,17 +129,21 @@ export const WineDetails = ({
       <Separator className="my-4" />
 
       <div className="flex flex-col items-center">
-        <div className="w-full grid grid-cols-3 pb-8 items-center text-lg font-electrolize">
-          <div className="text-center px-4 border-r-[1px]">
+        <div className="w-full grid grid-cols-3 grid-rows-[auto_auto_auto] pb-8 text-lg font-electrolize">
+          <div className="grid grid-rows-subgrid row-span-3 text-center px-4 border-r-[1px]">
             <p>{wine.year}</p>
             {isValidating && !windowYears && !windowStatus ? (
-              <div className="space-y-1 pt-2 flex flex-col items-center">
-                <Skeleton className="h-1 w-4/5" />
-                <Skeleton className="h-1 w-3/5" />
-              </div>
+              <>
+                <div className="pt-1 flex justify-center">
+                  <Skeleton className="h-1 w-4/5" />
+                </div>
+                <div className="flex justify-center">
+                  <Skeleton className="h-1 w-3/5" />
+                </div>
+              </>
             ) : (
               <>
-                {windowYears && (
+                {windowYears ? (
                   <p
                     className={`text-sm text-neutral-500 font-normal pt-1 ${
                       isValidating ? 'animate-pulse' : ''
@@ -147,7 +151,9 @@ export const WineDetails = ({
                   >
                     {windowYears}
                   </p>
-                )}
+                ) : windowStatus ? (
+                  <span />
+                ) : null}
                 {windowStatus && (
                   <p
                     className={`text-xs text-neutral-500 font-normal ${
@@ -160,16 +166,11 @@ export const WineDetails = ({
               </>
             )}
           </div>
-          <div className="text-center px-4 flex flex-col gap-1 h-full">
-            <p className={'text-sm text-neutral-500 h-5'}>
-              {pricePercent != null && <span>{pricePercent}%</span>}
-            </p>
-
+          <div className="grid grid-rows-subgrid row-span-3 text-center px-4">
             <p>{wine.price != null ? `${wine.price} kr` : '—'}</p>
-
-            <div className="text-sm h-5 text-neutral-500">
+            <div className="text-sm text-neutral-500 pt-1">
               {isValidating && !vivinoPrice ? (
-                <div className="space-y-1 h-full flex flex-col justify-end">
+                <div className="space-y-1 flex flex-col items-center">
                   <Skeleton className="h-1 w-4/5" />
                   <Skeleton className="h-1 w-full" />
                 </div>
@@ -186,13 +187,18 @@ export const WineDetails = ({
                 </>
               )}
             </div>
+            {pricePercent != null && (
+              <p className="text-xs text-neutral-500">{pricePercent}%</p>
+            )}
           </div>
-          <p className="text-center px-4 border-l-[1px]">
-            <span>{wine.rating}</span>
-            <span>
-              <Star size={12} className="inline -translate-y-[1px]" />
-            </span>
-          </p>
+          <div className="grid grid-rows-subgrid row-span-3 text-center px-4 border-l-[1px]">
+            <p>
+              <span>{wine.rating}</span>
+              <span>
+                <Star size={12} className="inline -translate-y-[1px]" />
+              </span>
+            </p>
+          </div>
         </div>
 
         {wine.vivinoUrl && (

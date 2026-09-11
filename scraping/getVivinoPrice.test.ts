@@ -6,6 +6,7 @@ import pricesFixture from '@/__fixtures__/vivinoPricesResponse.json';
 import substituteFixture from '@/__fixtures__/vivinoPricesSubstituteResponse.json';
 import { vivinoVintageIdFromUrl, vivinoWineIdFromUrl } from '@/lib/utils';
 import {
+  getCheckoutForWineYear,
   getVivinoPriceForVintage,
   getVivinoPriceForWineYear,
   toSekAmount,
@@ -147,5 +148,42 @@ describe('getVivinoPriceForWineYear', () => {
     });
 
     await expect(getVivinoPriceForWineYear(82203, 2010)).resolves.toBe(6503);
+  });
+});
+
+describe('getCheckoutForWineYear', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    clearVivinoSessionCache();
+  });
+
+  it('returns price and vintage id for the requested year', async () => {
+    mockVivinoFetches(url => {
+      if (url.includes('/checkout_prices')) {
+        return jsonResponse(checkoutFixture);
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    await expect(getCheckoutForWineYear(82203, 2016)).resolves.toEqual({
+      price: 6503,
+      vintageId: 127064316,
+    });
+  });
+
+  it('keeps a closest-year price but no vintage id when the year is missing', async () => {
+    mockVivinoFetches(url => {
+      if (url.includes('/checkout_prices')) {
+        return jsonResponse(checkoutFixture);
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    await expect(getCheckoutForWineYear(82203, 2010)).resolves.toEqual({
+      price: 6503,
+      vintageId: null,
+    });
   });
 });

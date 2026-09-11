@@ -30,18 +30,17 @@ const swrOptions = {
   dedupingInterval: 60000 * 60,
 } as const;
 
-const priceQuery = (wine: Wine | null) => {
+const detailsQuery = (wine: Wine | null) => {
   if (!wine) return null;
   const wineId = vivinoWineIdFromUrl(wine.vivinoUrl);
-  if (wineId == null || !wine.year) return null;
-  return `/api/getVivinoPrice?id=${wine._id}&wineId=${wineId}&year=${wine.year}`;
-};
-
-const drinkingWindowQuery = (wine: Wine | null) => {
-  if (!wine) return null;
   const vintageId = wine.vintageId ?? vivinoVintageIdFromUrl(wine.vivinoUrl);
-  if (vintageId == null) return null;
-  return `/api/getVivinoDrinkingWindow?id=${wine._id}&vintageId=${vintageId}`;
+  if ((wineId == null || !wine.year) && vintageId == null) return null;
+
+  const params = new URLSearchParams({ id: wine._id });
+  if (wineId != null) params.set('wineId', String(wineId));
+  if (wine.year) params.set('year', String(wine.year));
+  if (vintageId != null) params.set('vintageId', String(vintageId));
+  return `/api/getVivinoDetails?${params}`;
 };
 
 export const WineDetails = ({
@@ -49,22 +48,15 @@ export const WineDetails = ({
   onOpenChange,
   setOpenWineForm,
 }: WineDetailsProps) => {
-  const { data, isLoading } = useSwr(priceQuery(wine), fetcher, {
-    fallbackData: { price: wine?.currentPrice },
+  const { data, isValidating } = useSwr(detailsQuery(wine), fetcher, {
+    fallbackData: {
+      price: wine?.currentPrice,
+      drinkingWindowStart: wine?.drinkingWindowStart,
+      drinkingWindowEnd: wine?.drinkingWindowEnd,
+      drinkingWindowStatus: wine?.drinkingWindowStatus,
+    },
     ...swrOptions,
   });
-  const { data: windowData, isLoading: windowLoading } = useSwr(
-    drinkingWindowQuery(wine),
-    fetcher,
-    {
-      fallbackData: {
-        drinkingWindowStart: wine?.drinkingWindowStart,
-        drinkingWindowEnd: wine?.drinkingWindowEnd,
-        drinkingWindowStatus: wine?.drinkingWindowStatus,
-      },
-      ...swrOptions,
-    }
-  );
 
   const vivinoPrice = data?.price ?? wine?.currentPrice ?? null;
 
@@ -72,10 +64,10 @@ export const WineDetails = ({
 
   const drinkingWindow = drinkingWindowFromWine({
     drinkingWindowStart:
-      windowData?.drinkingWindowStart ?? wine.drinkingWindowStart,
-    drinkingWindowEnd: windowData?.drinkingWindowEnd ?? wine.drinkingWindowEnd,
+      data?.drinkingWindowStart ?? wine.drinkingWindowStart,
+    drinkingWindowEnd: data?.drinkingWindowEnd ?? wine.drinkingWindowEnd,
     drinkingWindowStatus:
-      windowData?.drinkingWindowStatus ?? wine.drinkingWindowStatus,
+      data?.drinkingWindowStatus ?? wine.drinkingWindowStatus,
   });
   const windowYears = formatDrinkingWindow(drinkingWindow);
   const windowStatus = drinkingWindowStatusLabel(drinkingWindow?.status);
@@ -140,7 +132,7 @@ export const WineDetails = ({
         <div className="w-full grid grid-cols-3 pb-8 items-center text-lg font-electrolize">
           <div className="text-center px-4 border-r-[1px]">
             <p>{wine.year}</p>
-            {windowLoading && !windowYears && !windowStatus ? (
+            {isValidating && !windowYears && !windowStatus ? (
               <div className="space-y-1 pt-2 flex flex-col items-center">
                 <Skeleton className="h-1 w-4/5" />
                 <Skeleton className="h-1 w-3/5" />
@@ -150,7 +142,7 @@ export const WineDetails = ({
                 {windowYears && (
                   <p
                     className={`text-sm text-neutral-500 font-normal pt-1 ${
-                      windowLoading ? 'animate-pulse' : ''
+                      isValidating ? 'animate-pulse' : ''
                     }`}
                   >
                     {windowYears}
@@ -159,7 +151,7 @@ export const WineDetails = ({
                 {windowStatus && (
                   <p
                     className={`text-xs text-neutral-500 font-normal ${
-                      windowLoading ? 'animate-pulse' : ''
+                      isValidating ? 'animate-pulse' : ''
                     }`}
                   >
                     {windowStatus}
@@ -176,7 +168,7 @@ export const WineDetails = ({
             <p>{wine.price != null ? `${wine.price} kr` : '—'}</p>
 
             <div className="text-sm h-5 text-neutral-500">
-              {isLoading && !vivinoPrice ? (
+              {isValidating && !vivinoPrice ? (
                 <div className="space-y-1 h-full flex flex-col justify-end">
                   <Skeleton className="h-1 w-4/5" />
                   <Skeleton className="h-1 w-full" />
@@ -186,7 +178,7 @@ export const WineDetails = ({
                   <span>Today </span>
                   <span
                     className={`whitespace-nowrap ${
-                      isLoading ? 'animate-pulse' : ''
+                      isValidating ? 'animate-pulse' : ''
                     }`}
                   >
                     {vivinoPrice ? `${vivinoPrice} kr` : 'N/A'}

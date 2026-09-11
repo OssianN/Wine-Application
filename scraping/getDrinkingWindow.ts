@@ -6,6 +6,7 @@ const VINTAGE_API_URL = 'https://www.vivino.com/api/vintages';
 const FETCH_TIMEOUT_MS = 10_000;
 
 export type DrinkingWindowResult = {
+  vintageId?: number | null;
   drinkingWindowStart?: number | null;
   drinkingWindowEnd?: number | null;
   drinkingWindowStatus?: number | null;
@@ -41,6 +42,7 @@ export const getDrinkingWindowForVintage = async (
       return undefined;
     }
     return {
+      vintageId,
       drinkingWindowStart: mapped?.drinkingWindowStart,
       drinkingWindowEnd: mapped?.drinkingWindowEnd,
       drinkingWindowStatus: mapped?.drinkingWindowStatus,

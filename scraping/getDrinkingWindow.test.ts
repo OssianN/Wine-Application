@@ -27,6 +27,7 @@ describe('getDrinkingWindowForVintage', () => {
     }) as unknown as typeof fetch;
 
     await expect(getDrinkingWindowForVintage(156524504)).resolves.toEqual({
+      vintageId: 156524504,
       drinkingWindowStart: 2018,
       drinkingWindowEnd: 2024,
       drinkingWindowStatus: 5,

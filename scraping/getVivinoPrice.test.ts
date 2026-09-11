@@ -4,8 +4,9 @@
 import checkoutFixture from '@/__fixtures__/vivinoCheckoutPricesResponse.json';
 import pricesFixture from '@/__fixtures__/vivinoPricesResponse.json';
 import substituteFixture from '@/__fixtures__/vivinoPricesSubstituteResponse.json';
-import { vivinoWineIdFromUrl } from '@/lib/utils';
+import { vivinoVintageIdFromUrl, vivinoWineIdFromUrl } from '@/lib/utils';
 import {
+  getCheckoutForWineYear,
   getVivinoPriceForVintage,
   getVivinoPriceForWineYear,
   toSekAmount,
@@ -72,6 +73,22 @@ describe('vivinoWineIdFromUrl', () => {
   });
 });
 
+describe('vivinoVintageIdFromUrl', () => {
+  it('reads the vintage id from a wines URL', () => {
+    expect(
+      vivinoVintageIdFromUrl('https://www.vivino.com/SE/sv/wines/156524504')
+    ).toBe(156524504);
+  });
+
+  it('returns null when the URL has no vintage id', () => {
+    expect(
+      vivinoVintageIdFromUrl(
+        'https://www.vivino.com/SE/sv/ossian-vinas-viejas-verdejo-castilla-and-leon/w/6142915?year=2016'
+      )
+    ).toBeNull();
+  });
+});
+
 describe('getVivinoPriceForVintage', () => {
   const originalFetch = global.fetch;
 
@@ -131,5 +148,42 @@ describe('getVivinoPriceForWineYear', () => {
     });
 
     await expect(getVivinoPriceForWineYear(82203, 2010)).resolves.toBe(6503);
+  });
+});
+
+describe('getCheckoutForWineYear', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    clearVivinoSessionCache();
+  });
+
+  it('returns price and vintage id for the requested year', async () => {
+    mockVivinoFetches(url => {
+      if (url.includes('/checkout_prices')) {
+        return jsonResponse(checkoutFixture);
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    await expect(getCheckoutForWineYear(82203, 2016)).resolves.toEqual({
+      price: 6503,
+      vintageId: 127064316,
+    });
+  });
+
+  it('keeps a closest-year price but no vintage id when the year is missing', async () => {
+    mockVivinoFetches(url => {
+      if (url.includes('/checkout_prices')) {
+        return jsonResponse(checkoutFixture);
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    await expect(getCheckoutForWineYear(82203, 2010)).resolves.toEqual({
+      price: 6503,
+      vintageId: null,
+    });
   });
 });

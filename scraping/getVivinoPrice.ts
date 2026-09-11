@@ -74,39 +74,61 @@ export const getVivinoPriceForVintage = async (
   );
 };
 
+const getCheckoutListings = async (wineId: number) => {
+  const data = await fetchVivinoJson<CheckoutPricesResponse>(
+    `${CHECKOUT_PRICES_API_URL}/${wineId}/checkout_prices?language=sv`
+  );
+  return (data?.checkout_prices ?? []).map(item => ({
+    vintageId: item.availability?.vintage?.id,
+    year: Number(item.availability?.vintage?.year),
+    amount:
+      toSekAmount(
+        item.availability?.price?.amount,
+        item.market?.currency?.code
+      ) ??
+      toSekAmount(
+        item.availability?.median?.amount,
+        item.market?.currency?.code
+      ),
+  }));
+};
+
+export const getCheckoutForWineYear = async (
+  wineId: number,
+  year: number
+): Promise<{ price: number | null; vintageId: number | null }> => {
+  if (!Number.isFinite(wineId) || !Number.isFinite(year)) {
+    return { price: null, vintageId: null };
+  }
+
+  const wantedYear = Number(year);
+  const listings = await getCheckoutListings(wineId);
+  const exact = listings.find(item => item.year === wantedYear);
+  const vintageId =
+    typeof exact?.vintageId === 'number' && Number.isFinite(exact.vintageId)
+      ? exact.vintageId
+      : null;
+
+  const priced = listings.filter(
+    (item): item is (typeof listings)[number] & { amount: number } =>
+      item.amount != null && Number.isFinite(item.year)
+  );
+  const exactPrice = priced.find(item => item.year === wantedYear);
+  const price =
+    exactPrice?.amount ??
+    (priced.length
+      ? [...priced].sort(
+          (a, b) =>
+            Math.abs(a.year - wantedYear) - Math.abs(b.year - wantedYear)
+        )[0].amount
+      : null);
+
+  return { price, vintageId };
+};
+
 export const getVivinoPriceForWineYear = async (
   wineId: number,
   year: number
 ): Promise<number | null> => {
-  if (!Number.isFinite(wineId) || !Number.isFinite(year)) return null;
-
-  const data = await fetchVivinoJson<CheckoutPricesResponse>(
-    `${CHECKOUT_PRICES_API_URL}/${wineId}/checkout_prices?language=sv`
-  );
-  const wantedYear = Number(year);
-  const listings = (data?.checkout_prices ?? [])
-    .map(item => ({
-      year: Number(item.availability?.vintage?.year),
-      amount:
-        toSekAmount(
-          item.availability?.price?.amount,
-          item.market?.currency?.code
-        ) ??
-        toSekAmount(
-          item.availability?.median?.amount,
-          item.market?.currency?.code
-        ),
-    }))
-    .filter(
-      (item): item is { year: number; amount: number } =>
-        item.amount != null && Number.isFinite(item.year)
-    );
-
-  const exact = listings.find(item => item.year === wantedYear);
-  if (exact) return exact.amount;
-  if (!listings.length) return null;
-
-  return listings.sort(
-    (a, b) => Math.abs(a.year - wantedYear) - Math.abs(b.year - wantedYear)
-  )[0].amount;
+  return (await getCheckoutForWineYear(wineId, year)).price;
 };

@@ -17,3 +17,10 @@ export const vivinoWineIdFromUrl = (url?: string | null) => {
   const wineId = match ? Number(match[1]) : NaN;
   return Number.isFinite(wineId) ? wineId : null;
 };
+
+export const vivinoVintageIdFromUrl = (url?: string | null) => {
+  if (!url) return null;
+  const match = url.match(/\/wines\/(\d+)/);
+  const vintageId = match ? Number(match[1]) : NaN;
+  return Number.isFinite(vintageId) ? vintageId : null;
+};

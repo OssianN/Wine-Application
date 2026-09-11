@@ -196,18 +196,6 @@ describe('getVivinoData', () => {
       if (url.startsWith('https://www.vivino.com/api/explore/explore')) {
         return jsonResponse(exploreFixture);
       }
-      if (url.includes('/api/vintages/127064316')) {
-        return jsonResponse({
-          vintage: {
-            ...exploreFixture.explore_vintage.matches[0].vintage,
-            recommended_drinking_window: {
-              start_year: 2021,
-              end_year: 2036,
-              status: 4,
-            },
-          },
-        });
-      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
     global.fetch = fetchMock as unknown as typeof fetch;
@@ -224,9 +212,10 @@ describe('getVivinoData', () => {
     expect(exploreUrl).toContain('per_page=24');
     expect(result?.vivinoUrl).toContain('/w/82203?year=2016');
     expect(result?.currentPrice).toBe(6503);
-    expect(result?.drinkingWindowStart).toBe(2021);
-    expect(result?.drinkingWindowEnd).toBe(2036);
-    expect(result?.drinkingWindowStatus).toBe(4);
+    expect(result?.vintageId).toBe(127064316);
+    expect(result).not.toHaveProperty('drinkingWindowStart');
+    expect(result).not.toHaveProperty('drinkingWindowEnd');
+    expect(result).not.toHaveProperty('drinkingWindowStatus');
   });
 
   it('returns undefined when explore has no matches', async () => {

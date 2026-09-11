@@ -5,6 +5,7 @@ const TITLE_PREFIX = 25;
 const TITLE_WORD_START = 30;
 const TITLE_CONTAINS = 20;
 const COUNTRY_MATCH = 10;
+const YEAR_MATCH = 10;
 const COMMENT_MATCH = 4;
 
 const COUNTRY_GROUPS = [
@@ -26,10 +27,12 @@ export const normalizeSearchText = (value: string) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f’']/g, '')
     .toLowerCase()
-    .replace(/\s+/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 
-const COUNTRY_ALIAS_LOOKUP = buildCountryAliasLookup();
+const COUNTRY_ALIAS_GROUPS = COUNTRY_GROUPS.map(group =>
+  group.map(alias => normalizeSearchText(alias))
+);
 
 export const searchWines = (wines: Wine[], searchTerm: string): Wine[] => {
   const tokens = tokenize(searchTerm);
@@ -66,11 +69,12 @@ const scoreWine = (
   const title = normalizeSearchText(wine.title ?? '');
   const country = normalizeSearchText(wine.country ?? '');
   const comment = normalizeSearchText(wine.comment ?? '');
+  const year = wine.year == null ? '' : String(wine.year);
 
   let score = 0;
 
   for (const token of tokens) {
-    const tokenScore = scoreToken(token, title, country, comment);
+    const tokenScore = scoreToken(token, title, country, comment, year);
     if (tokenScore == null) return null;
     score += tokenScore;
   }
@@ -85,7 +89,8 @@ const scoreToken = (
   token: string,
   title: string,
   country: string,
-  comment: string
+  comment: string,
+  year: string
 ) => {
   const titleScore = fieldContainsScore(
     title,
@@ -95,6 +100,7 @@ const scoreToken = (
   );
   if (titleScore) return titleScore;
   if (countryMatches(country, token)) return COUNTRY_MATCH;
+  if (yearMatches(year, token)) return YEAR_MATCH;
   if (comment.includes(token)) return COMMENT_MATCH;
   return null;
 };
@@ -120,34 +126,27 @@ const words = (field: string) => field.split(/[^a-z0-9]+/).filter(Boolean);
 const countryMatches = (country: string, token: string) => {
   if (!country) return false;
   if (country.includes(token)) return true;
-  const aliases = COUNTRY_ALIAS_LOOKUP.get(token);
-  return aliases?.some(alias => country.includes(alias)) ?? false;
+
+  return COUNTRY_ALIAS_GROUPS.some(group => {
+    if (!tokenHitsCountryGroup(token, group)) return false;
+    return group.some(alias => country.includes(alias));
+  });
+};
+
+const tokenHitsCountryGroup = (token: string, group: string[]) =>
+  group.some(
+    alias =>
+      alias === token ||
+      alias.startsWith(token) ||
+      alias.split(' ').some(word => word === token || word.startsWith(token))
+  );
+
+const yearMatches = (year: string, token: string) => {
+  if (!year || !/^\d{2,4}$/.test(token)) return false;
+  return year === token || year.endsWith(token);
 };
 
 const comparePosition = (a: Wine, b: Wine) => {
   if (a.shelf !== b.shelf) return a.shelf - b.shelf;
   return a.column - b.column;
 };
-
-function buildCountryAliasLookup() {
-  const map = new Map<string, string[]>();
-
-  for (const group of COUNTRY_GROUPS) {
-    const normalizedGroup = group.map(alias => normalizeSearchText(alias));
-    const keys = new Set<string>();
-
-    for (const alias of normalizedGroup) {
-      keys.add(alias);
-      for (const word of alias.split(' ')) {
-        if (word) keys.add(word);
-      }
-    }
-
-    for (const key of keys) {
-      const existing = map.get(key) ?? [];
-      map.set(key, [...new Set([...existing, ...normalizedGroup])]);
-    }
-  }
-
-  return map;
-}

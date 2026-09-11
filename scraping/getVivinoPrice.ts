@@ -110,7 +110,7 @@ export const getCheckoutForWineYear = async (
       : null;
 
   const priced = listings.filter(
-    (item): item is { vintageId?: number; year: number; amount: number } =>
+    (item): item is (typeof listings)[number] & { amount: number } =>
       item.amount != null && Number.isFinite(item.year)
   );
   const exactPrice = priced.find(item => item.year === wantedYear);

@@ -18,114 +18,115 @@ import {
 } from '@/lib/drinkingWindow';
 import { ensureHttps } from '@/lib/utils';
 
+const columnHelper = createColumnHelper<Wine>();
+
+const sortPrice = (a: Row<Wine>, b: Row<Wine>) =>
+  Number(a.original.price) - Number(b.original.price);
+
+const sortStorage = (a: Row<Wine>, b: Row<Wine>) => {
+  const { shelf: aShlef, column: aColumn } = a.original;
+  const { shelf: bShelf, column: bColumn } = b.original;
+
+  if (aShlef !== bShelf) {
+    return aShlef - bShelf;
+  }
+
+  return aColumn - bColumn;
+};
+
+const columns = [
+  columnHelper.accessor('img', {
+    cell: info => (
+      <div className="relative size-36 shrink-0 overflow-hidden">
+        <Image
+          src={ensureHttps(info.getValue())}
+          alt={info.row.original.title}
+          fill
+          sizes="144px"
+          className="object-contain"
+        />
+      </div>
+    ),
+    header: () => <span></span>,
+  }),
+  columnHelper.accessor('title', {
+    cell: info => <p className="w-32">{info.getValue()}</p>,
+    invertSorting: true,
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Title
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+  columnHelper.accessor('country', {
+    cell: info => <p className="w-32">{info.getValue()}</p>,
+    invertSorting: true,
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Country
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+  columnHelper.accessor('year', {
+    cell: info => info.getValue(),
+    sortUndefined: 'last',
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Year
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+  columnHelper.accessor(row => row.drinkingWindowStart, {
+    id: 'drinkingWindow',
+    cell: info =>
+      formatDrinkingWindow(drinkingWindowFromWine(info.row.original)) ?? '',
+    sortUndefined: 'last',
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Window
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+  columnHelper.accessor(row => `${row.shelf + 1}:${row.column + 1}`, {
+    id: 'column',
+    cell: info => info.getValue(),
+    sortingFn: sortStorage,
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Storage
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+  columnHelper.accessor('price', {
+    cell: info => info.getValue(),
+    sortUndefined: 'last',
+    sortingFn: sortPrice,
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Price
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+  columnHelper.accessor('rating', {
+    cell: info => info.getValue(),
+    sortUndefined: 'last',
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting()}>
+        Rating
+        <ArrowUpDown className="ml-2 h-4" />
+      </Button>
+    ),
+  }),
+];
+
 export const useWineTable = (data: Wine[]) => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const columnHelper = createColumnHelper<Wine>();
-
-  const sortPrice = (a: Row<Wine>, b: Row<Wine>) =>
-    Number(a.original.price) - Number(b.original.price);
-
-  const sortStorage = (a: Row<Wine>, b: Row<Wine>) => {
-    const { shelf: aShlef, column: aColumn } = a.original;
-    const { shelf: bShelf, column: bColumn } = b.original;
-
-    if (aShlef !== bShelf) {
-      return aShlef - bShelf;
-    }
-
-    return aColumn - bColumn;
-  };
-
-  const columns = [
-    columnHelper.accessor('img', {
-      cell: info => (
-        <div className="relative size-36 shrink-0 overflow-hidden">
-          <Image
-            src={ensureHttps(info.getValue())}
-            alt={info.row.original.title}
-            fill
-            sizes="144px"
-            className="object-contain"
-          />
-        </div>
-      ),
-      header: () => <span></span>,
-    }),
-    columnHelper.accessor('title', {
-      cell: info => <p className="w-32">{info.getValue()}</p>,
-      invertSorting: true,
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Title
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-    columnHelper.accessor('country', {
-      cell: info => <p className="w-32">{info.getValue()}</p>,
-      invertSorting: true,
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Country
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-    columnHelper.accessor('year', {
-      cell: info => info.getValue(),
-      sortUndefined: 'last',
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Year
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-    columnHelper.accessor(row => row.drinkingWindowStart, {
-      id: 'drinkingWindow',
-      cell: info =>
-        formatDrinkingWindow(drinkingWindowFromWine(info.row.original)) ?? '',
-      sortUndefined: 'last',
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Window
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-    columnHelper.accessor(row => `${row.shelf + 1}:${row.column + 1}`, {
-      id: 'column',
-      cell: info => info.getValue(),
-      sortingFn: sortStorage,
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Storage
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-    columnHelper.accessor('price', {
-      cell: info => info.getValue(),
-      sortUndefined: 'last',
-      sortingFn: sortPrice,
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Price
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-    columnHelper.accessor('rating', {
-      cell: info => info.getValue(),
-      sortUndefined: 'last',
-      header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting()}>
-          Rating
-          <ArrowUpDown className="ml-2 h-4" />
-        </Button>
-      ),
-    }),
-  ];
 
   return useReactTable({
     columns,

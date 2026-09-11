@@ -184,4 +184,56 @@ describe('searchWines', () => {
       searchWines([later, nextShelf, earlier], 'barolo').map(item => item.title)
     ).toEqual(['Earlier', 'Later', 'Next shelf']);
   });
+
+  it('treats commas in country as separators, not required characters', () => {
+    const rioja = wine({
+      title: 'Rioja Reserva',
+      country: 'Rioja, Spanien',
+    });
+
+    expect(searchWines([rioja], 'spanien').map(item => item.title)).toEqual([
+      'Rioja Reserva',
+    ]);
+    expect(searchWines([rioja], 'rioja, spain').map(item => item.title)).toEqual(
+      ['Rioja Reserva']
+    );
+  });
+
+  it('matches english country aliases against swedish stored names while typing', () => {
+    const spain = wine({
+      title: 'Rioja Reserva',
+      country: 'Rioja, Spanien',
+    });
+    const chile = wine({
+      title: 'Carmenere',
+      country: 'Colchagua, Chile',
+    });
+
+    expect(searchWines([spain, chile], 'spain').map(item => item.title)).toEqual(
+      ['Rioja Reserva']
+    );
+    expect(searchWines([spain, chile], 'spani').map(item => item.title)).toEqual(
+      ['Rioja Reserva']
+    );
+  });
+
+  it('matches vintage year together with country', () => {
+    const match = wine({
+      title: 'Rioja Reserva',
+      country: 'Rioja, Spanien',
+      year: 2016,
+    });
+    const wrongYear = wine({
+      title: 'Rioja Crianza',
+      country: 'Rioja, Spanien',
+      year: 2020,
+    });
+
+    expect(
+      searchWines([match, wrongYear], 'spain 2016').map(item => item.title)
+    ).toEqual(['Rioja Reserva']);
+    expect(searchWines([match], '2016').map(item => item.title)).toEqual([
+      'Rioja Reserva',
+    ]);
+  });
 });

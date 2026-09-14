@@ -42,10 +42,12 @@ const isPositiveInt = (value?: number | null): value is number =>
 const hasRefreshIdentity = (
   wineId: number | null,
   year: number | null,
-  vintageId: number | null
+  vintageId: number | null,
+  title?: string | null
 ) =>
   isPositiveInt(vintageId) ||
-  (isPositiveInt(wineId) && year != null && Number.isFinite(year));
+  (isPositiveInt(wineId) && year != null && Number.isFinite(year)) ||
+  (Boolean(title?.trim()) && year != null && Number.isFinite(year));
 
 const resolveWineIds = (wine: RefreshableWine) => {
   const wineId = vivinoWineIdFromUrl(wine.vivinoUrl);
@@ -165,7 +167,7 @@ export const refreshVivinoDetailsForWines = async (
       continue;
     }
     const ids = resolveWineIds(wine);
-    if (!hasRefreshIdentity(ids.wineId, ids.year, ids.vintageId)) {
+    if (!hasRefreshIdentity(ids.wineId, ids.year, ids.vintageId, wine.title)) {
       skipped += 1;
       continue;
     }

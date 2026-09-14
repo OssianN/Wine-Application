@@ -152,6 +152,42 @@ describe('refreshVivinoDetailsForWines', () => {
     expect(result.failed).toBe(0);
   });
 
+  it('refreshes wines that only have a title and year', async () => {
+    mockGetVivinoDetailsForWine.mockResolvedValue({
+      price: 499,
+      vintageId: 156524504,
+      drinkingWindowStart: 2018,
+      drinkingWindowEnd: 2024,
+      drinkingWindowStatus: 5,
+    });
+
+    const result = await refreshVivinoDetailsForWines([
+      { _id: 'title-year', title: 'Sassicaia', year: 2016 },
+    ]);
+
+    expect(mockGetVivinoDetailsForWine).toHaveBeenCalledWith({
+      wineId: null,
+      year: 2016,
+      vintageId: null,
+      title: 'Sassicaia',
+    });
+    expect(result).toMatchObject({
+      updated: 1,
+      skipped: 0,
+      failed: 0,
+    });
+    expect(result.updates).toEqual([
+      {
+        wineId: 'title-year',
+        currentPrice: 499,
+        vintageId: 156524504,
+        drinkingWindowStart: 2018,
+        drinkingWindowEnd: 2024,
+        drinkingWindowStatus: 5,
+      },
+    ]);
+  });
+
   it('counts a thrown details fetch as failed', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockGetVivinoPricesForVintages.mockResolvedValue(new Map());

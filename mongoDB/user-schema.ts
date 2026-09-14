@@ -26,6 +26,9 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  vivinoLibraryRefreshedAt: {
+    type: Date,
+  },
 });
 
 const UserDataBase = models.users || model('users', UserSchema);

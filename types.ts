@@ -6,6 +6,7 @@ export type User = {
   wineList: string[];
   columns: number;
   shelves: number;
+  vivinoLibraryRefreshedAt?: Date | string | null;
 };
 
 export type SessionUser = {

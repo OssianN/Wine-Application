@@ -15,15 +15,21 @@ import { CardComponent } from '../Card';
 import { logout } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { StorageData } from './StorageData';
+import { RefreshLibraryButton } from './RefreshLibraryButton';
 import type { User } from '@/types';
 import type { StorageDataType } from '@/lib/getStorageData';
 
 type SettingsPanelProps = {
   user: Pick<User, 'columns' | 'shelves' | 'name'>;
   storageData: StorageDataType;
+  vivinoLibraryRefreshedAt: string | null;
 };
 
-export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
+export const SettingsPanel = ({
+  user,
+  storageData,
+  vivinoLibraryRefreshedAt,
+}: SettingsPanelProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -70,6 +76,15 @@ export const SettingsPanel = ({ user, storageData }: SettingsPanelProps) => {
               description="Update the size of your storage"
             >
               <ChangeStorageForm user={user} onOpenSettingsChange={setOpen} />
+            </CardComponent>
+
+            <CardComponent
+              title="Update library"
+              description="Refresh current prices and drinking windows from Vivino"
+            >
+              <RefreshLibraryButton
+                vivinoLibraryRefreshedAt={vivinoLibraryRefreshedAt}
+              />
             </CardComponent>
           </div>
         </div>

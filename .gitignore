@@ -37,3 +37,4 @@ next-env.d.ts
 
 __fixtures__/backup.json
 log.md
+components/ui/library-updated-toast.visual.css

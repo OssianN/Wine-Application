@@ -27,8 +27,12 @@ export const updateStorageSize = async <T>(_: unknown, formData: FormData) => {
       }
     );
 
-    session.user.shelves = update.shelves;
-    session.user.columns = update.columns;
+    if (!update) {
+      throw new Error('User not found');
+    }
+
+    session.user.shelves = update.shelves ?? session.user.shelves;
+    session.user.columns = update.columns ?? session.user.columns;
     await session.save();
 
     revalidatePath('/dashboard');

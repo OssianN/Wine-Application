@@ -56,22 +56,58 @@ const fetchVivinoJson = async <T>(url: string): Promise<T | null> => {
   }
 };
 
+const PRICE_VINTAGE_CHUNK = 40;
+
+const pricesUrlForVintageIds = (vintageIds: number[]) => {
+  const params = vintageIds.map(id => `vintage_ids[]=${id}`).join('&');
+  return `${PRICES_API_URL}?${params}&language=sv`;
+};
+
+const pricesFromResponse = (
+  data: PricesResponse | null,
+  vintageIds: number[]
+) => {
+  const prices = new Map<number, number>();
+  if (!data) return prices;
+
+  const marketCurrency = data.prices?.market?.currency?.code;
+  for (const vintageId of vintageIds) {
+    const entry = data.prices?.vintages?.[String(vintageId)];
+    if (!entry) continue;
+    const amount =
+      toSekAmount(entry.price?.amount, marketCurrency) ??
+      toSekAmount(entry.median?.amount, marketCurrency);
+    if (amount != null) prices.set(vintageId, amount);
+  }
+  return prices;
+};
+
+export const getVivinoPricesForVintages = async (
+  vintageIds: number[]
+): Promise<Map<number, number>> => {
+  const ids = [
+    ...new Set(
+      vintageIds.filter(id => Number.isInteger(id) && Number.isFinite(id) && id > 0)
+    ),
+  ];
+  const prices = new Map<number, number>();
+  if (ids.length === 0) return prices;
+
+  for (let i = 0; i < ids.length; i += PRICE_VINTAGE_CHUNK) {
+    const chunk = ids.slice(i, i + PRICE_VINTAGE_CHUNK);
+    const data = await fetchVivinoJson<PricesResponse>(pricesUrlForVintageIds(chunk));
+    for (const [vintageId, amount] of pricesFromResponse(data, chunk)) {
+      prices.set(vintageId, amount);
+    }
+  }
+  return prices;
+};
+
 export const getVivinoPriceForVintage = async (
   vintageId: number
 ): Promise<number | null> => {
-  if (!Number.isFinite(vintageId)) return null;
-
-  const data = await fetchVivinoJson<PricesResponse>(
-    `${PRICES_API_URL}?vintage_ids[]=${vintageId}&language=sv`
-  );
-  const marketCurrency = data?.prices?.market?.currency?.code;
-  const entry = data?.prices?.vintages?.[String(vintageId)];
-  if (!entry) return null;
-
-  return (
-    toSekAmount(entry.price?.amount, marketCurrency) ??
-    toSekAmount(entry.median?.amount, marketCurrency)
-  );
+  const prices = await getVivinoPricesForVintages([vintageId]);
+  return prices.get(vintageId) ?? null;
 };
 
 const getCheckoutListings = async (wineId: number) => {

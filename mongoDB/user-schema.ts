@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 
 const UserSchema = new Schema({
   name: {
@@ -26,8 +26,15 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  vivinoLibraryRefreshedAt: {
+    type: Date,
+  },
 });
 
-const UserDataBase = models.users || model('users', UserSchema);
+if (mongoose.models.users) {
+  mongoose.deleteModel('users');
+}
+
+const UserDataBase = model('users', UserSchema);
 
 export default UserDataBase;

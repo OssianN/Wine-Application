@@ -10,6 +10,9 @@ const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   moduleDirectories: ['node_modules'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
   setupFilesAfterEnv: ['./jest.setup.js'],
   testEnvironmentOptions: {
     customExportConditions: [''],

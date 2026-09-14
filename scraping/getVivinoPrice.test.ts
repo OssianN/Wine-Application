@@ -9,6 +9,7 @@ import {
   getCheckoutForWineYear,
   getVivinoPriceForVintage,
   getVivinoPriceForWineYear,
+  getVivinoPricesForVintages,
   toSekAmount,
 } from './getVivinoPrice';
 import { clearVivinoSessionCache } from './vivinoSession';
@@ -117,6 +118,55 @@ describe('getVivinoPriceForVintage', () => {
     });
 
     await expect(getVivinoPriceForVintage(156524504)).resolves.toBe(559);
+  });
+});
+
+describe('getVivinoPricesForVintages', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    clearVivinoSessionCache();
+  });
+
+  it('maps several vintage ids from one prices API call', async () => {
+    mockVivinoFetches(url => {
+      if (url.includes('/api/prices')) {
+        return jsonResponse({
+          prices: {
+            market: { currency: { code: 'SEK' } },
+            vintages: {
+              '156524504': { price: { amount: 499 } },
+              '127064316': { median: { amount: 6503.4 } },
+            },
+          },
+        });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    const prices = await getVivinoPricesForVintages([156524504, 127064316]);
+    expect(prices.get(156524504)).toBe(499);
+    expect(prices.get(127064316)).toBe(6503);
+
+    const priceUrls = (global.fetch as jest.Mock).mock.calls
+      .map(call => String(call[0]))
+      .filter(url => url.includes('/api/prices'));
+    expect(priceUrls).toHaveLength(1);
+    expect(priceUrls[0]).toContain('vintage_ids[]=156524504');
+    expect(priceUrls[0]).toContain('vintage_ids[]=127064316');
+  });
+
+  it('does not fetch when there are no valid vintage ids', async () => {
+    mockVivinoFetches(() => {
+      throw new Error('Unexpected fetch');
+    });
+
+    await expect(getVivinoPricesForVintages([0, -1])).resolves.toEqual(new Map());
+    const priceUrls = (global.fetch as jest.Mock).mock.calls
+      .map(call => String(call[0]))
+      .filter(url => url.includes('/api/prices'));
+    expect(priceUrls).toHaveLength(0);
   });
 });
 

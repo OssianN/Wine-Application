@@ -60,14 +60,14 @@ export const DrinkingWindowBadge = ({
 
 export const DrinkingWindowLegend = () => (
   <ul
-    className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500"
+    className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-neutral-600 dark:text-neutral-400"
     aria-label="Drinking window colors"
   >
     {DRINKING_WINDOW_GRID_LEGEND.map(item => (
-      <li key={item.tone} className="flex items-center gap-1.5">
+      <li key={item.tone} className="flex items-center gap-2">
         <span
           className={cn(
-            'size-2 shrink-0 rounded-full',
+            'size-2.5 shrink-0 rounded-full',
             CUE_STYLES[item.tone].swatch
           )}
           aria-hidden

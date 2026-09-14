@@ -57,7 +57,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
         windowCue ? `${wine.title}, ${windowCue.label}` : wine.title
       }
       className={cn(
-        'bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm',
+        'bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm h-full',
         drinkingWindowCardClass(wine.drinkingWindowStatus)
       )}
       onClick={() => handleOpenWineDialog(wine)}
@@ -111,7 +111,9 @@ export const WineCard = ({ wine }: WineCardProps) => {
             </>
           )}
         </div>
-        <DrinkingWindowBadge status={wine.drinkingWindowStatus} />
+        <div className="min-h-[18px] flex justify-center">
+          <DrinkingWindowBadge status={wine.drinkingWindowStatus} />
+        </div>
       </div>
     </article>
   );

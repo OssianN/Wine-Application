@@ -90,13 +90,15 @@ export const WineCard = ({ wine }: WineCardProps) => {
           className="pt-5 drop-shadow-2xl h-36 object-contain"
         />
 
-        <h3 className="text-sm font-bold leading-5 line-clamp-2 w-full min-h-10 mt-2">
-          {wine.title}
-        </h3>
-        <p className="text-sm leading-5 truncate w-full h-5 text-neutral-500">
+        <div className="mt-2 w-full shrink-0 h-10">
+          <h3 className="text-sm font-bold leading-5 line-clamp-2 w-full">
+            {wine.title}
+          </h3>
+        </div>
+        <p className="text-sm leading-5 truncate w-full h-5 shrink-0 text-neutral-500">
           {wine.country}
         </p>
-        <div className="font-electrolize flex justify-center items-center text-sm leading-5 h-5 w-full dark:text-neutral-300">
+        <div className="font-electrolize flex flex-nowrap justify-center items-center text-sm leading-5 h-5 w-full shrink-0 dark:text-neutral-300">
           <p>{wine.price}</p>
           {wine.currentPrice && (
             <>
@@ -105,7 +107,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
             </>
           )}
         </div>
-        <div className="mt-auto min-h-[18px] flex justify-center">
+        <div className="h-[18px] shrink-0 flex justify-center">
           <DrinkingWindowBadge status={wine.drinkingWindowStatus} />
         </div>
       </div>

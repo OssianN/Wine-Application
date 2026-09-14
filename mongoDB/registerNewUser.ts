@@ -2,7 +2,6 @@
 import UserDataBase from './user-schema';
 import bcrypt from 'bcryptjs';
 import { connectMongo } from './';
-import { User } from '@/types';
 import { getUserSession } from '@/lib/session';
 import { registerFormSchema } from '@/lib/schemas';
 import { redirect } from 'next/navigation';
@@ -38,7 +37,7 @@ export const registerNewUser = async (_: unknown, formData: FormData) => {
     };
   }
 
-  const newUser: User = await new UserDataBase({
+  const newUser = await new UserDataBase({
     name: formName,
     email: formEmail.toLowerCase(),
     password: await bcrypt.hash(formPassword, 10),
@@ -48,7 +47,13 @@ export const registerNewUser = async (_: unknown, formData: FormData) => {
   }).save();
 
   const session = await getUserSession();
-  session.user = newUser;
+  session.user = {
+    name: newUser.name,
+    email: newUser.email,
+    _id: String(newUser._id),
+    shelves: newUser.shelves ?? 8,
+    columns: newUser.columns ?? 8,
+  };
   await session.save();
 
   redirect('/dashboard');

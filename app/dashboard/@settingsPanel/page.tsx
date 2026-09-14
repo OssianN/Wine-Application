@@ -1,9 +1,11 @@
-import { SettingsPanel } from '@/components/Settings';
-import { getStorageData } from '@/lib/getStorageData';
 import { getUserSession } from '@/lib/session';
+import { getStorageData } from '@/lib/getStorageData';
+import { SettingsPanel } from '@/components/Settings';
 import { getUserWine } from '@/mongoDB/getUserWine';
 import { getVivinoLibraryRefreshedAt } from '@/mongoDB/stampVivinoLibraryRefresh';
 import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
   const session = await getUserSession();

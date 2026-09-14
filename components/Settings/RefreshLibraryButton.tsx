@@ -8,7 +8,7 @@ import {
 } from '@/lib/vivinoLibraryRefresh';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type RefreshLibraryButtonProps = {
   vivinoLibraryRefreshedAt: string | null;
@@ -35,6 +35,30 @@ export const RefreshLibraryButton = ({
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCooldown = async () => {
+      try {
+        const response = await fetch('/api/refreshVivinoDetails');
+        if (!response.ok) return;
+        const data = (await response.json().catch(() => ({}))) as RefreshResponse & {
+          onCooldown?: boolean;
+        };
+        if (cancelled || !data.onCooldown) return;
+        const serverNextAt = parseDate(data.nextAvailableAt);
+        if (serverNextAt) setLockedUntil(serverNextAt);
+      } catch {
+        /* keep the server-rendered cooldown if the check fails */
+      }
+    };
+
+    void loadCooldown();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const nextAvailableAt =
     lockedUntil ?? nextVivinoLibraryRefreshAt(vivinoLibraryRefreshedAt);

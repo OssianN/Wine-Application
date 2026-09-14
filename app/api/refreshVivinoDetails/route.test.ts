@@ -6,11 +6,17 @@ process.env.MONGODB_URI ??= 'mongodb://localhost:27017/test';
 
 import { getUserSession } from '@/lib/session';
 import { getUserWine } from '@/mongoDB/getUserWine';
-import { stampVivinoLibraryRefresh } from '@/mongoDB/stampVivinoLibraryRefresh';
+import {
+  getVivinoLibraryRefreshedAt,
+  stampVivinoLibraryRefresh,
+} from '@/mongoDB/stampVivinoLibraryRefresh';
+import { bulkUpdateVivinoDetailsInDb } from '@/mongoDB/updateVivinoDetailsInDb';
+import { refreshVivinoDetailsForWines } from '@/scraping/refreshVivinoDetailsForWines';
+import { nextVivinoLibraryRefreshAt } from '@/lib/vivinoLibraryRefresh';
 import { bulkUpdateVivinoDetailsInDb } from '@/mongoDB/updateVivinoDetailsInDb';
 import { refreshVivinoDetailsForWines } from '@/scraping/refreshVivinoDetailsForWines';
 import { revalidatePath } from 'next/cache';
-import { POST } from './route';
+import { GET, POST } from './route';
 
 jest.mock('@/lib/session', () => ({
   getUserSession: jest.fn(),
@@ -23,6 +29,7 @@ jest.mock('@/mongoDB/getUserWine', () => ({
 }));
 jest.mock('@/mongoDB/stampVivinoLibraryRefresh', () => ({
   stampVivinoLibraryRefresh: jest.fn(),
+  getVivinoLibraryRefreshedAt: jest.fn(),
 }));
 jest.mock('@/mongoDB/updateVivinoDetailsInDb', () => ({
   bulkUpdateVivinoDetailsInDb: jest.fn(),
@@ -40,6 +47,9 @@ const mockGetUserSession = getUserSession as jest.MockedFunction<
 const mockGetUserWine = getUserWine as jest.MockedFunction<typeof getUserWine>;
 const mockStamp = stampVivinoLibraryRefresh as jest.MockedFunction<
   typeof stampVivinoLibraryRefresh
+>;
+const mockGetRefreshedAt = getVivinoLibraryRefreshedAt as jest.MockedFunction<
+  typeof getVivinoLibraryRefreshedAt
 >;
 const mockBulkUpdate = bulkUpdateVivinoDetailsInDb as jest.MockedFunction<
   typeof bulkUpdateVivinoDetailsInDb
@@ -141,5 +151,38 @@ describe('POST /api/refreshVivinoDetails', () => {
     expect(mockRefresh).toHaveBeenCalledWith(wines);
     expect(mockBulkUpdate).toHaveBeenCalledWith(updates);
     expect(mockRevalidatePath).toHaveBeenCalledWith('/dashboard');
+  });
+});
+
+describe('GET /api/refreshVivinoDetails', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns 401 without a session', async () => {
+    mockGetUserSession.mockResolvedValue({ user: undefined } as Awaited<
+      ReturnType<typeof getUserSession>
+    >);
+
+    const response = await GET();
+    expect(response.status).toBe(401);
+    expect(mockGetRefreshedAt).not.toHaveBeenCalled();
+  });
+
+  it('returns the stored cooldown for the signed-in user', async () => {
+    const refreshedAt = new Date().toISOString();
+    mockGetUserSession.mockResolvedValue({
+      user: { _id: 'user-1' },
+    } as Awaited<ReturnType<typeof getUserSession>>);
+    mockGetRefreshedAt.mockResolvedValue(refreshedAt);
+
+    const response = await GET();
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      onCooldown: true,
+      nextAvailableAt: nextVivinoLibraryRefreshAt(refreshedAt)!.toISOString(),
+      refreshedAt,
+    });
+    expect(mockGetRefreshedAt).toHaveBeenCalledWith('user-1');
   });
 });

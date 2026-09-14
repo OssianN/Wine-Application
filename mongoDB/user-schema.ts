@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 
 const UserSchema = new Schema({
   name: {
@@ -31,6 +31,10 @@ const UserSchema = new Schema({
   },
 });
 
-const UserDataBase = models.users || model('users', UserSchema);
+if (mongoose.models.users) {
+  mongoose.deleteModel('users');
+}
+
+const UserDataBase = model('users', UserSchema);
 
 export default UserDataBase;

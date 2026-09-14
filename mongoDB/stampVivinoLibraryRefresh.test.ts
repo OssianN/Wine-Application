@@ -48,7 +48,7 @@ describe('stampVivinoLibraryRefresh', () => {
     expect(mockUser.findOneAndUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ _id: 'user-1' }),
       { $set: { vivinoLibraryRefreshedAt: now } },
-      { new: true }
+      { new: true, strict: false }
     );
   });
 

@@ -41,7 +41,7 @@ export const stampVivinoLibraryRefresh = async (
       ],
     },
     { $set: { vivinoLibraryRefreshedAt: now } },
-    { new: true }
+    { new: true, strict: false }
   ).lean<{ vivinoLibraryRefreshedAt?: Date | null }>();
 
   if (updated) {

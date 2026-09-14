@@ -1,7 +1,14 @@
 import { getUserSession } from '@/lib/session';
+import {
+  isVivinoLibraryRefreshOnCooldown,
+  nextVivinoLibraryRefreshAt,
+} from '@/lib/vivinoLibraryRefresh';
 import { getUserWine } from '@/mongoDB/getUserWine';
 import { connectMongo } from '@/mongoDB';
-import { stampVivinoLibraryRefresh } from '@/mongoDB/stampVivinoLibraryRefresh';
+import {
+  getVivinoLibraryRefreshedAt,
+  stampVivinoLibraryRefresh,
+} from '@/mongoDB/stampVivinoLibraryRefresh';
 import { bulkUpdateVivinoDetailsInDb } from '@/mongoDB/updateVivinoDetailsInDb';
 import { refreshVivinoDetailsForWines } from '@/scraping/refreshVivinoDetailsForWines';
 import { revalidatePath } from 'next/cache';
@@ -15,6 +22,25 @@ const emptyResult = {
   failed: 0,
   nextAvailableAt: null as string | null,
 };
+
+export async function GET() {
+  const session = await getUserSession();
+  if (!session.user) {
+    return Response.json(
+      { onCooldown: false, nextAvailableAt: null, error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  await connectMongo();
+  const refreshedAt = await getVivinoLibraryRefreshedAt(session.user._id);
+  const nextAvailableAt = nextVivinoLibraryRefreshAt(refreshedAt);
+  return Response.json({
+    onCooldown: isVivinoLibraryRefreshOnCooldown(refreshedAt),
+    nextAvailableAt: nextAvailableAt?.toISOString() ?? null,
+    refreshedAt,
+  });
+}
 
 export async function POST() {
   const session = await getUserSession();

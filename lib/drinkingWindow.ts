@@ -10,6 +10,35 @@ const STATUS_LABELS: Record<number, string> = {
   6: 'Past its peak',
 };
 
+export type DrinkingWindowGridCueTone =
+  | 'drinkNow'
+  | 'drinkOrHold'
+  | 'hold'
+  | 'pastPeak';
+
+export type DrinkingWindowGridCue = {
+  tone: DrinkingWindowGridCueTone;
+  label: string;
+  shortLabel: string;
+};
+
+const GRID_CUES: Record<
+  number,
+  { tone: DrinkingWindowGridCueTone; shortLabel: string }
+> = {
+  3: { tone: 'hold', shortLabel: 'Hold' },
+  4: { tone: 'drinkOrHold', shortLabel: 'Drink or hold' },
+  5: { tone: 'drinkNow', shortLabel: 'Drink now' },
+  6: { tone: 'pastPeak', shortLabel: 'Past peak' },
+};
+
+export const DRINKING_WINDOW_GRID_LEGEND: DrinkingWindowGridCue[] = [
+  { tone: 'drinkNow', label: 'Drink now', shortLabel: 'Drink now' },
+  { tone: 'drinkOrHold', label: 'Drink or hold', shortLabel: 'Drink or hold' },
+  { tone: 'hold', label: 'Hold', shortLabel: 'Hold' },
+  { tone: 'pastPeak', label: 'Past its peak', shortLabel: 'Past peak' },
+];
+
 type DrinkingWindowFields = {
   drinkingWindowStart?: number | null;
   drinkingWindowEnd?: number | null;
@@ -46,4 +75,17 @@ export const formatDrinkingWindow = (window?: DrinkingWindow | null) => {
 export const drinkingWindowStatusLabel = (status?: number | null) => {
   if (status == null) return null;
   return STATUS_LABELS[status] ?? null;
+};
+
+export const drinkingWindowGridCue = (
+  status?: number | null
+): DrinkingWindowGridCue | null => {
+  if (status == null) return null;
+  const cue = GRID_CUES[status];
+  if (!cue) return null;
+  return {
+    tone: cue.tone,
+    shortLabel: cue.shortLabel,
+    label: STATUS_LABELS[status],
+  };
 };

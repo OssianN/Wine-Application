@@ -6,7 +6,12 @@ import { BlueBackground } from '../ui/blue-light-background';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { GripIcon } from 'lucide-react';
 import type { Wine } from '@/types';
-import { ensureHttps } from '@/lib/utils';
+import { cn, ensureHttps } from '@/lib/utils';
+import { drinkingWindowGridCue } from '@/lib/drinkingWindow';
+import {
+  DrinkingWindowBadge,
+  drinkingWindowCardClass,
+} from './DrinkingWindowCue';
 
 type WineCardProps = {
   wine: Wine;
@@ -42,11 +47,19 @@ export const WineCard = ({ wine }: WineCardProps) => {
     opacity: isDragging ? 0.9 : 1,
   };
 
+  const windowCue = drinkingWindowGridCue(wine.drinkingWindowStatus);
+
   return (
     <article
       id={wine._id}
       ref={setNodeRefDrag}
-      className="bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm"
+      aria-label={
+        windowCue ? `${wine.title}, ${windowCue.label}` : wine.title
+      }
+      className={cn(
+        'bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm',
+        drinkingWindowCardClass(wine.drinkingWindowStatus)
+      )}
       onClick={() => handleOpenWineDialog(wine)}
       style={{
         gridRow: !searchTerm ? Number(wine.shelf) + 1 : undefined,
@@ -98,6 +111,7 @@ export const WineCard = ({ wine }: WineCardProps) => {
             </>
           )}
         </div>
+        <DrinkingWindowBadge status={wine.drinkingWindowStatus} />
       </div>
     </article>
   );

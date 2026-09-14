@@ -1,23 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import {
-  DrinkingWindowBadge,
-  DrinkingWindowLegend,
-  drinkingWindowCardClass,
-} from './DrinkingWindowCue';
-
-describe('drinkingWindowCardClass', () => {
-  it('adds a status-colored left edge for drink-now bottles', () => {
-    expect(drinkingWindowCardClass(5)).toContain('border-l-emerald-500');
-    expect(drinkingWindowCardClass(4)).toContain('border-l-amber-500');
-    expect(drinkingWindowCardClass(3)).toContain('border-l-sky-500');
-    expect(drinkingWindowCardClass(6)).toContain('border-l-rose-500');
-  });
-
-  it('leaves quiet statuses without an accent', () => {
-    expect(drinkingWindowCardClass(0)).toBeUndefined();
-    expect(drinkingWindowCardClass(undefined)).toBeUndefined();
-  });
-});
+import { DrinkingWindowBadge, DrinkingWindowLegend } from './DrinkingWindowCue';
 
 describe('DrinkingWindowBadge', () => {
   it('renders a short label for drink-now bottles', () => {

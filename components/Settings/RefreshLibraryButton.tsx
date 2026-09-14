@@ -22,34 +22,48 @@ type RefreshResponse = {
   error?: string;
 };
 
+const parseDate = (value?: string | Date | null) => {
+  if (value == null) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(date.getTime()) ? date : null;
+};
+
 export const RefreshLibraryButton = ({
   vivinoLibraryRefreshedAt,
 }: RefreshLibraryButtonProps) => {
   const router = useRouter();
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
 
-  const onCooldown = isVivinoLibraryRefreshOnCooldown(vivinoLibraryRefreshedAt);
-  const nextAvailableAt = nextVivinoLibraryRefreshAt(vivinoLibraryRefreshedAt);
+  const nextAvailableAt =
+    lockedUntil ?? nextVivinoLibraryRefreshAt(vivinoLibraryRefreshedAt);
+  const onCooldown =
+    (lockedUntil != null && lockedUntil.getTime() > Date.now()) ||
+    isVivinoLibraryRefreshOnCooldown(vivinoLibraryRefreshedAt);
   const disabled = isRefreshing || onCooldown;
 
   const handleRefresh = async () => {
     if (disabled) return;
+    const nextAt = nextVivinoLibraryRefreshAt(new Date());
+    if (nextAt) setLockedUntil(nextAt);
     setIsRefreshing(true);
     try {
       const response = await fetch('/api/refreshVivinoDetails', {
         method: 'POST',
       });
       const data = (await response.json().catch(() => ({}))) as RefreshResponse;
+      const serverNextAt = parseDate(data.nextAvailableAt);
+      if (serverNextAt) setLockedUntil(serverNextAt);
 
       if (response.status === 429) {
-        const nextAt = data.nextAvailableAt
-          ? formatVivinoLibraryRefreshDate(data.nextAvailableAt)
+        const nextLabel = (serverNextAt ?? nextAt)
+          ? formatVivinoLibraryRefreshDate(serverNextAt ?? nextAt!)
           : null;
         toast({
           title: 'Update not available yet',
-          description: nextAt
-            ? `Next update available on ${nextAt}.`
+          description: nextLabel
+            ? `Next update available on ${nextLabel}.`
             : 'You can update the library again in 30 days.',
           variant: 'destructive',
         });
@@ -90,6 +104,7 @@ export const RefreshLibraryButton = ({
       <Button
         className="w-full"
         type="button"
+        aria-label="Update library"
         disabled={disabled}
         onClick={handleRefresh}
       >

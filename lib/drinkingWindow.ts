@@ -32,13 +32,6 @@ const GRID_CUES: Record<
   6: { tone: 'pastPeak', shortLabel: 'Past peak' },
 };
 
-export const DRINKING_WINDOW_GRID_LEGEND: DrinkingWindowGridCue[] = [
-  { tone: 'drinkNow', label: 'Drink now', shortLabel: 'Drink now' },
-  { tone: 'drinkOrHold', label: 'Drink or hold', shortLabel: 'Drink or hold' },
-  { tone: 'hold', label: 'Hold', shortLabel: 'Hold' },
-  { tone: 'pastPeak', label: 'Past its peak', shortLabel: 'Past peak' },
-];
-
 type DrinkingWindowFields = {
   drinkingWindowStart?: number | null;
   drinkingWindowEnd?: number | null;

@@ -2,7 +2,6 @@
 import { useContext, useMemo } from 'react';
 import { WineCard } from './WineCard';
 import { AddWineCard } from './AddWineCard';
-import { DrinkingWindowLegend } from './DrinkingWindowCue';
 import { SearchContext } from '@/providers/SearchProvider';
 import { useWineList } from '@/hooks/useWineList';
 import { DragAndDropContext } from '@/providers/DragAndDropContext';
@@ -33,25 +32,22 @@ export const WineGrid = ({ data, user }: WineGridProps) => {
   }, [user.columns, user.shelves, wineList]);
 
   return (
-    <div className="w-full pt-2">
-      <DrinkingWindowLegend />
-      <div className="w-full overflow-x-scroll no-scrollbar">
-        <DragAndDropContext>
-          <div
-            className="grid gap-4 pt-5 pb-8"
-            style={{
-              gridTemplateColumns: `repeat(${user.columns}, minmax(0, 1fr))`,
-              minWidth: `calc(8rem * ${user.columns} + 7rem)`,
-            }}
-          >
-            {wineList.map(wine => {
-              return <WineCard key={wine._id} wine={wine} />;
-            })}
-            {!searchTerm &&
-              getEmptySlots.map(id => <AddWineCard key={id} id={id} />)}
-          </div>
-        </DragAndDropContext>
-      </div>
+    <div className="w-full overflow-x-scroll no-scrollbar">
+      <DragAndDropContext>
+        <div
+          className="grid gap-4 py-8"
+          style={{
+            gridTemplateColumns: `repeat(${user.columns}, minmax(0, 1fr))`,
+            minWidth: `calc(8rem * ${user.columns} + 7rem)`,
+          }}
+        >
+          {wineList.map(wine => {
+            return <WineCard key={wine._id} wine={wine} />;
+          })}
+          {!searchTerm &&
+            getEmptySlots.map(id => <AddWineCard key={id} id={id} />)}
+        </div>
+      </DragAndDropContext>
     </div>
   );
 };

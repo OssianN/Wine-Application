@@ -1,5 +1,6 @@
 import {
   drinkingWindowFromWine,
+  drinkingWindowGridCue,
   drinkingWindowStatusLabel,
   formatDrinkingWindow,
 } from './drinkingWindow';
@@ -35,6 +36,39 @@ describe('drinkingWindowStatusLabel', () => {
   it('returns null for an unknown status', () => {
     expect(drinkingWindowStatusLabel(undefined)).toBeNull();
     expect(drinkingWindowStatusLabel(99)).toBeNull();
+  });
+});
+
+describe('drinkingWindowGridCue', () => {
+  it('highlights bottles that need a drink decision', () => {
+    expect(drinkingWindowGridCue(5)).toEqual({
+      tone: 'drinkNow',
+      label: 'Drink now',
+      shortLabel: 'Drink now',
+    });
+    expect(drinkingWindowGridCue(4)).toEqual({
+      tone: 'drinkOrHold',
+      label: 'Drink or hold',
+      shortLabel: 'Drink or hold',
+    });
+    expect(drinkingWindowGridCue(3)).toEqual({
+      tone: 'hold',
+      label: 'Hold',
+      shortLabel: 'Hold',
+    });
+    expect(drinkingWindowGridCue(6)).toEqual({
+      tone: 'pastPeak',
+      label: 'Past its peak',
+      shortLabel: 'Past peak',
+    });
+  });
+
+  it('skips quiet or unknown statuses so the shelf stays scannable', () => {
+    expect(drinkingWindowGridCue(0)).toBeNull();
+    expect(drinkingWindowGridCue(1)).toBeNull();
+    expect(drinkingWindowGridCue(2)).toBeNull();
+    expect(drinkingWindowGridCue(undefined)).toBeNull();
+    expect(drinkingWindowGridCue(99)).toBeNull();
   });
 });
 

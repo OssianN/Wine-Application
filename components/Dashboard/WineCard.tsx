@@ -7,6 +7,8 @@ import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { GripIcon } from 'lucide-react';
 import type { Wine } from '@/types';
 import { ensureHttps } from '@/lib/utils';
+import { drinkingWindowGridCue } from '@/lib/drinkingWindow';
+import { DrinkingWindowBadge } from './DrinkingWindowCue';
 
 type WineCardProps = {
   wine: Wine;
@@ -42,11 +44,16 @@ export const WineCard = ({ wine }: WineCardProps) => {
     opacity: isDragging ? 0.9 : 1,
   };
 
+  const windowCue = drinkingWindowGridCue(wine.drinkingWindowStatus);
+
   return (
     <article
       id={wine._id}
       ref={setNodeRefDrag}
-      className="bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm"
+      aria-label={
+        windowCue ? `${wine.title}, ${windowCue.label}` : wine.title
+      }
+      className="bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm h-full"
       onClick={() => handleOpenWineDialog(wine)}
       style={{
         gridRow: !searchTerm ? Number(wine.shelf) + 1 : undefined,
@@ -83,20 +90,25 @@ export const WineCard = ({ wine }: WineCardProps) => {
           className="pt-5 drop-shadow-2xl h-36 object-contain"
         />
 
-        <h3 className="text-sm font-bold line-clamp-2 w-full pt-2">
-          {wine.title}
-        </h3>
-        <p className="text-sm truncate w-full text-neutral-500">
-          {wine.country}
-        </p>
-        <div className="font-electrolize flex justify-center text-sm w-full dark:text-neutral-300">
-          <p>{wine.price}</p>
-          {wine.currentPrice && (
-            <>
-              <span>/</span>
-              <p className="text-neutral-500">{wine.currentPrice} kr</p>
-            </>
-          )}
+        <div className="mt-2 grid w-full min-w-0 grid-rows-[2.5rem_1.25rem_1.25rem_1.125rem] gap-2">
+          <h3 className="min-h-0 min-w-0 overflow-hidden text-sm font-bold leading-5 line-clamp-2">
+            {wine.title}
+          </h3>
+          <p className="min-h-0 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-5 text-neutral-500">
+            {wine.country}
+          </p>
+          <div className="flex min-h-0 min-w-0 flex-nowrap items-center justify-center overflow-hidden font-electrolize text-sm leading-5 dark:text-neutral-300">
+            <p>{wine.price}</p>
+            {wine.currentPrice && (
+              <>
+                <span>/</span>
+                <p className="text-neutral-500">{wine.currentPrice} kr</p>
+              </>
+            )}
+          </div>
+          <div className="flex min-h-0 justify-center overflow-hidden">
+            <DrinkingWindowBadge status={wine.drinkingWindowStatus} />
+          </div>
         </div>
       </div>
     </article>

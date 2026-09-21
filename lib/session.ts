@@ -3,7 +3,14 @@ import { getDbUser } from '@/mongoDB/getDbUser';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { loginFormSchema } from '@/lib/schemas';
 import type { User } from '@/types';
+import type { ZodIssue } from 'zod';
+
+export type LoginActionState = {
+  errors?: ZodIssue[];
+  error?: string;
+};
 
 type SessionData = {
   user?: Omit<User, 'wineList' | 'password'>;
@@ -28,24 +35,33 @@ export const getUserSession = async () => {
   return session;
 };
 
-export const login = async (formData: FormData) => {
-  const session = await getUserSession();
-  const formEmail = formData.get('email') as string;
-  const formPassword = formData.get('password') as string;
+export const login = async (
+  _: unknown,
+  formData: FormData
+): Promise<LoginActionState> => {
+  const parse = loginFormSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+
+  if (!parse.success) {
+    return { errors: parse.error.errors };
+  }
 
   const { user, error } = await getDbUser({
-    email: formEmail,
-    password: formPassword,
+    email: parse.data.email,
+    password: parse.data.password,
   });
 
   if (error) {
-    return redirect(`/?error=${error}`);
+    return { error };
   }
 
   if (!user) {
-    return redirect('/?error=Invalid email or password');
+    return { error: 'Invalid email or password' };
   }
 
+  const session = await getUserSession();
   session.user = {
     name: user.name,
     email: user.email,

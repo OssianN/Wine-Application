@@ -44,8 +44,11 @@ export const RegisterForm = () => {
   const [formState, formAction] = useActionState(serverAction, initialState);
 
   useEffect(() => {
+    form.clearErrors();
     formState?.errors.forEach(({ path, message }) => {
-      form.setError(path[0] as keyof RegisterFormType, { message });
+      if (path[0] && message) {
+        form.setError(path[0] as keyof RegisterFormType, { message });
+      }
     });
   }, [formState, form]);
 

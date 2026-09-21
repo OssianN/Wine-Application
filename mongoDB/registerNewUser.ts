@@ -54,6 +54,7 @@ export const registerNewUser = async (_: unknown, formData: FormData) => {
     shelves: newUser.shelves ?? 8,
     columns: newUser.columns ?? 8,
   };
+  session.isLoggedId = true;
   await session.save();
 
   redirect('/dashboard');

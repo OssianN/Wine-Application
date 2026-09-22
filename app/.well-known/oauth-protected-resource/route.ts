@@ -1,18 +1,13 @@
-import {
-  metadataCorsOptionsRequestHandler,
-  protectedResourceHandler,
-} from 'mcp-handler';
+import { oauthJson, oauthOptions } from '@/lib/oauth/cors';
+import { protectedResourceMetadata } from '@/lib/oauth/metadata';
 import { resolveResourceUrl } from '@/lib/oauth/urls';
 
 export const dynamic = 'force-dynamic';
 
 export function GET(req: Request) {
-  const issuer = resolveResourceUrl(req);
-  const handler = protectedResourceHandler({
-    authServerUrls: [issuer],
-    resourceUrl: issuer,
-  });
-  return handler(req);
+  return oauthJson(protectedResourceMetadata(resolveResourceUrl(req)));
 }
 
-export const OPTIONS = metadataCorsOptionsRequestHandler();
+export function OPTIONS() {
+  return oauthOptions();
+}

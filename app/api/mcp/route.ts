@@ -1,6 +1,7 @@
 import { createMcpHandler, withMcpAuth } from 'mcp-handler';
 import { CELLAR_READ_SCOPE } from '@/lib/oauth/constants';
 import { userIdFromAuth, verifyMcpBearer } from '@/lib/mcp/verifyAccess';
+import { mcpResourceIdentifier } from '@/lib/oauth/metadata';
 import { getConfiguredResourceUrl } from '@/lib/oauth/urls';
 import { getUserWine } from '@/mongoDB/getUserWine';
 
@@ -49,11 +50,15 @@ const handler = createMcpHandler(
   }
 );
 
+const configuredOrigin = getConfiguredResourceUrl();
+
 const authHandler = withMcpAuth(handler, verifyMcpBearer, {
   required: true,
   requiredScopes: [CELLAR_READ_SCOPE],
-  resourceMetadataPath: '/.well-known/oauth-protected-resource',
-  resourceUrl: getConfiguredResourceUrl() ?? undefined,
+  resourceMetadataPath: '/.well-known/oauth-protected-resource/api/mcp',
+  resourceUrl: configuredOrigin
+    ? mcpResourceIdentifier(configuredOrigin)
+    : undefined,
 });
 
 export { authHandler as GET, authHandler as POST, authHandler as DELETE };

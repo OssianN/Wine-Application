@@ -1,25 +1,23 @@
 import { oauthJson, oauthOptions } from '@/lib/oauth/cors';
-import { isHttpsPublicUrl } from '@/lib/oauth/urls';
-import { createOAuthClient } from '@/mongoDB/oauthStore';
+import { registerOAuthClient } from '@/lib/oauth/register';
 
 export const dynamic = 'force-dynamic';
 
-type RegistrationBody = {
-  redirect_uris?: unknown;
-  token_endpoint_auth_method?: unknown;
-};
-
-const parseRedirectUris = (value: unknown) => {
-  if (!Array.isArray(value)) {
-    return [];
+const readBody = async (req: Request) => {
+  const contentType = req.headers.get('content-type') ?? '';
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    const form = await req.formData();
+    return {
+      redirect_uris: form.getAll('redirect_uris'),
+    };
   }
-  return value.filter((uri): uri is string => typeof uri === 'string');
+  return (await req.json()) as { redirect_uris?: unknown };
 };
 
 export async function POST(req: Request) {
-  let body: RegistrationBody;
+  let body: { redirect_uris?: unknown };
   try {
-    body = (await req.json()) as RegistrationBody;
+    body = await readBody(req);
   } catch {
     return oauthJson(
       { error: 'invalid_client_metadata', error_description: 'JSON body required' },
@@ -27,41 +25,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const redirectUris = parseRedirectUris(body.redirect_uris);
-  if (!redirectUris.length || redirectUris.some(uri => !isHttpsPublicUrl(uri))) {
-    return oauthJson(
-      {
-        error: 'invalid_redirect_uri',
-        error_description: 'redirect_uris must be public https URLs',
-      },
-      400
-    );
-  }
-
-  if (
-    body.token_endpoint_auth_method &&
-    body.token_endpoint_auth_method !== 'none'
-  ) {
-    return oauthJson(
-      {
-        error: 'invalid_client_metadata',
-        error_description: 'Only public clients (token_endpoint_auth_method=none) are supported',
-      },
-      400
-    );
-  }
-
-  const client = await createOAuthClient(redirectUris);
-  return oauthJson(
-    {
-      client_id: client.clientId,
-      redirect_uris: client.redirectUris,
-      token_endpoint_auth_method: 'none',
-      grant_types: ['authorization_code', 'refresh_token'],
-      response_types: ['code'],
-    },
-    201
-  );
+  const result = await registerOAuthClient(body);
+  return oauthJson(result.body, result.status);
 }
 
 export function OPTIONS() {

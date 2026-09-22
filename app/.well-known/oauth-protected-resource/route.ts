@@ -1,13 +1,9 @@
-import { oauthJson, oauthOptions } from '@/lib/oauth/cors';
-import { protectedResourceMetadata } from '@/lib/oauth/metadata';
-import { resolveResourceUrl } from '@/lib/oauth/urls';
+import {
+  GET_protectedResource,
+  OPTIONS_discovery,
+} from '@/lib/oauth/discoveryRoutes';
 
 export const dynamic = 'force-dynamic';
 
-export function GET(req: Request) {
-  return oauthJson(protectedResourceMetadata(resolveResourceUrl(req)));
-}
-
-export function OPTIONS() {
-  return oauthOptions();
-}
+export const GET = GET_protectedResource;
+export const OPTIONS = OPTIONS_discovery;

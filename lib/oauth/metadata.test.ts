@@ -12,7 +12,7 @@ describe('oauth metadata', () => {
       issuer,
       authorization_endpoint: `${issuer}/authorize`,
       token_endpoint: `${issuer}/token`,
-      registration_endpoint: `${issuer}/register`,
+      registration_endpoint: `${issuer}/oauth/register`,
     });
   });
 

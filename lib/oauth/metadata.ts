@@ -6,7 +6,7 @@ export const authorizationServerMetadata = (issuer: string) => ({
   issuer,
   authorization_endpoint: `${issuer}/authorize`,
   token_endpoint: `${issuer}/token`,
-  registration_endpoint: `${issuer}/register`,
+  registration_endpoint: `${issuer}/oauth/register`,
   response_types_supported: ['code'],
   grant_types_supported: ['authorization_code', 'refresh_token'],
   code_challenge_methods_supported: ['S256'],

@@ -1,6 +1,8 @@
 'use server';
-import { findUserWines } from './findUserWines';
-import type { Wine } from '@/types';
+import { connectMongo } from './';
+import UserDataBase from './user-schema';
+import WineDataBase from './wine-schema';
+import type { User, Wine } from '@/types';
 
 type GetUserWineProps = {
   _id: string;
@@ -11,7 +13,21 @@ export const getUserWine = async ({
   _id,
   isArchived,
 }: GetUserWineProps): Promise<Wine[]> => {
-  const list = await findUserWines(_id);
+  await connectMongo();
 
-  return list.filter(wine => !!wine.archived === !!isArchived);
+  const userDb = await UserDataBase.findById<User>({
+    _id,
+  });
+
+  if (!userDb) {
+    return [];
+  }
+
+  const list = await WineDataBase.find({
+    _id: { $in: [...userDb.wineList] },
+  }).lean();
+
+  return JSON.parse(JSON.stringify(list)).filter(
+    (wine: Wine) => !!wine.archived === !!isArchived
+  );
 };

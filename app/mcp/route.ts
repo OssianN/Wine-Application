@@ -1,16 +1,13 @@
 import { createMcpHandler, withMcpAuth } from 'mcp-handler';
 import { CELLAR_READ_SCOPE } from '@/lib/oauth/constants';
-import { cellarWineFromDocument } from '@/lib/mcp/cellarWines';
 import { userIdFromAuth, verifyMcpBearer } from '@/lib/mcp/verifyAccess';
 import { getConfiguredResourceUrl } from '@/lib/oauth/urls';
-import { findUserWines } from '@/mongoDB/findUserWines';
+import { getUserWine } from '@/mongoDB/getUserWine';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-const LIST_WINES_DESCRIPTION = `Return the signed-in user's wine list, unchanged. Use this list to answer questions about food pairing, price, drinking window, or anything else. Do not expect this tool to rank or filter bottles.
-
-Each wine includes title, year, country, rating, price, currentPrice, comment, shelf, column, archived, vivinoUrl, and the stored drinking-window years and status number.
+const LIST_WINES_DESCRIPTION = `Return the signed-in user's wine list. Use this list to answer questions about food pairing, price, drinking window, or anything else.
 
 drinkingWindowStatus values:
 0, 1, 2: Drink at your pace
@@ -37,7 +34,7 @@ const handler = createMcpHandler(
           };
         }
 
-        const wines = (await findUserWines(userId)).map(cellarWineFromDocument);
+        const wines = await getUserWine({ _id: userId });
         return {
           content: [{ type: 'text', text: JSON.stringify(wines) }],
         };

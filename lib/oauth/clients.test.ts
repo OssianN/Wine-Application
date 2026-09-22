@@ -75,4 +75,18 @@ describe('clientAllowsRedirect', () => {
       clientAllowsRedirect(client, 'https://chatgpt.com/connector/oauth/y')
     ).toBe(false);
   });
+
+  it('lets the public Grok client use chat-host redirect URIs', async () => {
+    const client = await loadOAuthClient('cellar-mcp');
+    expect(client).toEqual({ clientId: 'cellar-mcp', redirectUris: [] });
+    expect(
+      clientAllowsRedirect(client!, 'https://grok.com/connectors/oauth/callback')
+    ).toBe(true);
+    expect(
+      clientAllowsRedirect(client!, 'https://accounts.x.ai/oauth/callback')
+    ).toBe(true);
+    expect(
+      clientAllowsRedirect(client!, 'https://evil.example/callback')
+    ).toBe(false);
+  });
 });

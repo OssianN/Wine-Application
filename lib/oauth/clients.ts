@@ -1,4 +1,5 @@
 import { findOAuthClient, type StoredClient } from '@/mongoDB/oauthStore';
+import { PUBLIC_MCP_CLIENT_ID, PUBLIC_REDIRECT_HOSTS } from './constants';
 import { isHttpsPublicUrl } from './urls';
 
 type ClientIdMetadata = {
@@ -18,11 +19,23 @@ const parseRedirectUris = (value: unknown) => {
   );
 };
 
+const hostIsAllowed = (hostname: string) =>
+  PUBLIC_REDIRECT_HOSTS.some(
+    host => hostname === host || hostname.endsWith(`.${host}`)
+  );
+
+export const isPublicMcpClient = (clientId: string) =>
+  clientId === PUBLIC_MCP_CLIENT_ID;
+
 export const loadOAuthClient = async (
   clientId: string
 ): Promise<StoredClient | null> => {
   if (!clientId) {
     return null;
+  }
+
+  if (isPublicMcpClient(clientId)) {
+    return { clientId, redirectUris: [] };
   }
 
   if (isCimdClientId(clientId)) {
@@ -61,4 +74,13 @@ export const loadOAuthClient = async (
 export const clientAllowsRedirect = (
   client: StoredClient,
   redirectUri: string
-) => client.redirectUris.includes(redirectUri);
+) => {
+  if (isPublicMcpClient(client.clientId)) {
+    if (!isHttpsPublicUrl(redirectUri)) {
+      return false;
+    }
+    return hostIsAllowed(new URL(redirectUri).hostname.toLowerCase());
+  }
+
+  return client.redirectUris.includes(redirectUri);
+};

@@ -1,4 +1,4 @@
-import { validateAuthorizeQuery } from './authorize';
+import { authorizePagePath, validateAuthorizeQuery } from './authorize';
 
 const baseQuery = {
   response_type: 'code',
@@ -54,5 +54,23 @@ describe('validateAuthorizeQuery', () => {
         'https://wine.example'
       )
     ).toMatchObject({ ok: false, error: 'invalid_request' });
+  });
+});
+
+describe('authorizePagePath', () => {
+  it('rebuilds the authorize URL from a valid request', () => {
+    const path = authorizePagePath({
+      clientId: baseQuery.client_id,
+      redirectUri: baseQuery.redirect_uri,
+      codeChallenge: 'abc',
+      state: 'state-1',
+      resource: 'https://wine.example',
+      scope: 'cellar:read',
+    });
+
+    expect(path.startsWith('/oauth/authorize?')).toBe(true);
+    expect(path).toContain('client_id=');
+    expect(path).toContain('code_challenge=abc');
+    expect(path).toContain('state=state-1');
   });
 });

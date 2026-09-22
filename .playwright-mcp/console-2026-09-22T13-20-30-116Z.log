@@ -1,0 +1,3 @@
+[     155ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:3000/login?returnTo=%2Foauth%2Fauthorize%3Fclient_id%3Dabc:0
+[     292ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:3000/_vercel/insights/script.js:0
+[     296ms] [LOG] [Vercel Web Analytics] Failed to load script from /_vercel/insights/script.js. Be sure to enable Web Analytics for your project and deploy again. See https://vercel.com/docs/analytics/quickstart for more information. @ http://127.0.0.1:3000/_next/static/chunks/0680c0f40f8ec274.js:0

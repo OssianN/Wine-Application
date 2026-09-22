@@ -1,12 +1,11 @@
 import { CardComponent } from '@/components/Card';
 import { validateAuthorizeQuery } from '@/lib/oauth/authorize';
 import { clientAllowsRedirect, loadOAuthClient } from '@/lib/oauth/clients';
-import { loginUrlForAuthorize } from '@/lib/oauth/returnTo';
 import { resolveResourceUrlFromHeaders } from '@/lib/oauth/urls';
 import { getUserSession } from '@/lib/session';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { AuthorizeLoginForm } from './AuthorizeLoginForm';
 import { ConsentForm } from './ConsentForm';
 
 type AuthorizePageProps = {
@@ -68,13 +67,11 @@ export default async function AuthorizePage({
 
   const session = await getUserSession();
   if (!session?.isLoggedId || !session.user) {
-    const returnTo = `/oauth/authorize?${new URLSearchParams(
-      Object.entries(query).flatMap(([key, value]) => {
-        const item = first(value);
-        return item ? [[key, item]] : [];
-      })
-    ).toString()}`;
-    redirect(loginUrlForAuthorize(returnTo));
+    return (
+      <AuthorizeShell>
+        <AuthorizeLoginForm request={validation.request} />
+      </AuthorizeShell>
+    );
   }
 
   return (

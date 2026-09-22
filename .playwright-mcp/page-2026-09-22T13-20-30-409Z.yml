@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Log in" [level=3] [ref=e5]
+      - paragraph [ref=e6]: Your wines are waiting for you!
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - text: Email
+        - textbox "Email" [ref=e10]
+      - generic [ref=e11]:
+        - text: Password
+        - textbox "Password" [ref=e12]
+      - button "Log in" [ref=e13] [cursor=pointer]
+    - link "Register" [ref=e15] [cursor=pointer]:
+      - /url: /register

@@ -117,3 +117,19 @@ export const authorizeRedirect = (
   }
   return url.toString();
 };
+
+export const authorizePagePath = (request: ValidAuthorizeRequest) => {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: request.clientId,
+    redirect_uri: request.redirectUri,
+    code_challenge: request.codeChallenge,
+    code_challenge_method: 'S256',
+    resource: request.resource,
+    scope: request.scope,
+  });
+  if (request.state) {
+    params.set('state', request.state);
+  }
+  return `/oauth/authorize?${params.toString()}`;
+};

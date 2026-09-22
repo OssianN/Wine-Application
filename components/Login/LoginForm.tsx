@@ -18,7 +18,11 @@ import { useActionState, useEffect } from 'react';
 
 const initialState: LoginActionState = {};
 
-export const LoginForm = () => {
+type LoginFormProps = {
+  returnTo?: string;
+};
+
+export const LoginForm = ({ returnTo }: LoginFormProps) => {
   const form = useForm<LoginFormType>({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
@@ -45,6 +49,9 @@ export const LoginForm = () => {
   return (
     <Form {...form}>
       <form action={formAction} className="flex flex-col gap-4 items-center">
+        {returnTo ? (
+          <input type="hidden" name="returnTo" value={returnTo} />
+        ) : null}
         <FormMessage>{formState.error}</FormMessage>
         <FormField
           control={form.control}

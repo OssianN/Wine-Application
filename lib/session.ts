@@ -3,6 +3,7 @@ import { getDbUser } from '@/mongoDB/getDbUser';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { isSafeOauthReturnTo } from '@/lib/oauth/returnTo';
 import { loginFormSchema } from '@/lib/schemas';
 import type { User } from '@/types';
 import type { ZodIssue } from 'zod';
@@ -72,6 +73,10 @@ export const login = async (
   session.isLoggedId = true;
 
   await session.save();
+  const returnTo = formData.get('returnTo');
+  if (isSafeOauthReturnTo(returnTo)) {
+    redirect(returnTo);
+  }
   redirect('/dashboard');
 };
 

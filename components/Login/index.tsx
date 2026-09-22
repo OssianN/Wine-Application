@@ -3,7 +3,11 @@ import { CardComponent } from '../Card';
 import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
 
-export const Login = () => {
+type LoginProps = {
+  returnTo?: string;
+};
+
+export const Login = ({ returnTo }: LoginProps) => {
   return (
     <CardComponent
       title="Log in"
@@ -19,7 +23,7 @@ export const Login = () => {
         </Link>
       }
     >
-      <LoginForm />
+      <LoginForm returnTo={returnTo} />
     </CardComponent>
   );
 };

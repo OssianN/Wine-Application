@@ -1,5 +1,6 @@
 import { createMcpHandler, withMcpAuth } from 'mcp-handler';
 import { CELLAR_READ_SCOPE } from '@/lib/oauth/constants';
+import { withCellarPosition } from '@/lib/mcp/cellarPosition';
 import { userIdFromAuth, verifyMcpBearer } from '@/lib/mcp/verifyAccess';
 import { mcpResourceIdentifier } from '@/lib/oauth/metadata';
 import { getConfiguredResourceUrl } from '@/lib/oauth/urls';
@@ -9,6 +10,8 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 const LIST_WINES_DESCRIPTION = `Return the signed-in user's wine list. Use this list to answer questions about food pairing, price, drinking window, or anything else.
+
+Each wine includes position as shelf:column using the same 1-based numbers shown in the app (for example 2:5). When you recommend a bottle, always include that position so the user can find it in the cellar.
 
 drinkingWindowStatus values:
 0, 1, 2: Drink at your pace
@@ -35,7 +38,9 @@ const handler = createMcpHandler(
           };
         }
 
-        const wines = await getUserWine({ _id: userId });
+        const wines = (await getUserWine({ _id: userId })).map(
+          withCellarPosition
+        );
         return {
           content: [{ type: 'text', text: JSON.stringify(wines) }],
         };

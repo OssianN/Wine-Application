@@ -9,7 +9,13 @@ const nextConfig = {
   },
   reactStrictMode: false,
   async rewrites() {
-    return [{ source: '/favicon.ico', destination: '/icon.svg' }];
+    return [
+      { source: '/favicon.ico', destination: '/icon.svg' },
+      {
+        source: '/api/mcp/.well-known/:path*',
+        destination: '/.well-known/:path*',
+      },
+    ];
   },
 };
 

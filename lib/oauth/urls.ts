@@ -48,9 +48,12 @@ export const resolveResourceUrlFromHeaders = (headerStore: {
 };
 
 export const getJwtSecret = () => {
-  const secret = process.env.MCP_JWT_SECRET;
-  if (!secret || secret.length < 16) {
-    throw new Error('MCP_JWT_SECRET must be at least 16 characters');
+  const secret =
+    process.env.MCP_JWT_SECRET || process.env.SECRET_COOKIE_PASSWORD || '';
+  if (secret.length < 16) {
+    throw new Error(
+      'MCP_JWT_SECRET or SECRET_COOKIE_PASSWORD must be at least 16 characters'
+    );
   }
   return secret;
 };

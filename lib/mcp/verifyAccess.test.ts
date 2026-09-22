@@ -33,7 +33,7 @@ describe('verifyMcpBearer', () => {
     );
 
     await expect(
-      verifyMcpBearer(new Request(`${resourceUrl}/mcp`), token)
+      verifyMcpBearer(new Request(`${resourceUrl}/api/mcp`), token)
     ).resolves.toEqual({
       token,
       scopes: [CELLAR_READ_SCOPE],
@@ -48,7 +48,7 @@ describe('verifyMcpBearer', () => {
     mockFindUserIdByEmail.mockResolvedValue('user-9');
 
     await expect(
-      verifyMcpBearer(new Request(`${resourceUrl}/mcp`), 'static-token')
+      verifyMcpBearer(new Request(`${resourceUrl}/api/mcp`), 'static-token')
     ).resolves.toMatchObject({
       clientId: 'static',
       extra: { userId: 'user-9' },
@@ -57,7 +57,7 @@ describe('verifyMcpBearer', () => {
 
   it('rejects an unknown bearer token', async () => {
     await expect(
-      verifyMcpBearer(new Request(`${resourceUrl}/mcp`), 'nope')
+      verifyMcpBearer(new Request(`${resourceUrl}/api/mcp`), 'nope')
     ).resolves.toBeUndefined();
   });
 });

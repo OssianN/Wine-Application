@@ -23,7 +23,7 @@ describe('oauth urls', () => {
 
   it('falls back to forwarded request headers', () => {
     delete process.env.MCP_RESOURCE_URL;
-    const req = new Request('http://127.0.0.1/mcp', {
+    const req = new Request('http://127.0.0.1/api/mcp', {
       headers: {
         'x-forwarded-host': 'wine.example',
         'x-forwarded-proto': 'https',
@@ -32,13 +32,13 @@ describe('oauth urls', () => {
     expect(resolveResourceUrl(req)).toBe('https://wine.example');
   });
 
-  it('accepts the origin or the /mcp resource identifier', () => {
+  it('accepts the origin or the /api/mcp resource identifier', () => {
     expect(resourceMatches(null, 'https://wine.example')).toBe(true);
     expect(resourceMatches('https://wine.example', 'https://wine.example')).toBe(
       true
     );
     expect(
-      resourceMatches('https://wine.example/mcp', 'https://wine.example')
+      resourceMatches('https://wine.example/api/mcp', 'https://wine.example')
     ).toBe(true);
     expect(resourceMatches('https://other.example', 'https://wine.example')).toBe(
       false

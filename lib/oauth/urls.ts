@@ -60,7 +60,10 @@ export const resourceMatches = (resource: string | null, resourceUrl: string) =>
     return true;
   }
   const normalized = trimTrailingSlash(resource);
-  return normalized === resourceUrl || normalized === `${resourceUrl}/mcp`;
+  return (
+    normalized === resourceUrl ||
+    normalized === `${resourceUrl}/api/mcp`
+  );
 };
 
 export const isHttpsUrl = (value: string) => {

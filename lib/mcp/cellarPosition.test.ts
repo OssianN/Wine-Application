@@ -1,4 +1,4 @@
-import { cellarPositionLabel, withCellarPosition } from './cellarPosition';
+import { cellarPositionLabel, wineForMcp } from './cellarPosition';
 
 describe('cellarPositionLabel', () => {
   it('uses the same 1-based shelf:column numbers as the app', () => {
@@ -7,15 +7,41 @@ describe('cellarPositionLabel', () => {
   });
 });
 
-describe('withCellarPosition', () => {
-  it('adds position without changing the stored shelf and column', () => {
+describe('wineForMcp', () => {
+  it('adds position and replaces the status code with its label', () => {
     expect(
-      withCellarPosition({ title: 'Barolo', shelf: 1, column: 3 })
+      wineForMcp({
+        title: 'Barolo',
+        shelf: 1,
+        column: 3,
+        drinkingWindowStart: 2018,
+        drinkingWindowEnd: 2028,
+        drinkingWindowStatus: 5,
+      })
     ).toEqual({
       title: 'Barolo',
       shelf: 1,
       column: 3,
+      drinkingWindowStart: 2018,
+      drinkingWindowEnd: 2028,
+      drinkingWindow: '2018 – 2028',
+      drinkingWindowStatus: 'Drink now',
       position: '2:4',
+    });
+  });
+
+  it('maps past peak and leaves unknown windows empty', () => {
+    expect(
+      wineForMcp({
+        title: 'Rioja',
+        shelf: 0,
+        column: 0,
+        drinkingWindowStatus: 6,
+      })
+    ).toMatchObject({
+      position: '1:1',
+      drinkingWindow: null,
+      drinkingWindowStatus: 'Past its peak',
     });
   });
 });

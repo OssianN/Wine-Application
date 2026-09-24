@@ -8,6 +8,10 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/e2e/.mongo-uri
 
 # next.js
 /.next/

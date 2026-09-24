@@ -1,0 +1,91 @@
+name: Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn test --watchman=false
+
+  e2e:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn playwright install --with-deps chromium
+      - run: yarn test:e2e
+
+  ready:
+    name: Tests passed before ready
+    if: >-
+      always() &&
+      (github.event.action == 'ready_for_review' ||
+        (github.event.action == 'synchronize' && github.event.pull_request.draft == false))
+    needs: [unit, e2e]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Keep the pull request in draft until both suites pass
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const unit = '${{ needs.unit.result }}';
+            const e2e = '${{ needs.e2e.result }}';
+            if (unit === 'success' && e2e === 'success') {
+              core.info('Unit and end-to-end tests passed.');
+              return;
+            }
+
+            const pr = context.payload.pull_request;
+            if (!pr.draft) {
+              await github.graphql(
+                `mutation ($id: ID!) {
+                  convertPullRequestToDraft(input: {pullRequestId: $id}) {
+                    pullRequest { isDraft }
+                  }
+                }`,
+                { id: pr.node_id }
+              );
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: [
+                'Returned this pull request to draft. Unit tests and end-to-end tests both have to pass before it can be marked ready.',
+                '',
+                `- Unit tests: ${unit}`,
+                `- End-to-end tests: ${e2e}`,
+              ].join('\n'),
+            });
+
+            core.setFailed(
+              'Unit and end-to-end tests must pass before this pull request can be marked ready.'
+            );

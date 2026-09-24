@@ -14,6 +14,7 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: ['./jest.setup.js'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/e2e/'],
   testEnvironmentOptions: {
     customExportConditions: [''],
   },

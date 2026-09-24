@@ -3,7 +3,7 @@ import { ACCESS_TOKEN_TTL_SECONDS, CELLAR_READ_SCOPE } from './constants';
 import { safeEqual } from './crypto';
 import { getJwtSecret } from './urls';
 
-export type AccessTokenClaims = {
+type AccessTokenClaims = {
   userId: string;
   clientId: string;
   scope: string;

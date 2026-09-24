@@ -1,7 +1,7 @@
 import { CELLAR_READ_SCOPE } from './constants';
 import { resourceMatches } from './urls';
 
-export type AuthorizeQuery = {
+type AuthorizeQuery = {
   response_type?: string;
   client_id?: string;
   redirect_uri?: string;
@@ -21,7 +21,7 @@ export type ValidAuthorizeRequest = {
   scope: typeof CELLAR_READ_SCOPE;
 };
 
-export type AuthorizeValidation =
+type AuthorizeValidation =
   | { ok: true; request: ValidAuthorizeRequest }
   | { ok: false; error: string; description: string };
 

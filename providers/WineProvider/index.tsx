@@ -75,8 +75,6 @@ export const WineDetailsDialogProvider = ({ children }: WineProviderProps) => {
   );
 };
 
-export default WineContext;
-
 type WineContextProps = {
   selectedWine: Wine | null;
   openWineDialog: boolean;

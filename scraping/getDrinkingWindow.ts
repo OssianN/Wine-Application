@@ -5,7 +5,7 @@ import { vivinoFetch } from './vivinoFetch';
 const VINTAGE_API_URL = 'https://www.vivino.com/api/vintages';
 const FETCH_TIMEOUT_MS = 10_000;
 
-export type DrinkingWindowResult = {
+type DrinkingWindowResult = {
   vintageId?: number | null;
   drinkingWindowStart?: number | null;
   drinkingWindowEnd?: number | null;

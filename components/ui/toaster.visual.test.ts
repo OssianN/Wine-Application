@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { execFileSync, spawnSync } from 'child_process';
+import { execFileSync, spawn } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -20,13 +20,17 @@ const REPO_SCREENSHOT = path.join(UI_DIR, '__screenshots__', SCREENSHOT_NAME);
 const chromePath = () => {
   const candidates = [
     process.env.CHROME_PATH,
-    '/usr/local/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
     '/usr/bin/google-chrome',
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
+    '/usr/local/bin/google-chrome',
   ].filter((value): value is string => Boolean(value));
   return candidates.find(candidate => fs.existsSync(candidate));
 };
+
+const wait = (ms: number) =>
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 
 const compileCss = () => {
   execFileSync(
@@ -45,26 +49,61 @@ const compileCss = () => {
 
 const captureScreenshot = (chrome: string, outputPath: string) => {
   const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chrome-toast-'));
-  const result = spawnSync(
+  const env = { ...process.env };
+  delete env.DBUS_SESSION_BUS_ADDRESS;
+  const child = spawn(
     chrome,
     [
-      '--headless',
+      '--headless=old',
       '--no-sandbox',
       '--disable-gpu',
       '--disable-dev-shm-usage',
       '--hide-scrollbars',
+      '--no-first-run',
+      '--disable-extensions',
       `--user-data-dir=${profileDir}`,
       '--window-size=520,240',
       `--screenshot=${outputPath}`,
       `file://${HTML_FIXTURE}`,
     ],
-    { cwd: UI_DIR, timeout: 8000, killSignal: 'SIGKILL' }
+    {
+      cwd: UI_DIR,
+      env,
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }
   );
-  if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size < 2000) {
-    throw new Error(
-      `Toast screenshot was not captured.\nstdout: ${result.stdout?.toString()}\nstderr: ${result.stderr?.toString()}`
-    );
+
+  let stdout = '';
+  let stderr = '';
+  child.stdout?.on('data', chunk => {
+    stdout += chunk.toString();
+  });
+  child.stderr?.on('data', chunk => {
+    stderr += chunk.toString();
+  });
+
+  const started = Date.now();
+  while (Date.now() - started < 15000) {
+    if (fs.existsSync(outputPath) && fs.statSync(outputPath).size >= 2000) {
+      try {
+        process.kill(-child.pid!, 'SIGKILL');
+      } catch {
+        child.kill('SIGKILL');
+      }
+      return;
+    }
+    wait(100);
   }
+
+  try {
+    process.kill(-child.pid!, 'SIGKILL');
+  } catch {
+    child.kill('SIGKILL');
+  }
+  throw new Error(
+    `Toast screenshot was not captured.\nstdout: ${stdout}\nstderr: ${stderr}`
+  );
 };
 
 const isBackground = (r: number, g: number, b: number) =>
@@ -151,5 +190,5 @@ describe('library updated toast layout', () => {
 
     const sample = pixelAt(data, info.width, info.channels, 8, 8);
     expect(isBackground(sample[0], sample[1], sample[2])).toBe(true);
-  }, 20000);
+  }, 30000);
 });

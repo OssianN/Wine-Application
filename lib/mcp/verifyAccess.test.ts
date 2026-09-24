@@ -4,26 +4,14 @@
 
 import { CELLAR_READ_SCOPE } from '@/lib/oauth/constants';
 import { signAccessToken } from '@/lib/oauth/jwt';
-import { findUserIdByEmail } from '@/mongoDB/findUserIdByEmail';
 import { userIdFromAuth, verifyMcpBearer } from './verifyAccess';
-
-jest.mock('@/mongoDB/findUserIdByEmail', () => ({
-  findUserIdByEmail: jest.fn(),
-}));
-
-const mockFindUserIdByEmail = findUserIdByEmail as jest.MockedFunction<
-  typeof findUserIdByEmail
->;
 
 describe('verifyMcpBearer', () => {
   const resourceUrl = 'https://wine.example';
 
   beforeEach(() => {
-    jest.clearAllMocks();
     process.env.MCP_JWT_SECRET = 'test-jwt-secret-key';
     process.env.MCP_RESOURCE_URL = resourceUrl;
-    delete process.env.MCP_ACCESS_TOKEN;
-    delete process.env.MCP_USER_EMAIL;
   });
 
   it('accepts a JWT minted for this resource', async () => {
@@ -39,19 +27,6 @@ describe('verifyMcpBearer', () => {
       scopes: [CELLAR_READ_SCOPE],
       clientId: 'chatgpt',
       extra: { userId: 'user-1' },
-    });
-  });
-
-  it('accepts the static token for the configured user', async () => {
-    process.env.MCP_ACCESS_TOKEN = 'static-token';
-    process.env.MCP_USER_EMAIL = 'ossian@example.com';
-    mockFindUserIdByEmail.mockResolvedValue('user-9');
-
-    await expect(
-      verifyMcpBearer(new Request(`${resourceUrl}/api/mcp`), 'static-token')
-    ).resolves.toMatchObject({
-      clientId: 'static',
-      extra: { userId: 'user-9' },
     });
   });
 

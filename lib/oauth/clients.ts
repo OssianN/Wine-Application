@@ -24,7 +24,7 @@ const hostIsAllowed = (hostname: string) =>
     host => hostname === host || hostname.endsWith(`.${host}`)
   );
 
-export const isPublicMcpClient = (clientId: string) =>
+const isPublicMcpClient = (clientId: string) =>
   clientId === PUBLIC_MCP_CLIENT_ID;
 
 export const loadOAuthClient = async (

@@ -6,7 +6,7 @@ import {
 import { connectMongo } from '.';
 import UserDataBase from './user-schema';
 
-export type StampVivinoLibraryRefreshResult =
+type StampVivinoLibraryRefreshResult =
   | { ok: true; refreshedAt: Date; nextAvailableAt: Date }
   | { ok: false; reason: 'not_found' }
   | { ok: false; reason: 'cooldown'; nextAvailableAt: Date };

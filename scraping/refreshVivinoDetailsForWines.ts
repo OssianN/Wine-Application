@@ -12,7 +12,7 @@ import { getVivinoPricesForVintages } from './getVivinoPrice';
 const DRINKING_WINDOW_CONCURRENCY = 3;
 const DETAILS_CONCURRENCY = 3;
 
-export type RefreshableWine = {
+type RefreshableWine = {
   _id: string;
   title?: string | null;
   year?: number | null;
@@ -21,7 +21,7 @@ export type RefreshableWine = {
   archived?: boolean | null;
 };
 
-export type RefreshVivinoDetailsResult = {
+type RefreshVivinoDetailsResult = {
   updated: number;
   skipped: number;
   failed: number;

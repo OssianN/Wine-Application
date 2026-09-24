@@ -33,7 +33,7 @@ type WineFormProps = {
   shelf?: string;
 };
 
-export const initialState: {
+const initialState: {
   errors: ZodIssue[];
   errorMessage?: string;
   isSubmitted?: boolean;

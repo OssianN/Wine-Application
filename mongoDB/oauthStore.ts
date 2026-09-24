@@ -7,7 +7,7 @@ import {
   OAuthRefreshToken,
 } from './oauth-schema';
 
-export type StoredAuthorizationCode = {
+type StoredAuthorizationCode = {
   userId: string;
   clientId: string;
   redirectUri: string;
@@ -16,7 +16,7 @@ export type StoredAuthorizationCode = {
   scope: string;
 };
 
-export type StoredRefreshToken = {
+type StoredRefreshToken = {
   userId: string;
   clientId: string;
   scope: string;

@@ -3,13 +3,13 @@ const ALGOLIA_SEARCH_KEY = '60c11b2f1068885161d95ca068d3a6ae';
 const ALGOLIA_INDEX = 'WINES_prod';
 const FETCH_TIMEOUT_MS = 10_000;
 
-export type AlgoliaVintage = {
+type AlgoliaVintage = {
   id?: number;
   year?: string | number | null;
   name?: string | null;
 };
 
-export type AlgoliaWineHit = {
+type AlgoliaWineHit = {
   id?: number;
   name?: string | null;
   vintages?: AlgoliaVintage[];

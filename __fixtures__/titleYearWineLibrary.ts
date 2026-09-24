@@ -1,4 +1,4 @@
-export const TITLE_YEAR_LIBRARY_SIZE = 60;
+const TITLE_YEAR_LIBRARY_SIZE = 60;
 
 const CELLAR_TITLES = [
   'Château Margaux',

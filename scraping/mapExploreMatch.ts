@@ -42,7 +42,7 @@ export const mapExploreMatch = (
   };
 };
 
-export const mapDrinkingWindow = (
+const mapDrinkingWindow = (
   vintage?: ExploreVintage | null
 ): DrinkingWindow | undefined => {
   const raw = vintage?.recommended_drinking_window;
@@ -72,7 +72,7 @@ const toYear = (value?: number | string | null) => {
   return Number.isFinite(year) ? year : undefined;
 };
 
-export const toHttpsUrl = (url?: string | null) => {
+const toHttpsUrl = (url?: string | null) => {
   if (!url) return undefined;
   if (url.startsWith('http')) return url;
   if (url.startsWith('//')) return `https:${url}`;

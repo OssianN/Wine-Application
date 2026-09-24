@@ -21,7 +21,7 @@ type TokenFailure = {
   error_description: string;
 };
 
-export type TokenResult =
+type TokenResult =
   | { ok: true; status: 200; body: TokenSuccess }
   | { ok: false; status: 400; body: TokenFailure };
 

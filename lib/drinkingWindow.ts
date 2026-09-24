@@ -16,7 +16,7 @@ export type DrinkingWindowGridCueTone =
   | 'hold'
   | 'pastPeak';
 
-export type DrinkingWindowGridCue = {
+type DrinkingWindowGridCue = {
   tone: DrinkingWindowGridCueTone;
   label: string;
   shortLabel: string;

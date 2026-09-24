@@ -69,7 +69,7 @@ export const resourceMatches = (resource: string | null, resourceUrl: string) =>
   );
 };
 
-export const isHttpsUrl = (value: string) => {
+const isHttpsUrl = (value: string) => {
   try {
     const url = new URL(value);
     return url.protocol === 'https:';

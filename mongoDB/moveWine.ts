@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import WineDataBase from '../mongoDB/wine-schema';
 import { connectMongo } from './';
 
-export type MoveWineResult =
+type MoveWineResult =
   | { ok: true }
   | { ok: false; reason: 'not-found' | 'occupied' | 'error' };
 

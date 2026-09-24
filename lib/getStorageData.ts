@@ -32,22 +32,20 @@ export const getStorageData = (
     { totalCost: 0, totalValue: 0, totalYear: 0 }
   );
 
-  const averageYear = Math.round(
-    totalYear / wineList.filter(wine => wine.year && wine.year > 0).length
-  );
-
-  const averagePrice = Math.round(
-    totalCost / wineList.filter(wine => wine.price && wine.price > 0).length
-  );
+  const years = wineList.filter(wine => wine.year && wine.year > 0).length;
+  const priced = wineList.filter(wine => wine.price && wine.price > 0).length;
+  const averageYear = years > 0 ? Math.round(totalYear / years) : 0;
+  const averagePrice = priced > 0 ? Math.round(totalCost / priced) : 0;
 
   const totalNumberOfBottles = wineList.length;
 
   const usedSpacePercentage =
     (totalNumberOfBottles / (shelves * columns)) * 100;
 
-  const costDifferencePercentage = Math.round(
-    ((totalValue - totalCost) / totalCost) * 100
-  );
+  const costDifferencePercentage =
+    totalCost > 0
+      ? Math.round(((totalValue - totalCost) / totalCost) * 100)
+      : 0;
 
   return {
     totalCost,

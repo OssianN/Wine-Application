@@ -1,6 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { getUserSession } from '@/lib/session';
 import WineDataBase from '../mongoDB/wine-schema';
+import UserDataBase from './user-schema';
 import { connectMongo } from './';
 
 type MoveWineResult =
@@ -18,13 +20,19 @@ export const moveWine = async (
     const targetShelf = Number(shelf);
     const targetColumn = Number(column);
 
-    const wine = await WineDataBase.findById(wineId);
+    const session = await getUserSession();
+    const user = session.user
+      ? await UserDataBase.findById(session.user._id)
+      : null;
+    const ownedWineIds = user?.wineList ?? [];
+    const ownsWine = ownedWineIds.some(id => String(id) === String(wineId));
+    const wine = ownsWine ? await WineDataBase.findById(wineId) : null;
     if (!wine) {
       return { ok: false, reason: 'not-found' };
     }
 
     const occupant = await WineDataBase.findOne({
-      _id: { $ne: wine._id },
+      _id: { $in: ownedWineIds, $ne: wine._id },
       shelf: targetShelf,
       column: targetColumn,
       archived: { $ne: true },

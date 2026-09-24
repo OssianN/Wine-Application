@@ -85,12 +85,9 @@ test.describe.serial('wine shelf', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
 
-    const showsNaN = stats.includes('NaN');
-    test.fail(
-      showsNaN,
-      'Average year, average price, and value change are NaN when the cellar has no bottles'
-    );
     expect(stats).not.toContain('NaN');
+    expect(stats).toContain('Average year:');
+    expect(stats).toContain('0');
   });
 
   test('add, edit, browse, and search a wine', async () => {
@@ -148,17 +145,8 @@ test.describe.serial('wine shelf', () => {
     await seedForeignWine(0, 2);
     await dragWineToSlot(page, '1:3');
 
-    const blocked = page.getByText('Could not move wine', { exact: true });
-    const moved = page.getByRole('article').filter({ hasText: '1:3' });
-    await expect(blocked.or(moved)).toBeVisible();
-
-    const wasBlocked = await blocked.isVisible();
-    test.fail(
-      wasBlocked,
-      "moveWine treats another account's bottle as occupying the slot"
-    );
-    expect(wasBlocked).toBe(false);
-    await expect(moved).toBeVisible();
+    await expect(page.getByRole('article')).toContainText('1:3');
+    await expect(page.getByText('Could not move wine', { exact: true })).toHaveCount(0);
   });
 
   test('archive a wine, then find it again after logging back in', async () => {

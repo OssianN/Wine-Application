@@ -15,4 +15,13 @@ describe('getStorageData', () => {
 
     expect(averagePrice).toBe(5);
   });
+
+  it('returns zero averages for an empty cellar', () => {
+    const data = getStorageData([], 8, 8);
+
+    expect(data.averageYear).toBe(0);
+    expect(data.averagePrice).toBe(0);
+    expect(data.costDifferencePercentage).toBe(0);
+    expect(data.totalNumberOfBottles).toBe(0);
+  });
 });

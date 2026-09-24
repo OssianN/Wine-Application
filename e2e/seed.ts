@@ -12,11 +12,21 @@ const connect = async () => {
 
 export const seedForeignWine = async (shelf: number, column: number) => {
   await connect();
-  await mongoose.connection.collection('wines').insertOne({
+  const wines = mongoose.connection.collection('wines');
+  const users = mongoose.connection.collection('users');
+  const wine = await wines.insertOne({
     title: 'Foreign cellar bottle',
     shelf,
     column,
     archived: false,
+  });
+  await users.insertOne({
+    name: 'Other cellar',
+    email: `other-cellar-${wine.insertedId.toString()}@example.com`,
+    password: 'not-used',
+    wineList: [wine.insertedId],
+    shelves: 8,
+    columns: 8,
   });
 };
 

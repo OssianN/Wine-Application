@@ -1,15 +1,15 @@
 export type UnarchiveDecisionWine = {
   _id: string;
   archived?: boolean | null;
-  shelf: number;
-  column: number;
+  shelf?: number | null;
+  column?: number | null;
   comment?: string | null;
 };
 
 export type ActiveCellarWine = {
   _id: string;
-  shelf: number;
-  column: number;
+  shelf?: number | null;
+  column?: number | null;
 };
 
 export type UnarchiveUpdate = {

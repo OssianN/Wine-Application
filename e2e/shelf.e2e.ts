@@ -92,7 +92,7 @@ const archiveNamedWine = async (target: Page) => {
     .filter({ hasText: 'Are you sure you want to archive' })
     .locator('button')
     .nth(1);
-  await confirm.click({ force: true });
+  await confirm.click();
   await expect(wineCard(target)).toHaveCount(0);
 };
 
@@ -217,7 +217,7 @@ test.describe.serial('wine shelf', () => {
       .filter({ hasText: 'Are you sure you want to archive' })
       .locator('button')
       .nth(1);
-    await confirm.click({ force: true });
+    await confirm.click();
 
     await expect(page.getByRole('article')).toHaveCount(0);
     await shelfTab(page, 2).click();

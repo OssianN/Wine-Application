@@ -1,6 +1,7 @@
 import { ChevronRight, Dot, Star } from 'lucide-react';
 import { BlueBackground } from '../ui/blue-light-background';
 import { EditWineMenu } from './EditWineMenu';
+import { UnarchiveWineDialog } from './UnarchiveWineDialog';
 import Image from 'next/image';
 import useSwr from 'swr';
 import { Separator } from '../ui/separator';
@@ -9,7 +10,7 @@ import { deleteWine } from '@/mongoDB/deleteWine';
 import { WineDialogHeader } from './WineDialogHeader';
 import { archiveWine } from '@/mongoDB/archiveWine';
 import { Skeleton } from '../ui/skeleton';
-import type { Dispatch, SetStateAction } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import type { Wine } from '@/types';
 import {
   drinkingWindowFromWine,
@@ -59,6 +60,7 @@ export const WineDetails = ({
   });
 
   const vivinoPrice = data?.price ?? wine?.currentPrice ?? null;
+  const [unarchiveOpen, setUnarchiveOpen] = useState(false);
 
   if (!wine) return null;
 
@@ -105,6 +107,7 @@ export const WineDetails = ({
           handleArchive={handleArchive}
           handleDelete={handleDelete}
           setOpenWineForm={setOpenWineForm}
+          onUnarchive={() => setUnarchiveOpen(true)}
           isArchived={!!wine.archived}
           className="absolute top-3 left-4 focus-within:outline-none focus:outline-none"
         />
@@ -217,6 +220,13 @@ export const WineDetails = ({
           </a>
         )}
       </div>
+
+      <UnarchiveWineDialog
+        wine={wine}
+        open={unarchiveOpen}
+        onOpenChange={setUnarchiveOpen}
+        onRestored={() => onOpenChange(false)}
+      />
     </>
   );
 };

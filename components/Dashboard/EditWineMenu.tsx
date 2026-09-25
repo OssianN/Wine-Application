@@ -4,7 +4,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { Edit, MoreHorizontalIcon } from 'lucide-react';
+import { ArchiveRestore, Edit, MoreHorizontalIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import { RemoveButton } from './RemoveButton';
 import type { Dispatch, SetStateAction } from 'react';
@@ -13,6 +13,7 @@ type EditWineMenuProps = {
   handleArchive: () => void;
   handleDelete: () => void;
   setOpenWineForm: Dispatch<SetStateAction<boolean>>;
+  onUnarchive: () => void;
   isArchived?: boolean;
   className?: string;
 };
@@ -21,6 +22,7 @@ export const EditWineMenu = ({
   handleArchive,
   handleDelete,
   setOpenWineForm,
+  onUnarchive,
   isArchived,
   className,
 }: EditWineMenuProps) => {
@@ -42,7 +44,19 @@ export const EditWineMenu = ({
           </Button>
         </DropdownMenuItem>
 
-        {!isArchived && (
+        {isArchived ? (
+          <DropdownMenuItem onSelect={() => onUnarchive()}>
+            <Button
+              className="pl-1"
+              variant="ghost"
+              size="lg"
+              onClick={onUnarchive}
+            >
+              <ArchiveRestore />
+              <span className="ml-2"> Unarchive</span>
+            </Button>
+          </DropdownMenuItem>
+        ) : (
           <DropdownMenuItem>
             <RemoveButton handleRemove={handleArchive} />
           </DropdownMenuItem>

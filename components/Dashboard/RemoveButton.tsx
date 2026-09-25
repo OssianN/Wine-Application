@@ -17,6 +17,7 @@ export const RemoveButton = ({ handleRemove, isDelete }: RemoveButtonProps) => {
       onClick={() => {
         toast({
           itemID: 'remove-wine',
+          duration: 60000,
           title: isDelete ? 'Delete?' : 'Archive?',
           description: `Are you sure you want to ${
             isDelete ? 'delete' : 'archive'

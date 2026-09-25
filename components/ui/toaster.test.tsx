@@ -33,4 +33,27 @@ describe('Toaster', () => {
     const copy = title.parentElement;
     expect(copy).toHaveClass('w-full', 'min-w-0', 'text-left');
   });
+
+  it('keeps the library-updated toast at normal left padding', async () => {
+    render(
+      <>
+        <Toaster />
+        <ShowLibraryUpdatedToast />
+      </>
+    );
+
+    const title = await screen.findByText('Library updated');
+    const toast = document.getElementById('data-toast');
+    expect(toast).not.toBeNull();
+    expect(toast).toHaveClass('p-6', 'pr-10', 'items-stretch', 'md:items-center');
+
+    const classes = toast!.className.split(/\s+/);
+    expect(classes.filter(name => /^(?:pl|px)-/.test(name))).toEqual([]);
+
+    const copy = title.parentElement;
+    expect(copy).toHaveClass('grid', 'w-full', 'min-w-0', 'text-left');
+    expect(copy?.className ?? '').not.toMatch(
+      /\b(?:text-center|mx-auto|justify-center)\b/
+    );
+  });
 });

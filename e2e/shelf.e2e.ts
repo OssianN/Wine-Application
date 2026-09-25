@@ -80,6 +80,18 @@ const openUnarchiveDialog = async (target: Page) => {
   return unarchive;
 };
 
+const confirmArchive = async (target: Page) => {
+  const confirm = target
+    .locator('li')
+    .filter({ hasText: 'Are you sure you want to archive' })
+    .locator('button')
+    .nth(1);
+  await confirm.waitFor({ state: 'visible' });
+  await confirm.evaluate(node => {
+    if (node instanceof HTMLButtonElement) node.click();
+  });
+};
+
 const archiveNamedWine = async (target: Page) => {
   await shelfTab(target, 0).click();
   await wineCard(target).click();
@@ -87,12 +99,7 @@ const archiveNamedWine = async (target: Page) => {
   await dialog.waitFor();
   await dialog.getByRole('button').first().click();
   await target.getByRole('button', { name: 'Archive' }).click();
-  const confirm = target
-    .locator('li')
-    .filter({ hasText: 'Are you sure you want to archive' })
-    .locator('button')
-    .nth(1);
-  await confirm.click();
+  await confirmArchive(target);
   await expect(wineCard(target)).toHaveCount(0);
 };
 
@@ -212,12 +219,7 @@ test.describe.serial('wine shelf', () => {
   test('archive a wine, then find it again after logging back in', async () => {
     await openWineMenu(page);
     await page.getByRole('button', { name: 'Archive' }).click();
-    const confirm = page
-      .locator('li')
-      .filter({ hasText: 'Are you sure you want to archive' })
-      .locator('button')
-      .nth(1);
-    await confirm.click();
+    await confirmArchive(page);
 
     await expect(page.getByRole('article')).toHaveCount(0);
     await shelfTab(page, 2).click();

@@ -4,11 +4,38 @@ import { getUserSession } from '@/lib/session';
 import { unarchiveDecision } from '@/lib/unarchiveDecision';
 import WineDataBase from './wine-schema';
 import UserDataBase from './user-schema';
+import { getUserWine } from './getUserWine';
 import { connectMongo } from './';
 
 type UnarchiveWineResult =
   | { ok: true }
   | { ok: false; reason: 'not-found' | 'occupied' | 'error' };
+
+export const listOpenCellarSlots = async () => {
+  await connectMongo();
+
+  const session = await getUserSession();
+  const user = session.user;
+  if (!user) return [];
+
+  const activeWines = await getUserWine({
+    _id: user._id,
+    isArchived: false,
+  });
+  const taken = new Set(
+    activeWines.map(wine => `${wine.shelf}:${wine.column}`)
+  );
+  const slots: { shelf: number; column: number }[] = [];
+
+  for (let shelf = 0; shelf < user.shelves; shelf += 1) {
+    for (let column = 0; column < user.columns; column += 1) {
+      if (taken.has(`${shelf}:${column}`)) continue;
+      slots.push({ shelf, column });
+    }
+  }
+
+  return slots;
+};
 
 export const unarchiveWine = async (
   wineId: string,

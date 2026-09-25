@@ -4,9 +4,10 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getUserSession } from '@/lib/session';
-import { getUserWine } from '@/mongoDB/getUserWine';
-import { unarchiveWine } from '@/mongoDB/unarchiveWine';
+import {
+  listOpenCellarSlots,
+  unarchiveWine,
+} from '@/mongoDB/unarchiveWine';
 import type { Wine } from '@/types';
 import { WineDialogHeader } from './WineDialogHeader';
 
@@ -50,32 +51,15 @@ export const UnarchiveWineDialog = ({
     const loadOpenSlots = async () => {
       setLoading(true);
       try {
-        const session = await getUserSession();
-        if (!session.user || cancelled) return;
-
-        const activeWines = await getUserWine({
-          _id: session.user._id,
-          isArchived: false,
-        });
+        const openSlots = await listOpenCellarSlots();
         if (cancelled) return;
 
-        const taken = new Set(
-          activeWines.map(active => `${active.shelf}:${active.column}`)
-        );
-        const nextSlots: CellarSlot[] = [];
-
-        for (let shelf = 0; shelf < session.user.shelves; shelf += 1) {
-          for (let column = 0; column < session.user.columns; column += 1) {
-            const key = `${shelf}:${column}`;
-            if (taken.has(key)) continue;
-            nextSlots.push({
-              key,
-              shelf,
-              column,
-              label: `${shelf + 1}:${column + 1}`,
-            });
-          }
-        }
+        const nextSlots: CellarSlot[] = openSlots.map(slot => ({
+          key: `${slot.shelf}:${slot.column}`,
+          shelf: slot.shelf,
+          column: slot.column,
+          label: `${slot.shelf + 1}:${slot.column + 1}`,
+        }));
 
         const lastKey = `${wine.shelf}:${wine.column}`;
         setSlots(nextSlots);

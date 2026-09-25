@@ -64,8 +64,9 @@ const editArchivedComment = async (target: Page, comment: string) => {
   const dialog = await openArchivedWine(target);
   await dialog.getByRole('button').first().click();
   await target.getByRole('button', { name: 'Edit' }).click();
-  await dialog.getByLabel('Comment', { exact: true }).fill(comment);
-  await dialog.getByRole('button', { name: 'Update' }).click();
+  const editDialog = target.getByRole('dialog', { name: 'Edit Wine' });
+  await editDialog.getByLabel('Comment', { exact: true }).fill(comment);
+  await editDialog.getByRole('button', { name: 'Update' }).click();
   await expect(dialog).toContainText(comment);
   return dialog;
 };
@@ -301,8 +302,11 @@ test.describe.serial('wine shelf', () => {
     await expect(dialog).not.toContainText(archivedComment);
     await dialog.getByRole('button').first().click();
     await page.getByRole('button', { name: 'Edit' }).click();
-    await expect(dialog.getByLabel('Comment', { exact: true })).toHaveValue('');
-    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    const editDialog = page.getByRole('dialog', { name: 'Edit Wine' });
+    await expect(editDialog.getByLabel('Comment', { exact: true })).toHaveValue(
+      ''
+    );
+    await editDialog.getByRole('button', { name: 'Cancel' }).click();
     await page.getByRole('button', { name: 'Close' }).click();
 
     await shelfTab(page, 2).click();

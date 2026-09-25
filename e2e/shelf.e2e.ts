@@ -3,6 +3,9 @@ import { disconnectSeed, seedForeignWine } from './seed';
 
 const password = 'e2e-shelf-password';
 const wineTitle = 'Zzze2e Cellar Bottle';
+const archivedComment = 'this was a gift from dad';
+const replacementComment = 'Opened for the wedding';
+const blockerTitle = 'Zzze2e Slot Blocker';
 
 let page: Page;
 let email: string;
@@ -41,6 +44,62 @@ const openWineMenu = async (target: Page) => {
   const dialog = target.getByRole('dialog');
   await dialog.waitFor();
   await dialog.getByRole('button').first().click();
+};
+
+const wineCard = (target: Page) =>
+  target.getByRole('article', { name: wineTitle });
+
+const unarchiveDialog = (target: Page) =>
+  target.getByRole('dialog', { name: 'Unarchive', exact: true });
+
+const openArchivedWine = async (target: Page) => {
+  await shelfTab(target, 2).click();
+  await target.getByRole('row', { name: wineTitle }).click();
+  const dialog = target.getByRole('dialog', { name: wineTitle });
+  await dialog.waitFor();
+  return dialog;
+};
+
+const editArchivedComment = async (target: Page, comment: string) => {
+  const dialog = await openArchivedWine(target);
+  await dialog.getByRole('button').first().click();
+  await target.getByRole('button', { name: 'Edit' }).click();
+  await dialog.getByLabel('Comment', { exact: true }).fill(comment);
+  await dialog.getByRole('button', { name: 'Update' }).click();
+  await expect(dialog).toContainText(comment);
+  return dialog;
+};
+
+const openUnarchiveDialog = async (target: Page) => {
+  const dialog = await openArchivedWine(target);
+  await dialog.getByRole('button').first().click();
+  await target.getByRole('button', { name: 'Unarchive' }).click();
+  const unarchive = unarchiveDialog(target);
+  await unarchive.waitFor();
+  return unarchive;
+};
+
+const archiveNamedWine = async (target: Page) => {
+  await shelfTab(target, 0).click();
+  await wineCard(target).click();
+  const dialog = target.getByRole('dialog', { name: wineTitle });
+  await dialog.waitFor();
+  await dialog.getByRole('button').first().click();
+  await target.getByRole('button', { name: 'Archive' }).click();
+  const confirm = target
+    .locator('li')
+    .filter({ hasText: 'Are you sure you want to archive' })
+    .locator('button')
+    .nth(1);
+  await confirm.click();
+  await expect(wineCard(target)).toHaveCount(0);
+};
+
+const confirmUnarchive = async (target: Page) => {
+  const unarchive = unarchiveDialog(target);
+  await unarchive.getByRole('button', { name: 'Confirm' }).click();
+  await expect(unarchive).toBeHidden();
+  await expect(target.getByRole('dialog')).toHaveCount(0);
 };
 
 test.describe.serial('wine shelf', () => {
@@ -176,5 +235,136 @@ test.describe.serial('wine shelf', () => {
     await expect(page.getByRole('article')).toHaveCount(0);
     await shelfTab(page, 2).click();
     await expect(page.getByRole('row', { name: wineTitle })).toBeVisible();
+  });
+
+  test('archived wine dialog still shows the comment', async () => {
+    test.setTimeout(120_000);
+    await editArchivedComment(page, archivedComment);
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    const dialog = await openArchivedWine(page);
+    await expect(dialog).toContainText(archivedComment);
+    await page.getByRole('button', { name: 'Close' }).click();
+  });
+
+  test('unarchive shows the last position and escape keeps the wine archived', async () => {
+    const unarchive = await openUnarchiveDialog(page);
+    const lastSlot = unarchive.getByRole('button', { name: '1:3', exact: true });
+    await expect(lastSlot).toBeVisible();
+    await expect(lastSlot).toHaveAttribute('aria-pressed', 'true');
+    await expect(unarchive.getByLabel('Comment', { exact: true })).toHaveValue(
+      ''
+    );
+    await expect(unarchive).toContainText(archivedComment);
+    await expect(
+      unarchive.getByRole('button', { name: 'Use last comment' })
+    ).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(unarchive).toBeHidden();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('row', { name: wineTitle })).toBeVisible();
+
+    const dialog = await openArchivedWine(page);
+    await expect(dialog).toContainText(archivedComment);
+    await page.getByRole('button', { name: 'Close' }).click();
+  });
+
+  test('an occupied slot is not offered and a blank comment restores the wine', async () => {
+    test.setTimeout(120_000);
+    await shelfTab(page, 0).click();
+    await page.getByRole('button', { name: '1:3', exact: true }).click();
+    const addDialog = page.getByRole('dialog', { name: 'Add wine' });
+    await addDialog.getByLabel('Title').fill(blockerTitle);
+    await addDialog.getByLabel('Year').fill('2019');
+    await addDialog.getByLabel('Price').fill('15');
+    await addDialog.getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('article', { name: blockerTitle })).toBeVisible({
+      timeout: 60_000,
+    });
+
+    const unarchive = await openUnarchiveDialog(page);
+    await expect(
+      unarchive.getByRole('button', { name: '1:3', exact: true })
+    ).toHaveCount(0);
+    await unarchive.getByRole('button', { name: '1:1', exact: true }).click();
+    await expect(unarchive.getByLabel('Comment', { exact: true })).toHaveValue(
+      ''
+    );
+    await confirmUnarchive(page);
+
+    await shelfTab(page, 0).click();
+    const card = wineCard(page);
+    await expect(card).toContainText('1:1');
+    await card.click();
+    const dialog = page.getByRole('dialog', { name: wineTitle });
+    await expect(dialog).not.toContainText(archivedComment);
+    await dialog.getByRole('button').first().click();
+    await page.getByRole('button', { name: 'Edit' }).click();
+    await expect(dialog.getByLabel('Comment', { exact: true })).toHaveValue('');
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    await shelfTab(page, 2).click();
+    await expect(page.getByRole('row', { name: wineTitle })).toHaveCount(0);
+  });
+
+  test('using the last comment saves it on the restored bottle', async () => {
+    test.setTimeout(120_000);
+    await archiveNamedWine(page);
+    await editArchivedComment(page, archivedComment);
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    const unarchive = await openUnarchiveDialog(page);
+    await expect(
+      unarchive.getByRole('button', { name: '1:1', exact: true })
+    ).toHaveAttribute('aria-pressed', 'true');
+    await unarchive.getByRole('button', { name: 'Use last comment' }).click();
+    await expect(unarchive.getByLabel('Comment', { exact: true })).toHaveValue(
+      archivedComment
+    );
+    await confirmUnarchive(page);
+
+    await shelfTab(page, 0).click();
+    const card = wineCard(page);
+    await expect(card).toContainText('1:1');
+    await card.click();
+    await expect(page.getByRole('dialog', { name: wineTitle })).toContainText(
+      archivedComment
+    );
+    await page.getByRole('button', { name: 'Close' }).click();
+  });
+
+  test('a newly typed comment replaces the old one on the active bottle', async () => {
+    await archiveNamedWine(page);
+    const unarchive = await openUnarchiveDialog(page);
+    await unarchive.getByLabel('Comment', { exact: true }).fill(replacementComment);
+    await expect(unarchive.getByLabel('Comment', { exact: true })).toHaveValue(
+      replacementComment
+    );
+    await confirmUnarchive(page);
+
+    await shelfTab(page, 0).click();
+    const card = wineCard(page);
+    await expect(card).toContainText('1:1');
+    await card.click();
+    const dialog = page.getByRole('dialog', { name: wineTitle });
+    await expect(dialog).toContainText(replacementComment);
+    await expect(dialog).not.toContainText(archivedComment);
+    await page.getByRole('button', { name: 'Close' }).click();
+  });
+
+  test('a slot occupied only by another account can be chosen', async () => {
+    await archiveNamedWine(page);
+    await seedForeignWine(1, 3);
+
+    const unarchive = await openUnarchiveDialog(page);
+    await unarchive.getByRole('button', { name: '2:4', exact: true }).click();
+    await confirmUnarchive(page);
+
+    await shelfTab(page, 0).click();
+    await expect(wineCard(page)).toContainText('2:4');
+    await shelfTab(page, 2).click();
+    await expect(page.getByRole('row', { name: wineTitle })).toHaveCount(0);
   });
 });
